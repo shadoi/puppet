@@ -12,6 +12,16 @@ Puppet::Type.newtype(:k5login) do
     # Principals that should exist in the file
     newproperty(:principals, :array_matching => :all) do
         desc "The principals present in the .k5login file."
+
+        def should=(values)
+            super
+            @should.sort!
+        end
+
+        def insync?(is)
+            is = [is] unless is.is_a?(Array)
+            super(is.sort)
+        end
     end
 
     # The path/name of the k5login file
@@ -24,6 +34,13 @@ Puppet::Type.newtype(:k5login) do
                 raise Puppet::Error, "File paths must be fully qualified"
             end
         end
+    end
+
+    # Hackish way to handle purging
+    newparam(:purge) do
+        desc "Should unknown values be purged?"
+        defaultto ( :false )
+        newvalues(:true, :false)
     end
 
     # To manage the mode of the file
@@ -43,11 +60,12 @@ Puppet::Type.newtype(:k5login) do
 
         # create the file
         def create
-            write(@resource.should(:principals))
+            File.new(@resource[:name], "w") unless exists? 
             should_mode = @resource.should(:mode)
             unless self.mode == should_mode
                 self.mode  should_mode
             end
+            write(@resource.should(:principals))
         end
 
         # remove the file
@@ -57,11 +75,18 @@ Puppet::Type.newtype(:k5login) do
 
         # Return the principals
         def principals
-            if File.exists?(@resource[:name])
-                File.readlines(@resource[:name]).collect { |line| line.chomp }
-            else
-                :absent
+            return :absent unless exists?
+            princs = File.readlines(@resource[:name]).collect { |line| 
+                line.chomp 
+            }
+            # If we aren't purging, ignore values we aren't trying
+            # to manage.  And either way, return the array sorted
+            if @resource[:purge] == :false
+                princs.delete_if { |princ|
+                    ! @resource.should(:principals).include?(princ) 
+                }
             end
+            return princs.sort
         end
 
         # Write the principals out to the k5login file
@@ -71,7 +96,11 @@ Puppet::Type.newtype(:k5login) do
 
         # Return the mode as an octal string, not as an integer
         def mode
-            "%o" % (File.stat(@resource[:name]).mode & 007777)
+            if File.exists?(@resource[:name])
+                "%o" % (File.stat(@resource[:name]).mode & 007777)
+            else
+                :absent
+            end
         end
 
         # Set the file mode, converting from a string to an integer.
@@ -81,7 +110,22 @@ Puppet::Type.newtype(:k5login) do
 
         private
         def write(value)
-            File.open(@resource[:name], "w") { |f| f.puts value.join("\n") }
+            # If we are purging, just rewrite the entire file.  Otherwise,
+            # add in the values that aren't in the current file.
+            if @resource[:purge] == :true
+                File.open(@resource[:name], "w") { |f| f.puts value.join("\n") }
+            else
+                principals = self.principals
+                princs_missing = []
+                value.each { |princ|
+                    if principals == :absent or ! principals.include?(princ)
+                        princs_missing.push(princ + "\n")
+                    end
+                }
+                File.open(@resource[:name], "a") { |f|
+                    f.puts princs_missing
+                }
+            end
         end
-    end
+    end   
 end

@@ -327,8 +327,8 @@ module Puppet
         :masterport => [8140, "Which port puppetmasterd listens on."],
         :parseonly => [false, "Just check the syntax of the manifests."],
         :node_name => ["cert", "How the puppetmaster determines the client's identity 
-           and sets the 'hostname' fact for use in the manifest, in particular 
-           for determining which 'node' statement applies to the client. 
+           and sets the 'hostname', 'fqdn' and 'domain' facts for use in the manifest, 
+           in particular for determining which 'node' statement applies to the client. 
            Possible values are 'cert' (use the subject's CN in the client's 
            certificate) and 'facter' (use the hostname that the client 
            reported in its facts)"],
@@ -346,11 +346,15 @@ module Puppet
         :ssl_client_header => ["HTTP_X_CLIENT_DN", "The header containing an authenticated
             client's SSL DN.  Only used with Mongrel.  This header must be set by the proxy
             to the authenticated client's SSL DN (e.g., ``/CN=puppet.reductivelabs.com``).
-            See the http://reductivelabs.com/puppet/trac/wiki/UsingMongrel page for more information."],
+            See http://reductivelabs.com/puppet/trac/wiki/UsingMongrel for more information."],
         :ssl_client_verify_header => ["HTTP_X_CLIENT_VERIFY", "The header containing the status
             message of the client verification. Only used with Mongrel.  This header must be set by the proxy
             to 'SUCCESS' if the client successfully authenticated, and anything else otherwise.
-            See the http://reductivelabs.com/puppet/trac/wiki/UsingMongrel page for more information."]
+            See http://reductivelabs.com/puppet/trac/wiki/UsingMongrel for more information."],
+        # To make sure this directory is created before we try to use it on the server, we need
+        # it to be in the server section (#1138).
+        :yamldir => {:default => "$vardir/yaml", :owner => "$user", :group => "$user", :mode => "750",
+            :desc => "The directory in which YAML data is stored, usually in a subdirectory."}
     )
 
     self.setdefaults(:puppetd,
@@ -670,11 +674,6 @@ module Puppet
         :rrdgraph => [false, "Whether RRD information should be graphed."],
         :rrdinterval => ["$runinterval", "How often RRD should expect data.
             This should match how often the hosts report back to the server."]
-    )
-
-    Puppet.setdefaults(:yaml,
-        :yamldir => {:default => "$vardir/yaml", :owner => "$user", :group => "$user", :mode => "750",
-            :desc => "The directory in which YAML data is stored, usually in a subdirectory."}
     )
 end
 

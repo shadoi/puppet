@@ -7,7 +7,8 @@ class Puppet::Node::Ldap < Puppet::Indirector::Ldap
 
     # The attributes that Puppet class information is stored in.
     def class_attributes
-        Puppet[:ldapclassattrs].split(/\s*,\s*/)
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        x = Puppet[:ldapclassattrs].split(/\s*,\s*/)
     end
 
     # Look for our node in ldap.
@@ -121,5 +122,9 @@ class Puppet::Node::Ldap < Puppet::Indirector::Ldap
             filter = filter.gsub('%s', name)
         end
         filter
+    end
+
+    def version(name)
+        Puppet::Node::Facts.version(name)
     end
 end

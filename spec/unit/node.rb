@@ -143,6 +143,10 @@ describe Puppet::Node, " when indirecting" do
         Puppet::Node.indirection.terminus_class.should == :plain
     end
 
+    it "should not have a cache class defined" do
+        Puppet::Node.indirection.cache_class.should be_nil
+    end
+
     after do
         Puppet::Indirector::Indirection.clear_cache
     end

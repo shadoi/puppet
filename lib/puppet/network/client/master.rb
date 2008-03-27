@@ -50,7 +50,8 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
 
     # Return the list of dynamic facts as an array of symbols
     def self.dynamic_facts
-        Puppet.settings[:dynamicfacts].split(/\s*,\s*/).collect { |fact| fact.downcase }
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        x = Puppet.settings[:dynamicfacts].split(/\s*,\s*/).collect { |fact| fact.downcase }
     end
 
     # Cache the config
@@ -320,7 +321,8 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
             :group => Process.gid,
             :purge => true,
             :force => true,
-            :backup => false
+            :backup => false,
+            :noop => false
         }
 
         if args[:ignore]
@@ -330,9 +332,6 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         downconfig.add_resource Puppet::Type.type(:file).create(hash)
         
         Puppet.info "Retrieving #{args[:name]}s"
-
-        noop = Puppet[:noop]
-        Puppet[:noop] = false
 
         files = []
         begin
@@ -355,14 +354,6 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         downconfig.clear
 
         return files
-    ensure
-        # I can't imagine why this is necessary, but apparently at last one person has had problems with noop
-        # being nil here.
-        if noop.nil?
-            Puppet[:noop] = false
-        else
-            Puppet[:noop] = noop
-        end
     end
 
     # Retrieve facts from the central server.
@@ -435,7 +426,8 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
     end
 
     def self.loadfacts
-        Puppet[:factpath].split(":").each do |dir|
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        x = Puppet[:factpath].split(":").each do |dir|
             loaddir(dir, "fact")
         end
     end

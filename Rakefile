@@ -27,7 +27,8 @@ project = Rake::RedLabProject.new("puppet") do |p|
         'bin/**/*',
         'ext/**/*',
         'examples/**/*',
-        'conf/**/*'
+        'conf/**/*',
+        'man/**/*'
     ]
     p.filelist.exclude("bin/pi")
 
@@ -132,5 +133,13 @@ task :dailyclean do
     Dir.glob("#{downdir}/*/*daily*.tgz").each do |file|
         puts "Removing %s" % file
         File.unlink(file)
+    end
+end
+
+task :tracdocs do
+    require 'puppet'
+    require 'puppet/util/reference'
+    Puppet::Util::Reference.references.each do |ref| 
+        sh "puppetdoc -m trac -r #{ref.to_s}"
     end
 end

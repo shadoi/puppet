@@ -97,6 +97,9 @@ class Puppet::Parser::Parser
         end
         if @files.detect { |f| f.file == file }
             raise Puppet::AlreadyImportedError.new("Import loop detected")
+        elsif FileTest.directory?(file)    
+            #moan and skip it
+            Puppet.debug("Tried to import a directory: '%s'" % file)
         else
             @files << Puppet::Util::LoadedFile.new(file)
             @lexer.file = file
@@ -223,7 +226,7 @@ class Puppet::Parser::Parser
     # Try to load a class, since we could not find it.
     def load(classname)
         return false if classname == ""
-        filename = classname.gsub("::", File::SEPARATOR)
+        filename = classname.gsub("::", File::SEPARATOR) + ".pp"
 
         # First try to load the top-level module
         mod = filename.scan(/^[\w-]+/).shift

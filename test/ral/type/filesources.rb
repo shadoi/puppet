@@ -21,6 +21,7 @@ class TestFileSources < Test::Unit::TestCase
         @file = Puppet::Type.type(:file)
         Puppet[:filetimeout] = -1
         Puppet::Util::SUIDManager.stubs(:asuser).yields 
+        Facter.stubs(:to_hash).returns({})
     end
 
     def teardown
@@ -69,7 +70,7 @@ class TestFileSources < Test::Unit::TestCase
                 :name => path
             )
         }
-        config = mk_catalog(file)
+        catalog = mk_catalog(file)
         child = nil
         assert_nothing_raised {
             child = file.newchild("childtest", true)
@@ -84,7 +85,8 @@ class TestFileSources < Test::Unit::TestCase
         source = tempfile()
         dest = tempfile()
         
-        file = Puppet::Type.newfile :path => dest, :source => source, :title => "copier"
+        file = Puppet::Type.newfile :path => dest, :source => source,
+            :title => "copier"
         
         property = file.property(:source)
         
@@ -123,10 +125,7 @@ class TestFileSources < Test::Unit::TestCase
         File.open(target, "w") { |f| f.puts "yay" }
         File.symlink(target, source)
         
-        file[:links] = :manage
-        assert_equal("link", property.describe(source)[:type])
-        
-        # And then make sure links get followed
+        # And then make sure links get followed, otherwise
         file[:links] = :follow
         assert_equal("file", property.describe(source)[:type])
     end
@@ -275,7 +274,7 @@ class TestFileSources < Test::Unit::TestCase
         # The sourcerecurse method will only ever get called when we're
         # recursing, so we go ahead and set it.
         obj = Puppet::Type.newfile :source => source, :path => dest, :recurse => true
-        config = mk_catalog(obj)
+        catalog = mk_catalog(obj)
 
         result = nil
         sourced = nil
@@ -284,12 +283,12 @@ class TestFileSources < Test::Unit::TestCase
         end
 
         assert_equal([destfile], sourced, "Did not get correct list of sourced objects")
-        dfileobj = @file[destfile]
+        dfileobj = catalog.resource(:file, destfile)
         assert(dfileobj, "Did not create destfile object")
         assert_equal([dfileobj], result)
         
         # Clean this up so it can be recreated
-        config.remove_resource(dfileobj)
+        catalog.remove_resource(dfileobj)
         
         # Make sure we correctly iterate over the sources
         nosource = tempfile()
@@ -300,7 +299,7 @@ class TestFileSources < Test::Unit::TestCase
             result, sourced = obj.sourcerecurse(true)
         end
         assert_equal([destfile], sourced, "Did not get correct list of sourced objects")
-        dfileobj = @file[destfile]
+        dfileobj = catalog.resource(:file, destfile)
         assert(dfileobj, "Did not create destfile object with a missing source")
         assert_equal([dfileobj], result)
         dfileobj.remove
@@ -356,23 +355,20 @@ class TestFileSources < Test::Unit::TestCase
     end
 
     def recursive_source_test(fromdir, todir)
-        Puppet::Type.allclear
         initstorage
         tofile = nil
         trans = nil
 
-        assert_nothing_raised {
-            tofile = Puppet.type(:file).create(
-                :path => todir,
-                :recurse => true,
-                :backup => false,
-                :source => fromdir
-            )
-        }
-        assert_apply(tofile)
+        tofile = Puppet.type(:file).create(
+            :path => todir,
+            :recurse => true,
+            :backup => false,
+            :source => fromdir
+        )
+        catalog = mk_catalog(tofile)
+        catalog.apply
 
         assert(FileTest.exists?(todir), "Created dir %s does not exist" % todir)
-        Puppet::Type.allclear
     end
 
     def run_complex_sources(networked = false)
@@ -414,9 +410,6 @@ class TestFileSources < Test::Unit::TestCase
     def test_sources_with_deleted_destfiles
         fromdir, todir, one, two = run_complex_sources
         assert(FileTest.exists?(todir))
-        
-        # We shouldn't have a 'two' file object in memory
-        assert_nil(@file[two], "object for 'two' is still in memory")
 
         # then delete a file
         File.unlink(two)
@@ -741,22 +734,18 @@ class TestFileSources < Test::Unit::TestCase
         File.open(source, "w") { |f| f.puts "yay" }
         File.symlink(source, link)
 
-        file = nil
-        assert_nothing_raised {
-            file = Puppet.type(:file).create(
-                :name => dest,
-                :source => link,
-                :links => :follow
-            )
-        }
+        file = Puppet.type(:file).create(:name => dest, :source => link)
 
-        assert_events([:file_created], file)
+        catalog = mk_catalog(file)
+
+        # Default to managing links
+        catalog.apply
+        assert(FileTest.symlink?(dest), "Did not create link")
+
+        # Now follow the links
+        file[:links] = :follow
+        catalog.apply
         assert(FileTest.file?(dest), "Destination is not a file")
-
-        # Now copy the links
-        file[:links] = :manage
-        assert_events([:link_created], file)
-        assert(FileTest.symlink?(dest), "Destination is not a link")
     end
 
     def test_changes

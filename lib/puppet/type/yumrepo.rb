@@ -67,8 +67,9 @@ module Puppet
         class << self
             attr_accessor :filetype
             # The writer is only used for testing, there should be no need
-            # to change yumconf in any other context
+            # to change yumconf or inifile in any other context
             attr_accessor :yumconf
+            attr_writer :inifile
         end
 
         self.filetype = Puppet::Util::FileType.filetype(:flat)
@@ -181,11 +182,11 @@ module Puppet
             inifile.store
         end
 
+        # This is only used during testing.
         def self.clear
             @inifile = nil
             @yumconf = "/etc/yum.conf"
             @defaultrepodir = nil
-            super
         end
 
         # Return the Puppet::Util::IniConfig::Section for this yumrepo resource

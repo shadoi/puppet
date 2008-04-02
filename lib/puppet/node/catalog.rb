@@ -61,7 +61,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
     def add_resource(*resources)
         resources.each do |resource|
             unless resource.respond_to?(:ref)
-                raise ArgumentError, "Can only add objects that respond to :ref"
+                raise ArgumentError, "Can only add objects that respond to :ref, not instances of %s" % resource.class
             end
 
             fail_unless_unique(resource)
@@ -309,7 +309,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
         
         # And filebuckets
         if bucket = Puppet::Type.type(:filebucket).mkdefaultbucket
-            add_resource(bucket)
+            add_resource(bucket) unless resource(bucket.ref)
         end
     end
     
@@ -337,7 +337,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
             
             # Lastly, add in any autorequires
             @relationship_graph.vertices.each do |vertex|
-                vertex.autorequire.each do |edge|
+                vertex.autorequire(self).each do |edge|
                     unless @relationship_graph.edge?(edge.source, edge.target) # don't let automatic relationships conflict with manual ones.
                         unless @relationship_graph.edge?(edge.target, edge.source)
                             vertex.debug "Autorequiring %s" % [edge.source]

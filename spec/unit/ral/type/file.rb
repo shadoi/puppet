@@ -93,8 +93,4 @@ describe Puppet::Type.type(:file) do
             ("%o" % (File.stat(@file).mode & 007777)).should == "%o" % 0755
         end
     end
-
-    after do
-        Puppet::Type::File.clear
-    end
 end

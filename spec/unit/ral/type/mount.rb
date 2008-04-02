@@ -13,8 +13,6 @@ describe Puppet::Type::Mount do
         mount = Puppet::Type::Mount.create(:name => "yay")
         mount.should(:ensure).should be_nil
     end
-
-    after { Puppet::Type::Mount.clear }
 end
 
 describe Puppet::Type::Mount, "when validating attributes" do
@@ -53,8 +51,6 @@ describe Puppet::Type::Mount::Ensure, "when validating values" do
     it "should support :mounted as a value to :ensure" do
         Puppet::Type::Mount.create(:name => "yay", :ensure => :mounted)
     end
-
-    after { Puppet::Type::Mount.clear }
 end
 
 describe Puppet::Type::Mount::Ensure do
@@ -66,10 +62,6 @@ describe Puppet::Type::Mount::Ensure do
         @ensure = @mount.property(:ensure)
     end
 
-    after :each do
-        Puppet::Type::Mount.clear
-    end
-    
     def mount_stub(params)
         Puppet::Type::Mount.validproperties.each do |prop|
             unless params[prop]

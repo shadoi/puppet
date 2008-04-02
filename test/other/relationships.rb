@@ -81,6 +81,9 @@ class TestRelationships < Test::Unit::TestCase
                 )
             end
 
+            catalog = mk_catalog(*files)
+            catalog.add_resource(*execs)
+
             # Add our first relationship
             if out[param]
                 files[0][param] = execs[0]
@@ -106,8 +109,6 @@ class TestRelationships < Test::Unit::TestCase
                     execs[0][param], "Incorrect source list")
             end
             check_relationship(sources, targets, out[param], refreshers.include?(param))
-
-            Puppet::Type.allclear
         end
     end
     
@@ -166,6 +167,7 @@ class TestRelationships < Test::Unit::TestCase
         exec = Puppet::Type.newexec(:title => "myexec", :cwd => path,
             :command => "/bin/echo")
         
+        catalog = mk_catalog(file, exec)
         reqs = nil
         assert_nothing_raised do
             reqs = exec.autorequire
@@ -176,9 +178,8 @@ class TestRelationships < Test::Unit::TestCase
         
         # Now make sure that these relationships are added to the 
         # relationship graph
-        config = mk_catalog(file, exec)
-        config.apply do |trans|
-            assert(config.relationship_graph.edge?(file, exec), "autorequire edge was not created")
+        catalog.apply do |trans|
+            assert(catalog.relationship_graph.edge?(file, exec), "autorequire edge was not created")
         end
     end
     

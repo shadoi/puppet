@@ -29,8 +29,6 @@ describe Puppet::Type::Package do
         pkg = Puppet::Type::Package.create(:name => "yay")
         pkg.should(:ensure).should == :present
     end
-
-    after { Puppet::Type::Package.clear }
 end
 
 describe Puppet::Type::Package, "when validating attributes" do
@@ -97,8 +95,6 @@ describe Puppet::Type::Package, "when validating attribute values" do
     it "should accept any string as an argument to :source" do
         proc { Puppet::Type::Package.create(:name => "yay", :source => "stuff") }.should_not raise_error(Puppet::Error)
     end
-
-    after { Puppet::Type::Package.clear }
 end
 
 module PackageEvaluationTesting
@@ -116,12 +112,6 @@ describe Puppet::Type::Package do
         @catalog = Puppet::Node::Catalog.new
         @catalog.add_resource(@package)
     end
-    
-    after :each do
-        @catalog.clear(true)
-        Puppet::Type::Package.clear
-    end
-
 
     describe Puppet::Type::Package, "when it should be purged" do
         include PackageEvaluationTesting

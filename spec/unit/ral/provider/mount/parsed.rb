@@ -167,10 +167,6 @@ describe provider_class do
             @provider_class.prefetch("/" => @mount)
             @mount.provider.should be_mounted
         end
-
-        after do
-            Puppet::Type.allclear
-        end
     end
 
     describe provider_class, " when mounting and unmounting" do

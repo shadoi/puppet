@@ -42,17 +42,11 @@ module ScheduleTesting
 end
 
 describe Puppet::Type::Schedule do
-
     before :each do
       Puppet.settings.stubs(:value).with(:ignoreschedules).returns(false)
 
       @schedule = Puppet::Type::Schedule.create(:name => "testing")
     end
-
-    after :each do
-        Puppet::Type::Schedule.clear
-    end
-
 
     describe Puppet::Type::Schedule do
         include ScheduleTesting

@@ -310,8 +310,6 @@ describe Puppet::Node::Catalog, " when converting to a RAL catalog" do
 
         newconfig = nil
 
-        Puppet::Type.allclear
-
         proc { @catalog = config.to_ral }.should_not raise_error
         @catalog.resource("Test[changer2]").should equal(resource)
     end
@@ -325,9 +323,9 @@ end
 describe Puppet::Node::Catalog, " when functioning as a resource container" do
     before do
         @catalog = Puppet::Node::Catalog.new("host")
-        @one = stub 'resource1', :ref => "Me[one]", :catalog= => nil
-        @two = stub 'resource2', :ref => "Me[two]", :catalog= => nil
-        @dupe = stub 'resource3', :ref => "Me[one]", :catalog= => nil
+        @one = stub 'resource1', :ref => "Me[one]", :catalog= => nil, :title => "one", :[] => "one"
+        @two = stub 'resource2', :ref => "Me[two]", :catalog= => nil, :title => "two", :[] => "two"
+        @dupe = stub 'resource3', :ref => "Me[one]", :catalog= => nil, :title => "one", :[] => "one"
     end
 
     it "should provide a method to add one or more resources" do
@@ -445,6 +443,28 @@ describe Puppet::Node::Catalog, " when functioning as a resource container" do
         @catalog.resource("me", "other").should equal(@one)
     end
 
+    it "should ignore conflicting aliases that point to the aliased resource" do
+        @catalog.alias(@one, "other")
+        lambda { @catalog.alias(@one, "other") }.should_not raise_error
+    end
+
+    it "should create aliases for resources isomorphic resources whose names do not match their titles" do
+        resource = Puppet::Type::File.create(:title => "testing", :path => "/something")
+
+        @catalog.add_resource(resource)
+
+        @catalog.resource(:file, "/something").should equal(resource)
+    end
+
+    it "should not create aliases for resources non-isomorphic resources whose names do not match their titles" do
+        resource = Puppet::Type.type(:exec).create(:title => "testing", :command => "echo", :path => %w{/bin /usr/bin /usr/local/bin})
+
+        @catalog.add_resource(resource)
+
+        # Yay, I've already got a 'should' method
+        @catalog.resource(:exec, "echo").object_id.should == nil.object_id
+    end
+
     # This test is the same as the previous, but the behaviour should be explicit.
     it "should alias using the class name from the resource reference, not the resource class name" do
         @catalog.add_resource @one
@@ -452,7 +472,7 @@ describe Puppet::Node::Catalog, " when functioning as a resource container" do
         @catalog.resource("me", "other").should equal(@one)
     end
 
-    it "should fail to add an alias if the aliased name already exists" do
+    it "should fail to add an alias if the aliased name already exists as a resource" do
         @catalog.add_resource @one
         proc { @catalog.alias @two, "one" }.should raise_error(ArgumentError)
     end
@@ -493,10 +513,6 @@ describe Puppet::Node::Catalog, " when functioning as a resource container" do
         if @catalog.resource(:file, resource.name)
             raise "Aliased non-isomorphic resource"
         end
-    end
-
-    after do
-        Puppet::Type.allclear
     end
 end
 
@@ -627,13 +643,14 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
         @file = Puppet::Type.type(:file)
         @one = @file.create :path => "/one"
         @two = @file.create :path => "/two"
+        @sub = @file.create :path => "/two/subdir"
         @catalog.add_edge @compone, @one
         @catalog.add_edge @comptwo, @two
 
         @three = @file.create :path => "/three"
         @four = @file.create :path => "/four", :require => ["file", "/three"]
         @five = @file.create :path => "/five"
-        @catalog.add_resource @compone, @comptwo, @one, @two, @three, @four, @five
+        @catalog.add_resource @compone, @comptwo, @one, @two, @three, @four, @five, @sub
         @relationships = @catalog.relationship_graph
     end
 
@@ -668,6 +685,10 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
         @relationships.edge?(@one, @two).should be_true
     end
 
+    it "should add automatic relationships to the relationship graph" do
+        @relationships.edge?(@two, @sub).should be_true
+    end
+
     it "should get removed when the catalog is cleaned up" do
         @relationships.expects(:clear).with(false)
         @catalog.clear
@@ -681,14 +702,14 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
     end
 
     it "should look up resources in the relationship graph if not found in the main catalog" do
-        five = stub 'five', :ref => "File[five]", :catalog= => nil
+        five = stub 'five', :ref => "File[five]", :catalog= => nil, :title => "five", :[] => "five"
         @relationships.add_resource five
         @catalog.resource(five.ref).should equal(five)
     end
 
     it "should provide a method to create additional resources that also registers the resource" do
         args = {:name => "/yay", :ensure => :file}
-        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog
+        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog, :title => "/yay", :[] => "/yay"
         Puppet::Type.type(:file).expects(:create).with(args).returns(resource)
         @catalog.create_resource :file, args
         @catalog.resource("File[/yay]").should equal(resource)
@@ -696,7 +717,7 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
 
     it "should provide a mechanism for creating implicit resources" do
         args = {:name => "/yay", :ensure => :file}
-        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog
+        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog, :title => "/yay", :[] => "/yay"
         Puppet::Type.type(:file).expects(:create).with(args).returns(resource)
         resource.expects(:implicit=).with(true)
         @catalog.create_implicit_resource :file, args
@@ -705,7 +726,7 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
 
     it "should add implicit resources to the relationship graph if there is one" do
         args = {:name => "/yay", :ensure => :file}
-        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog
+        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog, :title => "/yay", :[] => "/yay"
         resource.expects(:implicit=).with(true)
         Puppet::Type.type(:file).expects(:create).with(args).returns(resource)
         # build the graph
@@ -717,7 +738,7 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
 
     it "should remove resources created mid-transaction" do
         args = {:name => "/yay", :ensure => :file}
-        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog
+        resource = stub 'file', :ref => "File[/yay]", :catalog= => @catalog, :title => "/yay", :[] => "/yay"
         @transaction = mock 'transaction'
         Puppet::Transaction.stubs(:new).returns(@transaction)
         @transaction.stubs(:evaluate)
@@ -735,10 +756,6 @@ describe Puppet::Node::Catalog, " when creating a relationship graph" do
     it "should remove resources from the relationship graph if it exists" do
         @catalog.remove_resource(@one)
         @catalog.relationship_graph.vertex?(@one).should be_false
-    end
-
-    after do
-        Puppet::Type.allclear
     end
 end
 

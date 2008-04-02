@@ -207,9 +207,6 @@ class Puppet::Type
                     next
                 end
 
-                # LAK:FIXME Old-school, add the alias to the class.
-                @resource.class.alias(other, @resource)
-
                 # Newschool, add it to the catalog.
                 @resource.catalog.alias(@resource, other)
             end
@@ -277,6 +274,7 @@ class Puppet::Type
                 # to an object...
                 tname, name = value
                 reference = Puppet::ResourceReference.new(tname, name)
+                reference.catalog = resource.catalog
                 
                 # Either of the two retrieval attempts could have returned
                 # nil.

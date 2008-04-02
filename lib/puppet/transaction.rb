@@ -153,7 +153,7 @@ class Transaction
     # contained resources might never get cleaned up.
     def cleanup
         if defined? @generated
-            relationship_graph.remove_resource(*@generated)
+            catalog.remove_resource(*@generated)
         end
     end
 
@@ -503,7 +503,7 @@ class Transaction
     
         # Now add any dynamically generated resources
         generate()
-        
+
         # This will throw an error if there are cycles in the graph.
         @sorted_resources = relationship_graph.topsort
     end

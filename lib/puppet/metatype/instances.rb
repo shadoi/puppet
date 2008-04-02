@@ -8,11 +8,13 @@ class Puppet::Type
 
     # retrieve a named instance of the current type
     def self.[](name)
+        raise "Global resource access is deprecated"
         @objects[name] || @aliases[name]
     end
 
     # add an instance by name to the class list of instances
     def self.[]=(name,object)
+        raise "Global resource storage is deprecated"
         newobj = nil
         if object.is_a?(Puppet::Type)
             newobj = object
@@ -44,6 +46,7 @@ class Puppet::Type
     # Create an alias.  We keep these in a separate hash so that we don't encounter
     # the objects multiple times when iterating over them.
     def self.alias(name, obj)
+        raise "Global resource aliasing is deprecated"
         if @objects.include?(name)
             unless @objects[name] == obj
                 raise Puppet::Error.new(
@@ -67,6 +70,7 @@ class Puppet::Type
 
     # remove all of the instances of a single type
     def self.clear
+        raise "Global resource removal is deprecated"
         if defined? @objects
             @objects.each do |name, obj|
                 obj.remove(true)
@@ -126,24 +130,6 @@ class Puppet::Type
         # XXX This will have to change when transobjects change to using titles
         title = hash.name
 
-        # if the object already exists
-        if self.isomorphic? and retobj = self[title]
-            # if only one of our objects is implicit, then it's easy to see
-            # who wins -- the non-implicit one.
-            if retobj.implicit? and ! implicit
-                Puppet.notice "Removing implicit %s" % retobj.title
-                # Remove all of the objects, but do not remove their subscriptions.
-                retobj.remove(false)
-
-                # now pass through and create the new object
-            elsif implicit
-                Puppet.debug "Ignoring implicit %s[%s]" % [self.name, title]
-                return nil
-            else
-                raise Puppet::Error, "%s is already being managed" % retobj.ref
-            end
-        end
-
         # create it anew
         # if there's a failure, destroy the object if it got that far, but raise
         # the error.
@@ -153,8 +139,6 @@ class Puppet::Type
             Puppet.err "Could not create %s: %s" % [title, detail.to_s]
             if obj
                 obj.remove(true)
-            elsif obj = self[title]
-                obj.remove(true)
             end
             raise
         end
@@ -163,14 +147,12 @@ class Puppet::Type
             obj.implicit = true
         end
 
-        # Store the object by title
-        self[obj.title] = obj
-
         return obj
     end
 
     # remove a specified object
     def self.delete(resource)
+        raise "Global resource removal is deprecated"
         return unless defined? @objects
         if @objects.include?(resource.title)
             @objects.delete(resource.title)
@@ -191,6 +173,7 @@ class Puppet::Type
 
     # iterate across each of the type's instances
     def self.each
+        raise "Global resource iteration is deprecated"
         return unless defined? @objects
         @objects.each { |name,instance|
             yield instance
@@ -199,6 +182,7 @@ class Puppet::Type
 
     # does the type have an object with the given name?
     def self.has_key?(name)
+        raise "Global resource access is deprecated"
         return @objects.has_key?(name)
     end
 
@@ -258,10 +242,6 @@ class Puppet::Type
         provider_instances = {}
         providers_by_source.collect do |provider|
             provider.instances.collect do |instance|
-                # First try to get the resource if it already exists
-                # Skip instances that map to a managed resource with a different provider
-                next if resource = self[instance.name] and resource.provider.class != instance.class
-
                 # We always want to use the "first" provider instance we find, unless the resource
                 # is already managed and has a different provider set
                 if other = provider_instances[instance.name]
@@ -271,12 +251,7 @@ class Puppet::Type
                 end
                 provider_instances[instance.name] = instance
 
-                if resource
-                    resource.provider = instance
-                    resource
-                else
-                    create(:name => instance.name, :provider => instance, :check => :all)
-                end
+                create(:name => instance.name, :provider => instance, :check => :all)
             end
         end.flatten.compact
     end

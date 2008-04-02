@@ -298,7 +298,6 @@ module PuppetTest
 
         @@tmppids.clear
 
-        Puppet::Type.allclear
         Puppet::Util::Storage.clear
         Puppet.clear
         Puppet.settings.clear

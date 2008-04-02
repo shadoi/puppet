@@ -17,7 +17,10 @@ class Puppet::Type
 
     # Figure out of there are any objects we can automatically add as
     # dependencies.
-    def autorequire
+    def autorequire(rel_catalog = nil)
+        rel_catalog ||= catalog
+        raise(Puppet::DevError, "You cannot add relationships without a catalog") unless rel_catalog
+
         reqs = []
         self.class.eachautorequire { |type, block|
             # Ignore any types we can't find, although that would be a bit odd.
@@ -35,7 +38,7 @@ class Puppet::Type
                 # Support them passing objects directly, to save some effort.
                 unless dep.is_a? Puppet::Type
                     # Skip autorequires that we aren't managing
-                    unless dep = typeobj[dep]
+                    unless dep = rel_catalog.resource(type, dep)
                         next
                     end
                 end

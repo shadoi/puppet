@@ -241,7 +241,9 @@ module Puppet
                 :daily => :day,
                 :monthly => :month,
                 :weekly => proc do |prev, now|
-                    prev.strftime("%U") != now.strftime("%U")
+                    # Run the resource if the previous day was after this weekday (e.g., prev is wed, current is tue)
+                    # or if it's been more than a week since we ran
+                    prev.wday > now.wday or (now - prev) > (24 * 3600 * 7)
                 end
             }
 
@@ -314,8 +316,6 @@ module Puppet
         end
 
         def self.mkdefaultschedules
-            return [] if self["puppet"]
-
             result = []
             Puppet.debug "Creating default schedules"
             result << self.create(
@@ -326,12 +326,10 @@ module Puppet
 
             # And then one for every period
             @parameters.find { |p| p.name == :period }.values.each { |value|
-                unless self[value.to_s]
-                    result << self.create(
-                        :name => value.to_s,
-                        :period => value
-                    )
-                end
+                result << self.create(
+                    :name => value.to_s,
+                    :period => value
+                )
             }
 
             result

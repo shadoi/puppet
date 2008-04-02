@@ -74,8 +74,10 @@ class Puppet::Util::FileType
 
     # Pick or create a filebucket to use.
     def bucket
-        filebucket = Puppet::Type.type(:filebucket)
-        (filebucket["puppet"] || filebucket.mkdefaultbucket).bucket
+        unless defined?(@bucket)
+            @bucket = Puppet::Type.type(:filebucket).mkdefaultbucket.bucket
+        end
+        @bucket
     end
 
     def initialize(path)
@@ -104,6 +106,9 @@ class Puppet::Util::FileType
         # Overwrite the file.
         def write(text)
             backup()
+
+            raise("Cannot create file %s in absent directory" % @path) unless FileTest.exist?(File.dirname(@path))
+
             require "tempfile"
             tf = Tempfile.new("puppet") 
             tf.print text; tf.flush 

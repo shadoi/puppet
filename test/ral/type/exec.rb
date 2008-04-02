@@ -22,8 +22,6 @@ class TestExec < Test::Unit::TestCase
 
     def test_numvsstring
         [0, "0"].each { |val|
-            Puppet.type(:exec).clear
-            Puppet.type(:component).clear
             command = nil
             output = nil
             assert_nothing_raised {
@@ -50,13 +48,11 @@ class TestExec < Test::Unit::TestCase
                 :path => "/usr/bin:/bin:/usr/sbin:/sbin"
             )
         }
-        Puppet.type(:exec).clear
         assert_nothing_raised {
             command = Puppet.type(:exec).create(
                 :command => "/bin/echo"
             )
         }
-        Puppet.type(:exec).clear
         assert_nothing_raised {
             command = Puppet.type(:exec).create(
                 :command => "/bin/echo",
@@ -242,6 +238,8 @@ class TestExec < Test::Unit::TestCase
             :command => "cat %s %s" % [exe, oexe],
             :path => ENV["PATH"]
         )
+
+        catalog = mk_catalog(file, baseobj, ofile, exec, cat)
         
         rels = nil
         assert_nothing_raised do

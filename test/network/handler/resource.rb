@@ -13,7 +13,6 @@ class TestResourceServer < Test::Unit::TestCase
 
     def verify_described(type, described)
         described.each do |name, trans|
-            type.clear
             obj = nil
             assert_nothing_raised do
                 obj = trans.to_type
@@ -28,7 +27,6 @@ class TestResourceServer < Test::Unit::TestCase
                 assert_equal(Puppet::Type.type(:package).defaultprovider.name, obj[:provider])
             end
         end
-        type.clear
     end
 
     def test_describe_file
@@ -42,71 +40,38 @@ class TestResourceServer < Test::Unit::TestCase
             server = Puppet::Network::Handler.resource.new()
         end
 
-        # The first run we create the file on the copy, the second run
-        # the file is already there so the object should be in sync
-        2.times do |i|
-            [   [nil],
-                [[:content, :mode], []],
-                [[], [:content]],
-                [[:content], [:mode]]
-            ].each do |ary|
-                retrieve = ary[0] || []
-                ignore = ary[1] || []
+        [   [nil],
+            [[:content, :mode], []],
+            [[], [:content]],
+            [[:content], [:mode]]
+        ].each do |ary|
+            retrieve = ary[0] || []
+            ignore = ary[1] || []
 
-                File.open(file, "w") { |f| f.print str }
+            File.open(file, "w") { |f| f.print str }
 
-                result = nil
-                assert_nothing_raised do
-                    result = server.describe("file", file, *ary)
-                end
+            result = nil
+            assert_nothing_raised do
+                result = server.describe("file", file, *ary)
+            end
 
-                assert(result, "Could not retrieve file information")
+            assert(result, "Could not retrieve file information")
 
-                assert_instance_of(Puppet::TransObject, result)
+            assert_instance_of(Puppet::TransObject, result)
 
-                # Now we have to clear, so that the server's object gets removed
-                Puppet::Type.type(:file).clear
+            object = nil
+            assert_nothing_raised do
+                object = result.to_type
+            end
 
-                # And remove the file, so we can verify it gets recreated
-                if i == 0
-                    File.unlink(file)
-                end
+            assert(object, "Could not create type")
 
-                object = nil
-                assert_nothing_raised do
-                    object = result.to_type
-                end
+            retrieve.each do |property|
+                assert(object.should(property), "Did not retrieve %s" % property)
+            end
 
-                assert(object, "Could not create type")
-
-                retrieve.each do |property|
-                    assert(object.should(property), "Did not retrieve %s" % property)
-                end
-
-                ignore.each do |property|
-                    assert(! object.should(property), "Incorrectly retrieved %s" % property)
-                end
-
-                if i == 0
-                    assert_events([:file_created], object)
-                else
-                    assert_nothing_raised {
-                        assert(object.insync?(object.retrieve), "Object was not in sync")
-                    }
-                end
-
-                assert(FileTest.exists?(file), "File did not get recreated")
-
-                if i == 0
-                if object.should(:content)
-                    assert_equal(str, File.read(file), "File contents are not the same")
-                else
-                    assert_equal("", File.read(file), "File content was incorrectly made")
-                end
-                end
-                if FileTest.exists? file
-                    File.unlink(file)
-                end
+            ignore.each do |property|
+                assert(! object.should(property), "Incorrectly retrieved %s" % property)
             end
         end
     end
@@ -140,9 +105,6 @@ class TestResourceServer < Test::Unit::TestCase
 
             assert_instance_of(Puppet::TransObject, result)
 
-            # Now we have to clear, so that the server's object gets removed
-            Puppet::Type.type(:file).clear
-
             # And remove the file, so we can verify it gets recreated
             Dir.rmdir(file)
 
@@ -150,6 +112,8 @@ class TestResourceServer < Test::Unit::TestCase
             assert_nothing_raised do
                 object = result.to_type
             end
+
+            catalog = mk_catalog(object)
 
             assert(object, "Could not create type")
 
@@ -160,11 +124,6 @@ class TestResourceServer < Test::Unit::TestCase
             ignore.each do |property|
                 assert(! object.should(property), "Incorrectly retrieved %s" % property)
             end
-
-            #assert_apply(object)
-            assert_events([:directory_created], object)
-            assert(FileTest.directory?(file), "Directory did not get recreated")
-            Dir.rmdir(file)
         end
     end
 
@@ -197,8 +156,6 @@ class TestResourceServer < Test::Unit::TestCase
             assert_nothing_raised {
                 bucket = server.list(type.name)
             }
-
-            #type.clear
 
             count = 0
             described = {}
@@ -251,8 +208,6 @@ class TestResourceServer < Test::Unit::TestCase
             filetrans = server.describe("file", file)
         }
 
-        Puppet::Type.type(:file).clear
-
         bucket = Puppet::TransBucket.new
         bucket.type = "file"
         bucket.name = "test"
@@ -273,7 +228,6 @@ class TestResourceServer < Test::Unit::TestCase
             yaml = Base64.encode64(YAML::dump(bucket))
         }
 
-        Puppet::Type.type(:file).clear
         File.unlink(file)
 
         if Base64.decode64(yaml) =~ /(.{20}Loglevel.{20})/

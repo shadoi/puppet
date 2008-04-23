@@ -167,6 +167,7 @@ module Puppet
             certificate.  By default, only the server gets an alias set up, and only for 'puppet'."],
         :certdir => ["$ssldir/certs", "The certificate directory."],
         :publickeydir => ["$ssldir/public_keys", "The public key directory."],
+        :requestdir => ["$ssldir/certificate_requests", "Where host certificate requests are stored."],
         :privatekeydir => { :default => "$ssldir/private_keys",
             :mode => 0750,
             :desc => "The private key directory."
@@ -182,7 +183,7 @@ module Puppet
         },
         :hostcsr => { :default => "$ssldir/csr_$certname.pem",
             :mode => 0644,
-            :desc => "Where individual hosts store and look for their certificates."
+            :desc => "Where individual hosts store and look for their certificate requests."
         },
         :hostcert => { :default => "$certdir/$certname.pem",
             :mode => 0644,
@@ -199,6 +200,11 @@ module Puppet
         :localcacert => { :default => "$certdir/ca.pem",
             :mode => 0644,
             :desc => "Where each client stores the CA certificate."
+        },
+        :hostcrl => { :default => "$ssldir/crl.pem",
+            :mode => 0644,
+            :desc => "Where the host's certificate revocation list can be found.
+                This is distinct from the certificate authority's CRL."
         }
     )
 

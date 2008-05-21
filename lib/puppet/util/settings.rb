@@ -39,6 +39,8 @@ class Puppet::Util::Settings
             end
             @values[:memory][param] = value
             @cache.clear
+
+            clearused
         end
 
         return value
@@ -121,7 +123,7 @@ class Puppet::Util::Settings
             if pval = self.value(varname)
                 pval
             else
-                raise Puppet::DevError, "Could not find value for %s" % parent
+                raise Puppet::DevError, "Could not find value for %s" % value
             end
         end
 
@@ -574,7 +576,7 @@ Generated on #{Time.now}.
                 catalog = bucket.to_catalog
             rescue => detail
                 puts detail.backtrace if Puppet[:trace]
-                Puppet.err "Could not create resources for managing Puppet's files and directories: %s" % detail
+                Puppet.err "Could not create resources for managing Puppet's files and directories in sections %s: %s" % [sections.inspect, detail]
 
                 # We need some way to get rid of any resources created during the catalog creation
                 # but not cleaned up.
@@ -585,7 +587,12 @@ Generated on #{Time.now}.
                 catalog.host_config = false
                 catalog.apply do |transaction|
                     if failures = transaction.any_failed?
-                        raise "Could not configure for running; got %s failure(s)" % failures
+                        # LAK:NOTE We should do something like this for some cases,
+                        # since it can otherwise be hard to know what failed.
+                        #transaction.report.logs.find_all { |log| log.level == :err }.each do |log|
+                        #    puts log.message
+                        #end
+                        raise "Could not configure myself; got %s failure(s)" % failures
                     end
                 end
             end
@@ -692,13 +699,19 @@ Generated on #{Time.now}.
                             [file]
                     end
 
-                    writesub(default, tmpfile, *args, &bloc)
+                    # If there's a failure, remove our tmpfile
+                    begin
+                        writesub(default, tmpfile, *args, &bloc)
+                    rescue
+                        File.unlink(tmpfile) if FileTest.exist?(tmpfile)
+                        raise
+                    end
 
                     begin
                         File.rename(tmpfile, file)
                     rescue => detail
-                        Puppet.err "Could not rename %s to %s: %s" %
-                            [file, tmpfile, detail]
+                        Puppet.err "Could not rename %s to %s: %s" % [file, tmpfile, detail]
+                        File.unlink(tmpfile) if FileTest.exist?(tmpfile)
                     end
                 end
             end

@@ -11,7 +11,7 @@ require 'tempfile'
 describe Puppet::SSL::CertificateAuthority do
     before do
         # Get a safe temporary file
-        file = Tempfile.new("host_integration_testing")
+        file = Tempfile.new("ca_integration_testing")
         @dir = file.path
         file.delete
 
@@ -28,10 +28,9 @@ describe Puppet::SSL::CertificateAuthority do
         system("rm -rf %s" % @dir)
         Puppet.settings.clear
 
-        # This is necessary so the terminus instances don't lie around.
-        Puppet::SSL::Key.indirection.clear_cache
-        Puppet::SSL::Certificate.indirection.clear_cache
-        Puppet::SSL::CertificateRequest.indirection.clear_cache
+        Puppet::Util::Cacher.invalidate
+
+        Puppet::SSL::CertificateAuthority.instance_variable_set("@instance", nil)
     }
 
     it "should create a CA host" do
@@ -58,6 +57,20 @@ describe Puppet::SSL::CertificateAuthority do
 
             lambda { @ca.verify("newhost") }.should raise_error
         end
+    end
+
+    it "should have a CRL" do
+        @ca.generate_ca_certificate
+        @ca.crl.should_not be_nil
+    end
+
+    it "should be able to read in a previously created CRL" do
+        @ca.generate_ca_certificate
+
+        # Create it to start with.
+        @ca.crl
+
+        Puppet::SSL::CertificateAuthority.new.crl.should_not be_nil
     end
 
     describe "when signing certificates" do

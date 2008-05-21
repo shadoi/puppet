@@ -18,16 +18,18 @@ describe Puppet::SSL::Host do
         Puppet.settings[:confdir] = @dir
         Puppet.settings[:vardir] = @dir
 
+        Puppet::SSL::Host.ca_location = :local
+
         @host = Puppet::SSL::Host.new("luke.madstop.com")
+        @ca = Puppet::SSL::CertificateAuthority.new
     end
 
     after {
+        Puppet::SSL::Host.ca_location = :none
+
         system("rm -rf %s" % @dir)
         Puppet.settings.clear
-
-        # This is necessary so the terminus instances don't lie around.
-        Puppet::SSL::Key.indirection.clear_cache
-        Puppet::SSL::CertificateRequest.indirection.clear_cache
+        Puppet::Util::Cacher.invalidate
     }
 
     it "should be considered a CA host if its name is equal to 'ca'" do
@@ -76,5 +78,13 @@ describe Puppet::SSL::Host do
 
             FileTest.should_not be_exist(File.join(Puppet[:privatekeydir], "ca.pem"))
         end
+    end
+
+    it "should pass the verification of its own SSL store" do
+        @host.generate
+        @ca = Puppet::SSL::CertificateAuthority.new
+        @ca.sign(@host.name)
+
+        @host.ssl_store.verify(@host.certificate.content).should be_true
     end
 end

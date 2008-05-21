@@ -16,6 +16,7 @@ class Puppet::Network::HTTP::Mongrel
 
         @protocols = args[:protocols]
         @handlers = args[:handlers]
+        @xmlrpc_handlers = args[:xmlrpc_handlers]
         @server = Mongrel::HttpServer.new(args[:address], args[:port]) 
         setup_handlers
 
@@ -38,12 +39,22 @@ class Puppet::Network::HTTP::Mongrel
   
     def setup_handlers
         @protocols.each do |protocol|
+            next if protocol == :xmlrpc
             klass = class_for_protocol(protocol)
             @handlers.each do |handler|
                 @server.register('/' + handler.to_s, klass.new(:server => @server, :handler => handler))
                 @server.register('/' + handler.to_s + 's', klass.new(:server => @server, :handler => handler))
             end
         end
+
+        if @protocols.include?(:xmlrpc) and ! @xmlrpc_handlers.empty?
+            setup_xmlrpc_handlers
+        end
+    end
+
+    # Use our existing code to provide the xmlrpc backward compatibility.
+    def setup_xmlrpc_handlers
+        @server.register('/RPC2', Puppet::Network::HTTPServer::Mongrel.new(@xmlrpc_handlers))
     end
   
     def class_for_protocol(protocol)

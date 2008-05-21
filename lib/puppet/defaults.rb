@@ -60,12 +60,6 @@ module Puppet
                 this directory can be removed without causing harm (although it
                 might result in spurious service restarts)."
         },
-        :ssldir => {
-            :default => "$confdir/ssl",
-            :mode => 0771,
-            :owner => "root",
-            :desc => "Where SSL certificates are kept."
-        },
         :rundir => { 
             :default => rundir,
             :mode => 01777,
@@ -148,7 +142,20 @@ module Puppet
             but then ship with tools that do not know how to handle signed ints, so the UIDs show up as
             huge numbers that can then not be fed back into the system.  This is a hackish way to fail in a
             slightly more useful way when that happens."],
-        :node_terminus => ["plain", "Where to find information about nodes."]
+        :node_terminus => ["plain", "Where to find information about nodes."],
+        :httplog => { :default => "$logdir/http.log",
+            :owner => "root",
+            :mode => 0640,
+            :desc => "Where the puppetd web server logs."
+        },
+        :http_proxy_host => ["none",
+            "The HTTP proxy host to use for outgoing connections.  Note: You
+            may need to use a FQDN for the server hostname when using a proxy."],
+        :http_proxy_port => [3128,
+            "The HTTP proxy port to use for outgoing connections"],
+        :http_enable_post_connection_check => [true,
+            "Boolean; wheter or not puppetd should validate the server
+            SSL certificate against the request hostname."]
     )
 
     hostname = Facter["hostname"].value
@@ -159,13 +166,19 @@ module Puppet
         fqdn = hostname
     end
 
-    Puppet.setdefaults(:ssl,
+    Puppet.setdefaults(:main,
         :certname => [fqdn, "The name to use when handling certificates.  Defaults
             to the fully qualified domain name."],
         :certdnsnames => ['', "The DNS names on the Server certificate as a colon-separated list.
             If it's anything other than an empty string, it will be used as an alias in the created
             certificate.  By default, only the server gets an alias set up, and only for 'puppet'."],
         :certdir => ["$ssldir/certs", "The certificate directory."],
+        :ssldir => {
+            :default => "$confdir/ssl",
+            :mode => 0771,
+            :owner => "root",
+            :desc => "Where SSL certificates are kept."
+        },
         :publickeydir => ["$ssldir/public_keys", "The public key directory."],
         :requestdir => ["$ssldir/certificate_requests", "Where host certificate requests are stored."],
         :privatekeydir => { :default => "$ssldir/private_keys",
@@ -236,7 +249,12 @@ module Puppet
             :owner => "$user",
             :group => "$group",
             :mode => 0664,
-            :desc => "The certificate revocation list (CRL) for the CA. Set this to 'false' if you do not want to use a CRL."
+            :desc => "The certificate revocation list (CRL) for the CA. Will be used if present but otherwise ignored.",
+            :hook => proc do |value|
+                if value == 'false'
+                    Puppet.warning "Setting the :cacrl to 'false' is deprecated; Puppet will just ignore the crl if yours is missing"
+                end
+            end
         },
         :caprivatedir => { :default => "$cadir/private",
             :owner => "$user",
@@ -264,7 +282,7 @@ module Puppet
         :serial => { :default => "$cadir/serial",
             :owner => "$user",
             :group => "$group",
-            :mode => 0600,
+            :mode => 0644,
             :desc => "Where the serial number for certificates is stored."
         },
         :autosign => { :default => "$confdir/autosign.conf",
@@ -297,7 +315,7 @@ module Puppet
     self.setdefaults(self.settings[:name],
         :config => ["$confdir/puppet.conf",
             "The configuration file for #{Puppet[:name]}."],
-        :pidfile => ["", "The pid file"],
+        :pidfile => ["$rundir/$name.pid", "The pid file"],
         :bindaddress => ["", "The address to bind to.  Mongrel servers
             default to 127.0.0.1 and WEBrick defaults to 0.0.0.0."],
         :servertype => ["webrick", "The type of server to use.  Currently supported
@@ -388,19 +406,6 @@ module Puppet
             :mode => 0640,
             :desc => "The log file for puppetd.  This is generally not used."
         },
-        :httplog => { :default => "$logdir/http.log",
-            :owner => "root",
-            :mode => 0640,
-            :desc => "Where the puppetd web server logs."
-        },
-        :http_proxy_host => ["none",
-            "The HTTP proxy host to use for outgoing connections.  Note: You
-            may need to use a FQDN for the server hostname when using a proxy."],
-        :http_proxy_port => [3128,
-            "The HTTP proxy port to use for outgoing connections"],
-        :http_enable_post_connection_check => [true,
-            "Boolean; wheter or not puppetd should validate the server
-            SSL certificate against the request hostname."],
         :server => ["puppet",
             "The server to which server puppetd should connect"],
         :ignoreschedules => [false,
@@ -511,9 +516,11 @@ module Puppet
 
     # Central fact information.
     self.setdefaults(:main,
-        :factpath => ["$vardir/facts",
-            "Where Puppet should look for facts.  Multiple directories should
-            be colon-separated, like normal PATH variables."],
+        :factpath => {:default => "$vardir/facts",
+            :desc => "Where Puppet should look for facts.  Multiple directories should
+                be colon-separated, like normal PATH variables.",
+            :call_on_define => true, # Call our hook with the default value, so we always get the value added to facter.
+            :hook => proc { |value| Facter.search(value) if Facter.respond_to?(:search) }},
         :factdest => ["$vardir/facts",
             "Where Puppet should store facts that it pulls down from the central
             server."],
@@ -627,6 +634,10 @@ module Puppet
             "The search string used to find an LDAP node."],
         :ldapclassattrs => ["puppetclass",
             "The LDAP attributes to use to define Puppet classes.  Values
+            should be comma-separated."],
+        :ldapstackedattrs => ["puppetvar",
+            "The LDAP attributes that should be stacked to arrays by adding
+            the values in all hierarchy elements of the tree.  Values
             should be comma-separated."],
         :ldapattrs => ["all",
             "The LDAP attributes to include when querying LDAP for nodes.  All

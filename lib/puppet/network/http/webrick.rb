@@ -1,7 +1,11 @@
 require 'webrick'
 require 'webrick/https'
 require 'puppet/network/http/webrick/rest'
+require 'puppet/network/xmlrpc/webrick_servlet'
 require 'thread'
+
+require 'puppet/ssl/certificate'
+require 'puppet/ssl/certificate_revocation_list'
 
 class Puppet::Network::HTTP::WEBrick
     def initialize(args = {})
@@ -22,6 +26,7 @@ class Puppet::Network::HTTP::WEBrick
         
         @protocols = args[:protocols]
         @handlers = args[:handlers]        
+        @xmlrpc_handlers = args[:xmlrpc_handlers]        
 
         arguments = {:BindAddress => args[:address], :Port => args[:port]}
         arguments.merge!(setup_logger)
@@ -54,7 +59,7 @@ class Puppet::Network::HTTP::WEBrick
         end
     end
 
-    # Configure out http log file.
+    # Configure our http log file.
     def setup_logger
         # Make sure the settings are all ready for us.
         Puppet.settings.use(:main, :ssl, Puppet[:name])
@@ -84,51 +89,56 @@ class Puppet::Network::HTTP::WEBrick
     def setup_ssl
         results = {}
 
-        results[:SSLCertificateStore] = setup_crl if Puppet[:cacrl] != 'false'
+        host = Puppet::SSL::Host.new
 
-        results[:SSLCertificate] = self.cert
-        results[:SSLPrivateKey] = self.key
+        host.generate unless host.certificate
+
+        raise Puppet::Error, "Could not retrieve certificate for %s and not running on a valid certificate authority" % host.name unless host.certificate
+
+        results[:SSLPrivateKey] = host.key.content
+        results[:SSLCertificate] = host.certificate.content
         results[:SSLStartImmediately] = true
         results[:SSLEnable] = true
-        results[:SSLCACertificateFile] = Puppet[:localcacert]
-        results[:SSLVerifyClient] = OpenSSL::SSL::VERIFY_PEER
-        results[:SSLCertName] = nil
 
-        results
-    end
-
-    # Create our Certificate revocation list
-    def setup_crl
-        nil
-        if Puppet[:cacrl] == 'false'
-            # No CRL, no store needed
-            return nil
-        end
-        unless File.exist?(Puppet[:cacrl])
-            raise Puppet::Error, "Could not find CRL; set 'cacrl' to 'false' to disable CRL usage"
-        end
-        crl = OpenSSL::X509::CRL.new(File.read(Puppet[:cacrl]))
-        store = OpenSSL::X509::Store.new
-        store.purpose = OpenSSL::X509::PURPOSE_ANY
-        store.flags = OpenSSL::X509::V_FLAG_CRL_CHECK_ALL|OpenSSL::X509::V_FLAG_CRL_CHECK
-        unless self.ca_cert
+        unless Puppet::SSL::Certificate.find("ca")
             raise Puppet::Error, "Could not find CA certificate"
         end
 
-        store.add_file(Puppet[:localcacert])
-        store.add_crl(crl)
-        return store
+        results[:SSLCACertificateFile] = Puppet[:localcacert]
+        results[:SSLVerifyClient] = OpenSSL::SSL::VERIFY_PEER
+
+        results[:SSLCertificateStore] = host.ssl_store
+
+        results
     end
 
   private
     
     def setup_handlers
+        # Set up the new-style protocols.
         @protocols.each do |protocol|
+            next if protocol == :xmlrpc
             klass = self.class.class_for_protocol(protocol)
             @handlers.each do |handler|
                 @server.mount('/' + handler.to_s, klass, handler)
                 @server.mount('/' + handler.to_s + 's', klass, handler)
             end
         end
+
+        # And then set up xmlrpc, if configured.
+        if @protocols.include?(:xmlrpc) and ! @xmlrpc_handlers.empty?
+            @server.mount("/RPC2", xmlrpc_servlet)
+        end
+    end
+
+    # Create our xmlrpc servlet, which provides backward compatibility.
+    def xmlrpc_servlet
+        handlers = @xmlrpc_handlers.collect { |handler|
+            unless hclass = Puppet::Network::Handler.handler(handler)
+                raise "Invalid xmlrpc handler %s" % handler
+            end
+            hclass.new({})
+        }
+        Puppet::Network::XMLRPC::WEBrickServlet.new handlers
     end
 end

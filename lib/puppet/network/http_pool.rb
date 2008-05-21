@@ -1,11 +1,13 @@
-require 'puppet/sslcertificates/support'
+require 'puppet/ssl/host'
 require 'net/https'
+require 'puppet/util/cacher'
 
-module Puppet::Network
-end
+module Puppet::Network; end
 
 # Manage Net::HTTP instances for keep-alive.
 module Puppet::Network::HttpPool
+    extend Puppet::Util::Cacher
+
     # 2008/03/23
     # LAK:WARNING: Enabling this has a high propability of
     # causing corrupt files and who knows what else.  See #1010.
@@ -15,18 +17,18 @@ module Puppet::Network::HttpPool
         HTTP_KEEP_ALIVE
     end
 
-    # This handles reading in the key and such-like.
-    extend Puppet::SSLCertificates::Support
-    @http_cache = {}
+    # Create an ssl host instance for getting certificate
+    # information.
+    def self.ssl_host
+        attr_cache(:ssl_host) { Puppet::SSL::Host.new }
+    end
 
     # Clear our http cache, closing all connections.
     def self.clear_http_instances
-        @http_cache.each do |name, connection|
+        http_cache.each do |name, connection|
             connection.finish if connection.started?
         end
-        @http_cache.clear
-        @cert = nil
-        @key = nil
+        Puppet::Util::Cacher.invalidate
     end
 
     # Make sure we set the driver up when we read the cert in.
@@ -44,17 +46,13 @@ module Puppet::Network::HttpPool
     # Use cert information from a Puppet client to set up the http object.
     def self.cert_setup(http)
         # Just no-op if we don't have certs.
-        return false unless (defined?(@cert) and @cert) or self.read_cert
+        return false unless FileTest.exist?(Puppet[:hostcert]) # ssl_host.certificate
 
-        store = OpenSSL::X509::Store.new
-        store.add_file Puppet[:localcacert]
-        store.purpose = OpenSSL::X509::PURPOSE_SSL_CLIENT
-
-        http.cert_store = store
+        http.cert_store = ssl_host.ssl_store
         http.ca_file = Puppet[:localcacert]
-        http.cert = self.cert
+        http.cert = ssl_host.certificate.content
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        http.key = self.key
+        http.key = ssl_host.key.content
     end
 
     # Retrieve a cached http instance of caching is enabled, else return
@@ -66,11 +64,11 @@ module Puppet::Network::HttpPool
         # Return our cached instance if we've got a cache, as long as we're not
         # resetting the instance.
         if keep_alive?
-            return @http_cache[key] if ! reset and @http_cache[key]
+            return http_cache[key] if ! reset and http_cache[key]
 
             # Clean up old connections if we have them.
-            if http = @http_cache[key]
-                @http_cache.delete(key)
+            if http = http_cache[key]
+                http_cache.delete(key)
                 http.finish if http.started?
             end
         end
@@ -100,8 +98,15 @@ module Puppet::Network::HttpPool
 
         cert_setup(http)
 
-        @http_cache[key] = http if keep_alive?
+        http_cache[key] = http if keep_alive?
 
         return http
+    end
+
+    private
+    
+    def self.http_cache
+        # Default to an empty hash.
+        attr_cache(:http) { Hash.new }
     end
 end

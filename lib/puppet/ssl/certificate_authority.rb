@@ -1,5 +1,6 @@
 require 'puppet/ssl/host'
 require 'puppet/ssl/certificate_request'
+require 'puppet/util/cacher'
 
 # The class that knows how to sign certificates.  It creates
 # a 'special' SSL::Host whose name is 'ca', thus indicating
@@ -14,114 +15,22 @@ class Puppet::SSL::CertificateAuthority
     require 'puppet/ssl/inventory'
     require 'puppet/ssl/certificate_revocation_list'
 
-    # This class is basically a hidden class that knows how to act
-    # on the CA.  It's only used by the 'puppetca' executable, and its
-    # job is to provide a CLI-like interface to the CA class. 
-    class Interface
-        INTERFACE_METHODS = [:destroy, :list, :revoke, :generate, :sign, :print, :verify]
+    require 'puppet/ssl/certificate_authority/interface'
 
-        class InterfaceError < ArgumentError; end
+    extend Puppet::Util::Cacher
 
-        attr_reader :method, :subjects
+    def self.ca?
+        return false unless Puppet[:ca]
+        return false unless Puppet[:name] == "puppetmasterd"
+        return true
+    end
 
-        # Actually perform the work.
-        def apply(ca)
-            unless subjects or method == :list
-                raise ArgumentError, "You must provide hosts or :all when using %s" % method
-            end
+    # If this process can function as a CA, then return a singleton
+    # instance.
+    def self.instance
+        return nil unless ca?
 
-            begin
-                if respond_to?(method)
-                    return send(method, ca)
-                end
-
-                (subjects == :all ? ca.list : subjects).each do |host|
-                    ca.send(method, host)
-                end
-            rescue InterfaceError
-                raise
-            rescue => detail
-                puts detail.backtrace if Puppet[:trace]
-                Puppet.err "Could not call %s: %s" % [method, detail]
-            end
-        end
-
-        def generate(ca)
-            raise InterfaceError, "It makes no sense to generate all hosts; you must specify a list" if subjects == :all
-
-            subjects.each do |host|
-                ca.generate(host)
-            end
-        end
-
-        def initialize(method, subjects)
-            self.method = method
-            self.subjects = subjects
-        end
-
-        # List the hosts.
-        def list(ca)
-            unless subjects
-                puts ca.waiting?.join("\n")
-                return nil
-            end
-
-            signed = ca.list
-            requests = ca.waiting?
-
-            if subjects == :all
-                hosts = [signed, requests].flatten
-            else
-                hosts = subjects
-            end
-
-            hosts.uniq.sort.each do |host|
-                if signed.include?(host)
-                    puts "+ " + host
-                else
-                    puts host
-                end
-            end
-        end
-
-        # Set the method to apply.
-        def method=(method)
-            raise ArgumentError, "Invalid method %s to apply" % method unless INTERFACE_METHODS.include?(method)
-            @method = method
-        end
-
-        # Print certificate information.
-        def print(ca)
-            (subjects == :all ? ca.list : subjects).each do |host|
-                if value = ca.print(host)
-                    puts value
-                else
-                    Puppet.err "Could not find certificate for %s" % host
-                end
-            end
-        end
-
-        # Sign a given certificate.
-        def sign(ca)
-            list = subjects == :all ? ca.waiting? : subjects
-            raise InterfaceError, "No waiting certificate requests to sign" if list.empty?
-            list.each do |host|
-                ca.sign(host)
-            end
-        end
-
-        # Set the list of hosts we're operating on.  Also supports keywords.
-        def subjects=(value)
-            unless value == :all or value.is_a?(Array)
-                raise ArgumentError, "Subjects must be an array or :all; not %s" % value
-            end
-
-            if value.is_a?(Array) and value.empty?
-                value = nil
-            end
-
-            @subjects = value
-        end
+        attr_cache(:instance) { new }
     end
 
     attr_reader :name, :host
@@ -137,18 +46,53 @@ class Puppet::SSL::CertificateAuthority
         applier.apply(self)
     end
 
+    # If autosign is configured, then autosign all CSRs that match our configuration.
+    def autosign
+        return unless auto = autosign?
+
+        store = nil
+        if auto != true
+            store = autosign_store(auto)
+        end
+
+        Puppet::SSL::CertificateRequest.search("*").each do |csr|
+            sign(csr.name) if auto == true or store.allowed?(csr.name, "127.1.1.1")
+        end
+    end
+
+    # Do we autosign?  This returns true, false, or a filename.
+    def autosign?
+        auto = Puppet[:autosign]
+        return false if ['false', false].include?(auto)
+        return true if ['true', true].include?(auto)
+
+        raise ArgumentError, "The autosign configuration '%s' must be a fully qualified file" % auto unless auto =~ /^\//
+        if FileTest.exist?(auto)
+            return auto
+        else
+            return false
+        end
+    end
+
+    # Create an AuthStore for autosigning.
+    def autosign_store(file)
+        auth = Puppet::Network::AuthStore.new
+        File.readlines(file).each do |line|
+            next if line =~ /^\s*#/
+            next if line =~ /^\s*$/
+            auth.allow(line.chomp)
+        end
+
+        auth
+    end
+
     # Retrieve (or create, if necessary) the certificate revocation list.
     def crl
         unless defined?(@crl)
-            # The crl is disabled.
-            if ["false", false].include?(Puppet[:cacrl])
-                @crl = nil
-                return @crl
-            end
-
-            unless @crl = Puppet::SSL::CertificateRevocationList.find("whatever")
-                @crl = Puppet::SSL::CertificateRevocationList.new("whatever")
-                @crl.generate(host.certificate.content)
+            unless @crl = Puppet::SSL::CertificateRevocationList.find("ca")
+                @crl = Puppet::SSL::CertificateRevocationList.new("ca")
+                @crl.generate(host.certificate.content, host.key.content)
+                @crl.save
             end
         end
         @crl
@@ -183,6 +127,9 @@ class Puppet::SSL::CertificateAuthority
 
         # Create a self-signed certificate.
         @certificate = sign(host.name, :ca, request)
+
+        # And make sure we initialize our CRL.
+        crl()
     end
 
     def initialize
@@ -191,6 +138,8 @@ class Puppet::SSL::CertificateAuthority
         @name = Puppet[:certname]
 
         @host = Puppet::SSL::Host.new(Puppet::SSL::Host.ca_name)
+
+        setup()
     end
 
     # Retrieve (or create, if necessary) our inventory manager.
@@ -226,11 +175,17 @@ class Puppet::SSL::CertificateAuthority
     # file so this one is considered used.
     def next_serial
         serial = nil
+
+        # This is slightly odd.  If the file doesn't exist, our readwritelock creates
+        # it, but with a mode we can't actually read in some cases.  So, use
+        # a default before the lock.
+        unless FileTest.exist?(Puppet[:serial])
+            serial = 0x0
+        end
+
         Puppet.settings.readwritelock(:serial) { |f|
             if FileTest.exist?(Puppet[:serial])
-                serial = File.read(Puppet.settings[:serial]).chomp.hex
-            else
-                serial = 0x0
+                serial ||= File.read(Puppet.settings[:serial]).chomp.hex
             end
 
             # We store the next valid serial, not the one we just used.
@@ -266,6 +221,14 @@ class Puppet::SSL::CertificateAuthority
         crl.revoke(serial, host.key.content)
     end
 
+    # This initializes our CA so it actually works.  This should be a private
+    # method, except that you can't any-instance stub private methods, which is
+    # *awesome*.  This method only really exists to provide a stub-point during
+    # testing.
+    def setup
+        generate_ca_certificate unless @host.certificate
+    end
+
     # Sign a given certificate request.
     def sign(hostname, cert_type = :server, self_signing_csr = nil)
         # This is a self-signed certificate
@@ -273,8 +236,6 @@ class Puppet::SSL::CertificateAuthority
             csr = self_signing_csr
             issuer = csr.content
         else
-            generate_ca_certificate unless host.certificate
-
             unless csr = Puppet::SSL::CertificateRequest.find(hostname)
                 raise ArgumentError, "Could not find certificate request for %s" % hostname
             end

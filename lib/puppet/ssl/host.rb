@@ -141,8 +141,21 @@ class Puppet::SSL::Host
         @certificate
     end
 
-    def initialize(name)
-        @name = name
+    # Generate all necessary parts of our ssl host.
+    def generate
+        generate_key unless key
+        generate_certificate_request unless certificate_request
+
+        # If we can get a CA instance, then we're a valid CA, and we
+        # should use it to sign our request; else, just try to read
+        # the cert.
+        if ! certificate() and ca = Puppet::SSL::CertificateAuthority.instance
+            ca.sign(self.name)
+        end
+    end
+
+    def initialize(name = nil)
+        @name = name || Puppet[:certname]
         @key = @certificate = @certificate_request = nil
         @ca = (name == self.class.ca_name)
     end
@@ -151,4 +164,22 @@ class Puppet::SSL::Host
     def public_key
         key.content.public_key
     end
+
+    # Create/return a store that uses our SSL info to validate
+    # connections.
+    def ssl_store(purpose = OpenSSL::X509::PURPOSE_ANY)
+        store = OpenSSL::X509::Store.new
+        store.purpose = purpose
+
+        store.add_file(Puppet[:localcacert])
+
+        # If there's a CRL, add it to our store.
+        if crl = Puppet::SSL::CertificateRevocationList.find("ca")
+            store.flags = OpenSSL::X509::V_FLAG_CRL_CHECK_ALL|OpenSSL::X509::V_FLAG_CRL_CHECK
+            store.add_crl(crl.content)
+        end
+        return store
+    end
 end
+
+require 'puppet/ssl/certificate_authority'

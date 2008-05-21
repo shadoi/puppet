@@ -4,41 +4,76 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 require 'puppet/ssl/certificate_authority'
 
-describe "a normal interface method", :shared => true do
-    it "should call the method on the CA for each host specified if an array was provided" do
-        @ca.expects(@method).with("host1")
-        @ca.expects(@method).with("host2")
-
-        @applier = Puppet::SSL::CertificateAuthority::Interface.new(@method, %w{host1 host2})
-
-        @applier.apply(@ca)
-    end
-
-    it "should call the method on the CA for all existing certificates if :all was provided" do
-        @ca.expects(:list).returns %w{host1 host2}
-
-        @ca.expects(@method).with("host1")
-        @ca.expects(@method).with("host2")
-
-        @applier = Puppet::SSL::CertificateAuthority::Interface.new(@method, :all)
-
-        @applier.apply(@ca)
-    end
-end
-
 describe Puppet::SSL::CertificateAuthority do
+    after do
+        # Clear out the var, yay unit tests.
+        Puppet::SSL::CertificateAuthority.instance_variable_set("@instance", nil)
+        Puppet.settings.clearused
+    end
+
+    it "should have a class method for returning a singleton instance" do
+        Puppet::SSL::CertificateAuthority.should respond_to(:instance)
+    end
+
+    describe "when finding an existing instance" do
+        describe "and the host is a CA host and the proces name is 'puppetmasterd'" do
+            before do
+                Puppet.settings.stubs(:value).with(:ca).returns true
+                Puppet.settings.stubs(:value).with(:name).returns "puppetmasterd"
+
+                @ca = mock('ca')
+                Puppet::SSL::CertificateAuthority.stubs(:new).returns @ca
+            end
+
+            after do
+                # Clear out the var, yay unit tests.
+                Puppet::SSL::CertificateAuthority.instance_variable_set("@instance", nil)
+            end
+
+            it "should return an instance" do
+                Puppet::SSL::CertificateAuthority.instance.should equal(@ca)
+            end
+
+            it "should always return the same instance" do
+                Puppet::SSL::CertificateAuthority.instance.should equal(Puppet::SSL::CertificateAuthority.instance)
+            end
+        end
+
+        describe "and the host is not a CA host" do
+            it "should return nil" do
+                Puppet.settings.stubs(:value).with(:ca).returns false
+                Puppet.settings.stubs(:value).with(:name).returns "puppetmasterd"
+
+                ca = mock('ca')
+                Puppet::SSL::CertificateAuthority.expects(:new).never
+                Puppet::SSL::CertificateAuthority.instance.should be_nil
+            end
+        end
+
+        describe "and the process name is not 'puppetmasterd'" do
+            it "should return nil" do
+                Puppet.settings.stubs(:value).with(:ca).returns true
+                Puppet.settings.stubs(:value).with(:name).returns "puppetd"
+
+                ca = mock('ca')
+                Puppet::SSL::CertificateAuthority.expects(:new).never
+                Puppet::SSL::CertificateAuthority.instance.should be_nil
+            end
+        end
+    end
+
     describe "when initializing" do
         before do
             Puppet.settings.stubs(:use)
-            Puppet.settings.stubs(:value).returns "whatever"
+            Puppet.settings.stubs(:value).returns "ca_testing"
 
-            Puppet::SSL::CertificateAuthority.any_instance.stubs(:generate_ca_certificate)
+            Puppet::SSL::CertificateAuthority.any_instance.stubs(:setup)
         end
 
         it "should always set its name to the value of :certname" do
-            Puppet.settings.expects(:value).with(:certname).returns "whatever"
+            Puppet.settings.expects(:value).with(:certname).returns "ca_testing"
 
-            Puppet::SSL::CertificateAuthority.new.name.should == "whatever"
+            Puppet::SSL::CertificateAuthority.new.name.should == "ca_testing"
         end
 
         it "should create an SSL::Host instance whose name is the 'ca_name'" do
@@ -60,72 +95,73 @@ describe Puppet::SSL::CertificateAuthority do
 
             Puppet::SSL::CertificateAuthority.new.inventory.should == "inventory"
         end
+
+        it "should make sure the CA is set up" do
+            Puppet::SSL::CertificateAuthority.any_instance.expects(:setup)
+
+            Puppet::SSL::CertificateAuthority.new
+        end
+    end
+
+    describe "when setting itself up" do
+        it "should generate the CA certificate if it does not have one" do
+            Puppet.settings.stubs :use
+
+            host = stub 'host'
+            Puppet::SSL::Host.stubs(:new).returns host
+
+            host.expects(:certificate).returns nil
+
+            Puppet::SSL::CertificateAuthority.any_instance.expects(:generate_ca_certificate)
+            Puppet::SSL::CertificateAuthority.new
+        end
     end
 
     describe "when retrieving the certificate revocation list" do
         before do
             Puppet.settings.stubs(:use)
-            Puppet.settings.stubs(:value).returns "whatever"
+            Puppet.settings.stubs(:value).returns "ca_testing"
+            Puppet.settings.stubs(:value).with(:cacrl).returns "/my/crl"
 
-            Puppet::SSL::CertificateAuthority.any_instance.stubs(:generate_ca_certificate)
+            cert = stub("certificate", :content => "real_cert")
+            key = stub("key", :content => "real_key")
+            @host = stub 'host', :certificate => cert, :name => "hostname", :key => key
+
+            Puppet::SSL::CertificateAuthority.any_instance.stubs(:setup)
             @ca = Puppet::SSL::CertificateAuthority.new
+
+            @ca.stubs(:host).returns @host
         end
 
-        describe "and the CRL is disabled" do
-            it "should return nil when the :cacrl is false" do
-                Puppet.settings.stubs(:value).with(:cacrl).returns false
-
-                Puppet::SSL::CertificateRevocationList.expects(:new).never
-
-                @ca.crl.should be_nil
-            end
-
-            it "should return nil when the :cacrl is 'false'" do
-                Puppet.settings.stubs(:value).with(:cacrl).returns 'false'
-
-                Puppet::SSL::CertificateRevocationList.expects(:new).never
-
-                @ca.crl.should be_nil
-            end
+        it "should return any found CRL instance" do
+            crl = mock 'crl'
+            Puppet::SSL::CertificateRevocationList.expects(:find).returns crl
+            @ca.crl.should equal(crl)
         end
 
-        describe "and the CRL is enabled" do
-            before do
-                Puppet.settings.stubs(:value).with(:cacrl).returns "/my/crl"
+        it "should create, generate, and save a new CRL instance of no CRL can be found" do
+            crl = mock 'crl'
+            Puppet::SSL::CertificateRevocationList.expects(:find).returns nil
 
-                cert = stub("certificate", :content => "real_cert")
-                @host = stub 'host', :certificate => cert, :name => "hostname"
+            Puppet::SSL::CertificateRevocationList.expects(:new).returns crl
 
-                @ca.stubs(:host).returns @host
-            end
+            crl.expects(:generate).with(@ca.host.certificate.content, @ca.host.key.content)
+            crl.expects(:save)
 
-            it "should return any found CRL instance" do
-                crl = mock 'crl'
-                Puppet::SSL::CertificateRevocationList.expects(:find).returns crl
-                @ca.crl.should equal(crl)
-            end
-
-            it "should create and generate a new CRL instance of no CRL can be found" do
-                crl = mock 'crl'
-                Puppet::SSL::CertificateRevocationList.expects(:find).returns nil
-
-                Puppet::SSL::CertificateRevocationList.expects(:new).returns crl
-
-                crl.expects(:generate).with(@ca.host.certificate.content)
-
-                @ca.crl.should equal(crl)
-            end
+            @ca.crl.should equal(crl)
         end
     end
 
     describe "when generating a self-signed CA certificate" do
         before do
             Puppet.settings.stubs(:use)
-            Puppet.settings.stubs(:value).returns "whatever"
+            Puppet.settings.stubs(:value).returns "ca_testing"
 
+            Puppet::SSL::CertificateAuthority.any_instance.stubs(:setup)
+            Puppet::SSL::CertificateAuthority.any_instance.stubs(:crl)
             @ca = Puppet::SSL::CertificateAuthority.new
 
-            @host = stub 'host', :key => mock("key"), :name => "hostname"
+            @host = stub 'host', :key => mock("key"), :name => "hostname", :certificate => mock('certificate')
 
             Puppet::SSL::CertificateRequest.any_instance.stubs(:generate)
 
@@ -165,6 +201,18 @@ describe Puppet::SSL::CertificateAuthority do
             @ca.expects(:sign).with(@host.name, :ca, request)
 
             @ca.stubs :generate_password
+
+            @ca.generate_ca_certificate
+        end
+
+        it "should generate its CRL" do
+            @ca.stubs :generate_password
+            @ca.stubs :sign
+
+            @ca.host.expects(:key).returns nil
+            @ca.host.expects(:generate_key)
+
+            @ca.expects(:crl)
 
             @ca.generate_ca_certificate
         end
@@ -222,7 +270,7 @@ describe Puppet::SSL::CertificateAuthority do
             end
 
             it "should return the current content of the serial file" do
-                FileTest.expects(:exist?).with(@path).returns true
+                FileTest.stubs(:exist?).with(@path).returns true
                 File.expects(:read).with(@path).returns "0002"
 
                 @ca.next_serial.should == 2
@@ -297,15 +345,6 @@ describe Puppet::SSL::CertificateAuthority do
                 @cert.stubs :save
             end
 
-            it "should generate a self-signed certificate if its Host instance has no certificate" do
-                cert = stub 'ca_certificate', :content => "mock_cert"
-
-                @ca.host.expects(:certificate).times(2).returns(nil).then.returns cert
-                @ca.expects(:generate_ca_certificate)
-
-                @ca.sign(@name)
-            end
-
             it "should use a certificate type of :server" do
                 Puppet::SSL::CertificateFactory.expects(:new).with do |*args|
                     args[0] == :server
@@ -375,17 +414,97 @@ describe Puppet::SSL::CertificateAuthority do
         end
 
         it "should return the certificate instance" do
+            @ca.stubs(:next_serial).returns @serial
             Puppet::SSL::CertificateRequest.stubs(:find).with(@name).returns @request
             @cert.stubs :save
             @ca.sign(@name).should equal(@cert)
         end
 
         it "should add the certificate to its inventory" do
+            @ca.stubs(:next_serial).returns @serial
             @inventory.expects(:add).with(@cert)
 
             Puppet::SSL::CertificateRequest.stubs(:find).with(@name).returns @request
             @cert.stubs :save
             @ca.sign(@name)
+        end
+
+        it "should have a method for triggering autosigning of available CSRs" do
+            @ca.should respond_to(:autosign)
+        end
+
+        describe "when autosigning certificates" do
+            it "should do nothing if autosign is disabled" do
+                Puppet.settings.expects(:value).with(:autosign).returns 'false'
+
+                Puppet::SSL::CertificateRequest.expects(:search).never
+                @ca.autosign
+            end
+
+            it "should do nothing if no autosign.conf exists" do
+                Puppet.settings.expects(:value).with(:autosign).returns '/auto/sign'
+                FileTest.expects(:exist?).with("/auto/sign").returns false
+
+                Puppet::SSL::CertificateRequest.expects(:search).never
+                @ca.autosign
+            end
+
+            describe "and autosign is enabled and the autosign.conf file exists" do
+                before do
+                    Puppet.settings.stubs(:value).with(:autosign).returns '/auto/sign'
+                    FileTest.stubs(:exist?).with("/auto/sign").returns true
+                    File.stubs(:readlines).with("/auto/sign").returns ["one\n", "two\n"]
+
+                    Puppet::SSL::CertificateRequest.stubs(:search).returns []
+
+                    @store = stub 'store', :allow => nil
+                    Puppet::Network::AuthStore.stubs(:new).returns @store
+                end
+
+                describe "when creating the AuthStore instance to verify autosigning" do
+                    it "should create an AuthStore with each line in the configuration file allowed to be autosigned" do
+                        Puppet::Network::AuthStore.expects(:new).returns @store
+
+                        @store.expects(:allow).with("one")
+                        @store.expects(:allow).with("two")
+
+                        @ca.autosign
+                    end
+
+                    it "should reparse the autosign configuration on each call" do
+                        Puppet::Network::AuthStore.expects(:new).times(2).returns @store
+
+                        @ca.autosign
+                        @ca.autosign
+                    end
+
+                    it "should ignore comments" do
+                        File.stubs(:readlines).with("/auto/sign").returns ["one\n", "#two\n"]
+
+                        @store.expects(:allow).with("one")
+                        @ca.autosign
+                    end
+
+                    it "should ignore blank lines" do
+                        File.stubs(:readlines).with("/auto/sign").returns ["one\n", "\n"]
+
+                        @store.expects(:allow).with("one")
+                        @ca.autosign
+                    end
+                end
+
+                it "should sign all CSRs whose hostname matches the autosign configuration" do
+                    csr1 = mock 'csr1'
+                    csr2 = mock 'csr2'
+                    Puppet::SSL::CertificateRequest.stubs(:search).returns [csr1, csr2]
+                end
+
+                it "should not sign CSRs whose hostname does not match the autosign configuration" do
+                    csr1 = mock 'csr1'
+                    csr2 = mock 'csr2'
+                    Puppet::SSL::CertificateRequest.stubs(:search).returns [csr1, csr2]
+                end
+            end
         end
     end
 
@@ -398,7 +517,9 @@ describe Puppet::SSL::CertificateAuthority do
             # Set up the CA
             @key = mock 'key'
             @key.stubs(:content).returns "cakey"
-            Puppet::SSL::CertificateAuthority.any_instance.stubs(:key).returns @key
+            @host = stub 'host', :key => @key
+            Puppet::SSL::CertificateAuthority.any_instance.stubs(:host).returns @host
+
             @cacert = mock 'certificate'
             @cacert.stubs(:content).returns "cacertificate"
             @ca = Puppet::SSL::CertificateAuthority.new
@@ -422,7 +543,7 @@ describe Puppet::SSL::CertificateAuthority do
                 applier = stub('applier')
                 applier.expects(:apply).with(@ca)
                 Puppet::SSL::CertificateAuthority::Interface.expects(:new).returns applier
-                @ca.apply(:generate, :to => :whatever)
+                @ca.apply(:generate, :to => :ca_testing)
             end
         end
 
@@ -533,12 +654,19 @@ describe Puppet::SSL::CertificateAuthority do
             before do
                 @crl = mock 'crl'
                 @ca.stubs(:crl).returns @crl
+
+                @ca.stubs(:next_serial).returns 10
+
+                @real_cert = stub 'real_cert', :serial => 15
+                @cert = stub 'cert', :content => @real_cert
+                Puppet::SSL::Certificate.stubs(:find).returns @cert
+
             end
 
             it "should fail if the certificate revocation list is disabled" do
                 @ca.stubs(:crl).returns false
 
-                lambda { @ca.revoke('whatever') }.should raise_error(ArgumentError)
+                lambda { @ca.revoke('ca_testing') }.should raise_error(ArgumentError)
 
             end
 
@@ -549,11 +677,9 @@ describe Puppet::SSL::CertificateAuthority do
             end
 
             it "should get the serial number from the local certificate if it exists" do
-                real_cert = stub 'real_cert', :serial => 15
-                cert = stub 'cert', :content => real_cert
-                Puppet::SSL::Certificate.expects(:find).with("host").returns cert
-
                 @ca.crl.expects(:revoke).with { |serial, key| serial == 15 }
+
+                Puppet::SSL::Certificate.expects(:find).with("host").returns @cert
 
                 @ca.revoke('host')
             end
@@ -605,244 +731,6 @@ describe Puppet::SSL::CertificateAuthority do
                 @ca.expects(:sign).with("him")
 
                 @ca.generate("him")
-            end
-        end
-    end
-end
-
-describe Puppet::SSL::CertificateAuthority::Interface do
-    before do
-        @class = Puppet::SSL::CertificateAuthority::Interface
-    end
-    describe "when initializing" do
-        it "should set its method using its settor" do
-            @class.any_instance.expects(:method=).with(:generate)
-            @class.new(:generate, :all)
-        end
-
-        it "should set its subjects using the settor" do
-            @class.any_instance.expects(:subjects=).with(:all)
-            @class.new(:generate, :all)
-        end
-    end
-
-    describe "when setting the method" do
-        it "should set the method" do
-            @class.new(:generate, :all).method.should == :generate
-        end
-
-        it "should fail if the method isn't a member of the INTERFACE_METHODS array" do
-            Puppet::SSL::CertificateAuthority::Interface::INTERFACE_METHODS.expects(:include?).with(:thing).returns false
-
-            lambda { @class.new(:thing, :all) }.should raise_error(ArgumentError)
-        end
-    end
-
-    describe "when setting the subjects" do
-        it "should set the subjects" do
-            @class.new(:generate, :all).subjects.should == :all
-        end
-
-        it "should fail if the subjects setting isn't :all or an array" do
-            lambda { @class.new(:generate, "other") }.should raise_error(ArgumentError)
-        end
-    end
-
-    it "should have a method for triggering the application" do
-        @class.new(:generate, :all).should respond_to(:apply)
-    end
-
-    describe "when applying" do
-        before do
-            # We use a real object here, because :verify can't be stubbed, apparently.
-            @ca = Object.new
-        end
-
-        it "should raise InterfaceErrors" do
-            @applier = @class.new(:revoke, :all)
-
-            @ca.expects(:list).raises Puppet::SSL::CertificateAuthority::Interface::InterfaceError
-
-            lambda { @applier.apply(@ca) }.should raise_error(Puppet::SSL::CertificateAuthority::Interface::InterfaceError)
-        end
-
-        it "should log non-Interface failures rather than failing" do
-            @applier = @class.new(:revoke, :all)
-
-            @ca.expects(:list).raises ArgumentError
-
-            Puppet.expects(:err)
-
-            lambda { @applier.apply(@ca) }.should_not raise_error
-        end
-
-        describe "with an empty array specified and the method is not list" do
-            it "should fail" do
-                @applier = @class.new(:sign, [])
-                lambda { @applier.apply(@ca) }.should raise_error(ArgumentError)
-            end
-        end
-
-        describe ":generate" do
-            it "should fail if :all was specified" do
-                @applier = @class.new(:generate, :all)
-                lambda { @applier.apply(@ca) }.should raise_error(ArgumentError)
-            end
-
-            it "should call :generate on the CA for each host specified" do
-                @applier = @class.new(:generate, %w{host1 host2})
-                
-                @ca.expects(:generate).with("host1")
-                @ca.expects(:generate).with("host2")
-
-                @applier.apply(@ca)
-            end
-        end
-
-        describe ":verify" do
-            before { @method = :verify }
-            #it_should_behave_like "a normal interface method"
-
-            it "should call the method on the CA for each host specified if an array was provided" do
-                # LAK:NOTE Mocha apparently doesn't allow you to mock :verify, but I'm confident this works in real life.
-            end
-
-            it "should call the method on the CA for all existing certificates if :all was provided" do
-                # LAK:NOTE Mocha apparently doesn't allow you to mock :verify, but I'm confident this works in real life.
-            end
-        end
-
-        describe ":destroy" do
-            before { @method = :destroy }
-            it_should_behave_like "a normal interface method"
-        end
-
-        describe ":revoke" do
-            before { @method = :revoke }
-            it_should_behave_like "a normal interface method"
-        end
-
-        describe ":sign" do
-            describe "and an array of names was provided" do
-                before do
-                    @applier = @class.new(:sign, %w{host1 host2})
-                end
-
-                it "should sign the specified waiting certificate requests" do
-                    @ca.expects(:sign).with("host1")
-                    @ca.expects(:sign).with("host2")
-
-                    @applier.apply(@ca)
-                end
-            end
-
-            describe "and :all was provided" do
-                it "should sign all waiting certificate requests" do
-                    @ca.stubs(:waiting?).returns(%w{cert1 cert2})
-
-                    @ca.expects(:sign).with("cert1")
-                    @ca.expects(:sign).with("cert2")
-
-                    @applier = @class.new(:sign, :all)
-                    @applier.apply(@ca)
-                end
-
-                it "should fail if there are no waiting certificate requests" do
-                    @ca.stubs(:waiting?).returns([])
-
-                    @applier = @class.new(:sign, :all)
-                    lambda { @applier.apply(@ca) }.should raise_error(Puppet::SSL::CertificateAuthority::Interface::InterfaceError)
-                end
-            end
-        end
-
-        describe ":list" do
-            describe "and an empty array was provided" do
-                it "should print a string containing all certificate requests" do
-                    @ca.expects(:waiting?).returns %w{host1 host2}
-
-                    @applier = @class.new(:list, [])
-
-                    @applier.expects(:puts).with "host1\nhost2"
-
-                    @applier.apply(@ca)
-                end
-            end
-
-            describe "and :all was provided" do
-                it "should print a string containing all certificate requests and certificates" do
-                    @ca.expects(:waiting?).returns %w{host1 host2}
-                    @ca.expects(:list).returns %w{host3 host4}
-
-                    @applier = @class.new(:list, :all)
-
-                    @applier.expects(:puts).with "host1"
-                    @applier.expects(:puts).with "host2"
-                    @applier.expects(:puts).with "+ host3"
-                    @applier.expects(:puts).with "+ host4"
-
-                    @applier.apply(@ca)
-                end
-            end
-
-            describe "and an array of names was provided" do
-                it "should print a string of all named hosts that have a waiting request" do
-                    @ca.expects(:waiting?).returns %w{host1 host2}
-                    @ca.expects(:list).returns %w{host3 host4}
-
-                    @applier = @class.new(:list, %w{host1 host2 host3 host4})
-
-                    @applier.expects(:puts).with "host1"
-                    @applier.expects(:puts).with "host2"
-                    @applier.expects(:puts).with "+ host3"
-                    @applier.expects(:puts).with "+ host4"
-
-                    @applier.apply(@ca)
-                end
-            end
-        end
-
-        describe ":print" do
-            describe "and :all was provided" do
-                it "should print all certificates" do
-                    @ca.expects(:list).returns %w{host1 host2}
-
-                    @applier = @class.new(:print, :all)
-
-                    @ca.expects(:print).with("host1").returns "h1"
-                    @applier.expects(:puts).with "h1"
-
-                    @ca.expects(:print).with("host2").returns "h2"
-                    @applier.expects(:puts).with "h2"
-
-                    @applier.apply(@ca)
-                end
-            end
-
-            describe "and an array of names was provided" do
-                it "should print each named certificate if found" do
-                    @applier = @class.new(:print, %w{host1 host2})
-
-                    @ca.expects(:print).with("host1").returns "h1"
-                    @applier.expects(:puts).with "h1"
-
-                    @ca.expects(:print).with("host2").returns "h2"
-                    @applier.expects(:puts).with "h2"
-
-                    @applier.apply(@ca)
-                end
-
-                it "should log any named but not found certificates" do
-                    @applier = @class.new(:print, %w{host1 host2})
-
-                    @ca.expects(:print).with("host1").returns "h1"
-                    @applier.expects(:puts).with "h1"
-
-                    @ca.expects(:print).with("host2").returns nil
-                    Puppet.expects(:err).with { |msg| msg.include?("host2") }
-
-                    @applier.apply(@ca)
-                end
             end
         end
     end

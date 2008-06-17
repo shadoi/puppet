@@ -23,7 +23,7 @@ project = Rake::RedLabProject.new("puppet") do |p|
         'lib/puppet.rb',
         'lib/puppet/**/*.rb',
         'lib/puppet/**/*.py',
-        'test/**/*.rb',
+        'test/**/*',
         'bin/**/*',
         'ext/**/*',
         'examples/**/*',
@@ -102,7 +102,7 @@ def daily(package)
     edir = "/tmp/daily-export"
     Dir.mkdir edir
     Dir.chdir(edir) do
-        sh %{svn export http://reductivelabs.com/svn/#{package}/trunk #{package} >/dev/null}
+        sh %{git clone git://reductivelabs.com/#{package} #{package} >/dev/null}
         sh %{tar cf - #{package} | gzip -c > #{dailyfile(package)}}
     end
     FileUtils.rm_rf(edir)

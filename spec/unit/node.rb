@@ -2,7 +2,7 @@
 
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe Puppet::Node, " when initializing" do
+describe Puppet::Node, "when initializing" do
     before do
         @node = Puppet::Node.new("testnode")
     end
@@ -54,14 +54,9 @@ describe Puppet::Node, " when initializing" do
         Puppet.settings.stubs(:value).with(:environments).returns("myenv")
         proc { Puppet::Node.new("testing", :environment => "other") }.should raise_error(ArgumentError)
     end
-
-    it "should accept names passed in" do
-        @node = Puppet::Node.new("testing", :names => ["myenv"])
-        @node.names.should == ["myenv"]
-    end
 end
 
-describe Puppet::Node, " when returning the environment" do
+describe Puppet::Node, "when returning the environment" do
     before do
         Puppet.settings.stubs(:value).with(:environments).returns("one,two")
         Puppet.settings.stubs(:value).with(:environment).returns("one")
@@ -90,7 +85,7 @@ describe Puppet::Node, " when returning the environment" do
     end
 end
 
-describe Puppet::Node, " when merging facts" do
+describe Puppet::Node, "when merging facts" do
     before do
         @node = Puppet::Node.new("testnode")
         Puppet::Node::Facts.stubs(:find).with(@node.name).returns(Puppet::Node::Facts.new(@node.name, "one" => "c", "two" => "b"))
@@ -131,7 +126,7 @@ describe Puppet::Node, " when merging facts" do
     end
 end
 
-describe Puppet::Node, " when indirecting" do
+describe Puppet::Node, "when indirecting" do
     it "should redirect to the indirection" do
         @indirection = stub 'indirection', :name => :node
         Puppet::Node.stubs(:indirection).returns(@indirection)
@@ -152,75 +147,52 @@ describe Puppet::Node, " when indirecting" do
     end
 end
 
-describe Puppet::Node do
-    # LAK:NOTE This is used to keep track of when a given node has connected,
-    # so we can report on nodes that do not appear to connecting to the
-    # central server.
-    it "should provide a method for noting that the node has connected"
-end
-
-describe Puppet::Node, " when searching for nodes" do
+describe Puppet::Node, "when generating the list of names to search through" do
     before do
-        @searcher = Puppet::Node
-        @facts = Puppet::Node::Facts.new("foo", "hostname" => "yay", "domain" => "domain.com")
-        @node = Puppet::Node.new("foo")
-        Puppet::Node::Facts.stubs(:find).with("foo").returns(@facts)
+        @node = Puppet::Node.new("foo.domain.com")
+        @node.parameters = {"hostname" => "yay", "domain" => "domain.com"}
     end
 
-    it "should return the first node found using the generated list of names" do
-        @searcher.expects(:find).with("foo").returns(nil)
-        @searcher.expects(:find).with("yay.domain.com").returns(@node)
-        @searcher.find_by_any_name("foo").should equal(@node)
+    it "should return an array of names" do
+        @node.names.should be_instance_of(Array)
     end
 
-    it "should search for the node by its key first" do
-        names = []
-        @searcher.expects(:find).with do |name|
-            names << name
-            names == %w{foo}
-        end.returns(@node)
-        @searcher.find_by_any_name("foo").should equal(@node)
+    it "should have the node's fqdn as the second name" do
+        @node.names[1].should == "yay.domain.com"
     end
 
-    it "should search for the rest of the names inversely by length" do
-        names = []
-        @facts.values["fqdn"] = "longer.than.the.normal.fqdn.com"
-        @searcher.stubs(:find).with do |name|
-            names << name
+    it "should set the fqdn to the node's 'fqdn' fact if it is available" do
+        @node.parameters["fqdn"] = "boo.domain.com"
+        @node.names[1].should == "boo.domain.com"
+    end
+
+    it "should set the fqdn to the node's hostname and domain if no fqdn is available" do
+        @node.names[1].should == "yay.domain.com"
+    end
+
+    it "should contain an entry for each name available by stripping a segment of the fqdn" do
+        @node.parameters["fqdn"] = "foo.deep.sub.domain.com"
+        @node.names[2].should == "foo.deep.sub.domain"
+        @node.names[3].should == "foo.deep.sub"
+    end
+
+    describe "and :node_name is set to 'cert'" do
+        before do
+            Puppet.settings.stubs(:value).with(:node_name).returns "cert"
         end
-        @searcher.find_by_any_name("foo")
-        # Strip off the key
-        names.shift
 
-        # And the 'default'
-        names.pop
-
-        length = 100
-        names.each do |name|
-            (name.length < length).should be_true
-            length = name.length
+        it "should use the passed-in key as the first value" do
+            @node.names[0].should == "foo.domain.com"
         end
     end
 
-    it "should attempt to find a default node if no names are found" do
-        names = []
-        @searcher.stubs(:find).with do |name|
-            names << name
-        end.returns(nil)
-        @searcher.find_by_any_name("foo")
-        names[-1].should == "default"
-    end
+    describe "and :node_name is set to 'facter'" do
+        before do
+            Puppet.settings.stubs(:value).with(:node_name).returns "facter"
+        end
 
-    it "should flush the node cache using the :filetimeout parameter" do
-        node2 = Puppet::Node.new("foo2")
-        Puppet[:filetimeout] = -1
-        # I couldn't get this to work with :expects
-        @searcher.stubs(:find).returns(@node, node2).then.raises(ArgumentError)
-        @searcher.find_by_any_name("foo").should equal(@node)
-        @searcher.find_by_any_name("foo").should equal(node2)
-    end
-
-    after do
-        Puppet.settings.clear
+        it "should use the node's 'hostname' fact as the first value" do
+            @node.names[0].should == "yay"
+        end
     end
 end

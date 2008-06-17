@@ -1,13 +1,57 @@
+0.25.?
+    Fixing #1168 for REST -- all ssl classes downcase their names.
+    This is a much cleaner fix than the xmlrpc version, thankfully. :)
+
     Added a boolean 'crl' default value.  Now we have a location for
     the CA CRL and the host CRL, and then a setting for configuring
     whether we should even use a CRL.  This way we aren't trying to
     set file paths to 'false' to disable the CRL.
 
+0.24.?
+    Removed support for the 'node_name' setting in LDAP and external node lookups.
+
+    Removed support for the 'node_name' setting in LDAP and external node 
+    lookups.
+
+    Also removed support for 'default' nodes in external nodes.
+    LDAP nodes now use the certificate name, the short name, and 'default',
+    but external nodes just use the certificate name and any custom terminus
+    types will use just the certificate name.
+    
+    Fixed #1201 - all external node attributes are converted to strings.
+
+    Fixing #1168 (for 0.24.x) -- automatically downcasing the fqdn.
+    Also requiring that passed in certnames be downcased; the setting
+    system isn't currently flexible enough to automatically downcase
+    it for the user.
+
+    Adding a ResourceTemplate class for using templates directly
+    within resources (i.e., client-side templates).  This would really
+    only be used for composite resources that pass the results of the
+    template on to generated resources.
+
+    Exporting or collecting resources no longer raises an exception
+    when no storeconfigs is enabled, it just produces a warning.
+
+    Always using the cert name to store yaml files, which fixes #1178.
+    The Master handler previously provided the support for the :node_name
+    setting, and that functionality has now been moved into the Node
+    class.  At the same time, the names to search through have been
+    changed somewhat:  Previously, the certificate name and the 
+    hostname were both used for searching, but now, the cert name
+    is always searched first (unless node_name == facter), but only
+    the Facter hostname, domain, and fqdn are used otherwise.  We no
+    longer split the cert name, only the hostname/domain/fqdn.
+
+    Fixing transaction support for prefetching generated resources.
+
+    Adding support for settings within the existing Facter provider confines.
+
     Moving all confine code out of the Provider class, and fixing #1197. 
     Created a Confiner module for the Provider class methods, enhanced 
     the interface between it and the Confine class to make sure binary 
     paths are searched for fresh each time.
-    
+
     Modified the 'factpath' setting to automatically configure
     Facter to load facts there if a new enough version of
     Facter is used.

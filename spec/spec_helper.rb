@@ -23,7 +23,7 @@ require 'spec'
 Dir["#{dir}/monkey_patches/*.rb"].map { |file| require file }
 
 Spec::Runner.configure do |config|
-  config.mock_with :mocha
+    config.mock_with :mocha
 
 #  config.prepend_before :all do
 #      setup_mocks_for_rspec
@@ -34,3 +34,8 @@ Spec::Runner.configure do |config|
 #      teardown() if respond_to? :teardown
 #  end
 end
+
+# Set the confdir and vardir to gibberish so that tests
+# have to be correctly mocked.
+Puppet[:confdir] = "/dev/null"
+Puppet[:vardir] = "/dev/null"

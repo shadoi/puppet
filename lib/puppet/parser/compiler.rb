@@ -423,37 +423,10 @@ class Puppet::Parser::Compiler
         end
     end
 
-    # Store the catalog into the database.
+    # Store the catalog via the indirector
     def store
-        unless Puppet.features.rails?
-            raise Puppet::Error,
-                "storeconfigs is enabled but rails is unavailable"
-        end
-
-        unless ActiveRecord::Base.connected?
-            Puppet::Rails.connect
-        end
-
-        # We used to have hooks here for forking and saving, but I don't
-        # think it's worth retaining at this point.
-        store_to_active_record(@node, @catalog.vertices)
-    end
-
-    # Do the actual storage.
-    def store_to_active_record(node, resources)
-        begin
-            # We store all of the objects, even the collectable ones
-            benchmark(:info, "Stored catalog for #{node.name}") do
-                Puppet::Rails::Host.transaction do
-                    Puppet::Rails::Host.store(node, resources)
-                end
-            end
-        rescue => detail
-            if Puppet[:trace]
-                puts detail.backtrace
-            end
-            Puppet.err "Could not store configs: %s" % detail.to_s
-        end
+        # The catalog class should know what type of storage to use.
+        Puppet::Catalog.save(@node, @catalog.vertices)
     end
 
     # Return an array of all of the unevaluated resources.  These will be definitions,

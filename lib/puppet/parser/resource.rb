@@ -10,6 +10,9 @@ class Puppet::Parser::Resource
     include Puppet::Util::Logging
     include Puppet::Util::Tagging
 
+    extend Puppet::Indirector
+    indirects :resource
+
     attr_accessor :source, :line, :file, :scope, :rails_id
     attr_accessor :virtual, :override, :translated
 

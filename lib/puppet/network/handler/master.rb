@@ -67,7 +67,7 @@ class Puppet::Network::Handler
             return translate(catalog.extract)
         end
 
-        # 
+        #
         def decode_facts(facts)
             if @local
                 # we don't need to do anything, since we should already

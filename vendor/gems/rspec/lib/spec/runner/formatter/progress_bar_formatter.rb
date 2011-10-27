@@ -13,13 +13,13 @@ module Spec
           @output.print green('.')
           @output.flush
         end
-      
+
         def example_pending(example_group_description, example, message)
           super
           @output.print yellow('P')
           @output.flush
         end
-        
+
         def start_dump
           @output.puts
           @output.flush

@@ -31,7 +31,7 @@ module Puppet
         def retrieve
             return resource.section[inikey]
         end
-        
+
         def inikey
             name.to_s
         end
@@ -57,7 +57,7 @@ module Puppet
                 the files indicated by reposdir in that file (see yum.conf(5)
                 for details)
 
-                Most parameters are identical to the ones documented 
+                Most parameters are identical to the ones documented
                 in yum.conf(5)
 
                 Continuation lines that yum supports for example for the
@@ -75,7 +75,7 @@ module Puppet
         self.filetype = Puppet::Util::FileType.filetype(:flat)
 
         @inifile = nil
-        
+
         @yumconf = "/etc/yum.conf"
 
         # Where to put files for brand new sections
@@ -108,9 +108,9 @@ module Puppet
                 @inifile = read()
                 main = @inifile['main']
                 if main.nil?
-                    raise Puppet::Error, "File #{yumconf} does not contain a main section" 
+                    raise Puppet::Error, "File #{yumconf} does not contain a main section"
                 end
-                reposdir = main['reposdir'] 
+                reposdir = main['reposdir']
                 reposdir ||= "/etc/yum.repos.d, /etc/yum/repos.d"
                 reposdir.gsub!(/[\n,]/, " ")
                 reposdir.split.each do |dir|
@@ -138,7 +138,7 @@ module Puppet
             result.read(yumconf)
             main = result['main']
             if main.nil?
-                raise Puppet::Error, "File #{yumconf} does not contain a main section" 
+                raise Puppet::Error, "File #{yumconf} does not contain a main section"
             end
             reposdir = main['reposdir']
             reposdir ||= "/etc/yum.repos.d, /etc/yum/repos.d"
@@ -229,13 +229,13 @@ module Puppet
         end
 
         newproperty(:descr, :parent => Puppet::IniProperty) do
-            desc "A human readable description of the repository. 
+            desc "A human readable description of the repository.
                   #{ABSENT_DOC}"
             newvalue(:absent) { self.should = :absent }
             newvalue(/.*/) { }
             inikey "name"
         end
-        
+
         newproperty(:mirrorlist, :parent => Puppet::IniProperty) do
             desc "The URL that holds the list of mirrors for this repository.
                   #{ABSENT_DOC}"
@@ -250,9 +250,9 @@ module Puppet
             # Should really check that it's a valid URL
             newvalue(/.*/) { }
         end
-        
+
         newproperty(:enabled, :parent => Puppet::IniProperty) do
-            desc "Whether this repository is enabled or disabled. Possible 
+            desc "Whether this repository is enabled or disabled. Possible
                   values are '0', and '1'.\n#{ABSENT_DOC}"
             newvalue(:absent) { self.should = :absent }
             newvalue(%r{(0|1)}) { }
@@ -299,7 +299,7 @@ module Puppet
 
         newproperty(:enablegroups, :parent => Puppet::IniProperty) do
             desc "Determines whether yum will allow the use of
-              package groups for this  repository. Possible 
+              package groups for this  repository. Possible
               values are '0', and '1'.\n#{ABSENT_DOC}"
             newvalue(:absent) { self.should = :absent }
             newvalue(%r{(0|1)}) { }
@@ -312,14 +312,14 @@ module Puppet
         end
 
         newproperty(:keepalive, :parent => Puppet::IniProperty) do
-            desc "Either '1' or '0'. This tells yum whether or not HTTP/1.1 
+            desc "Either '1' or '0'. This tells yum whether or not HTTP/1.1
               keepalive  should  be  used with this repository.\n#{ABSENT_DOC}"
             newvalue(:absent) { self.should = :absent }
             newvalue(%r{(0|1)}) { }
         end
 
         newproperty(:timeout, :parent => Puppet::IniProperty) do
-            desc "Number of seconds to wait for a connection before timing 
+            desc "Number of seconds to wait for a connection before timing
                   out.\n#{ABSENT_DOC}"
             newvalue(:absent) { self.should = :absent }
             newvalue(%r{[0-9]+}) { }
@@ -333,7 +333,7 @@ module Puppet
         end
 
         newproperty(:protect, :parent => Puppet::IniProperty) do
-            desc "Enable or disable protection for this repository. Requires 
+            desc "Enable or disable protection for this repository. Requires
                   that the protectbase plugin is installed and enabled.
                   #{ABSENT_DOC}"
             newvalue(:absent) { self.should = :absent }
@@ -348,7 +348,7 @@ module Puppet
             newvalue(%r{[1-9][0-9]?}) { }
         end
 
-        
-        
+
+
     end
 end

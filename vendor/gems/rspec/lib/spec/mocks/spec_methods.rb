@@ -23,7 +23,7 @@ module Spec
       def mock(name, stubs_and_options={})
         Spec::Mocks::Mock.new(name, stubs_and_options)
       end
-      
+
       alias :stub :mock
 
       # Shortcut for creating a mock object that will return itself in response

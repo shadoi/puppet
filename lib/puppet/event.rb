@@ -10,7 +10,7 @@ module Puppet
         include Puppet
         include Puppet::Util::MethodHelper
         include Puppet::Util::Errors
-        
+
 		attr_accessor :event, :source, :transaction
 
         @@events = []

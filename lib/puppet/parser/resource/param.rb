@@ -32,7 +32,7 @@ class Puppet::Parser::Resource::Param
             end
         end
     end
-    
+
     # Store a new parameter in a Rails db.
     def to_rails(db_resource)
         values = munge_for_rails(value)
@@ -48,13 +48,13 @@ class Puppet::Parser::Resource::Param
     end
 
     def modify_rails_values(db_values)
-        #dev_warn if db_values.nil? || db_values.empty? 
+        #dev_warn if db_values.nil? || db_values.empty?
 
         values_to_remove(db_values).each { |remove_me|
             Puppet::Rails::ParamValue.delete(remove_me.id)
         }
         line_number = line_to_i()
-        values_to_add(db_values).each { |add_me| 
+        values_to_add(db_values).each { |add_me|
             db_resource = db_values[0].resource
             db_param_name = db_values[0].param_name
             db_resource.param_values.create(:value => add_me,
@@ -62,18 +62,18 @@ class Puppet::Parser::Resource::Param
                                            :param_name => db_param_name)
         }
     end
-    
+
     def to_s
         "%s => %s" % [self.name, self.value]
     end
-    
+
     def values_to_remove(db_values)
         values = munge_for_rails(value)
         line_number = line_to_i()
         db_values.collect do |db|
-            db unless (db.line == line_number && 
-                       values.find { |v| 
-                         v == db.value 
+            db unless (db.line == line_number &&
+                       values.find { |v|
+                         v == db.value
                        } )
         end.compact
     end
@@ -82,7 +82,7 @@ class Puppet::Parser::Resource::Param
         values = munge_for_rails(value)
         line_number = line_to_i()
         values.collect do |v|
-            v unless db_values.find { |db| (v == db.value && 
+            v unless db_values.find { |db| (v == db.value &&
                                          line_number == db.line) }
         end.compact
     end

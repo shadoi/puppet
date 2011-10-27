@@ -50,7 +50,7 @@ class Type
     attr_writer :noop
 
     include Enumerable
-    
+
     # class methods dealing with Type management
 
     public
@@ -120,7 +120,7 @@ class Type
 
     # The catalog that this resource is stored in.
     attr_accessor :catalog
-    
+
     # create a log at specified level
     def log(msg)
         Puppet::Util::Log.create(
@@ -230,7 +230,7 @@ class Type
 
         # If the name and title differ, set up an alias
         if self.name != self.title and self.catalog
-            if obj = catalog.resource(self.class.name, self.name) 
+            if obj = catalog.resource(self.class.name, self.name)
                 if self.class.isomorphic?
                     raise Puppet::Error, "%s already exists with name %s" %
                         [obj.title, self.name]
@@ -262,7 +262,7 @@ class Type
                 hash.delete attr
             end
         }
-        
+
         # Set all default values.
         self.setdefaults
 
@@ -344,7 +344,7 @@ class Type
     def ref
         "%s[%s]" % [self.class.name.to_s.capitalize, self.title]
     end
-    
+
     def self_refresh?
         self.class.self_refresh
     end

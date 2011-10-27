@@ -69,7 +69,7 @@ Puppet::Type.type(:file).newproperty(:checksum) do
         type = :mtime if type == :timestamp
         type = :ctime if type == :time
 
-        unless state = @resource.cached(:checksums) 
+        unless state = @resource.cached(:checksums)
             self.debug "Initializing checksum hash"
             state = {}
             @resource.cache(:checksums, state)
@@ -129,7 +129,7 @@ Puppet::Type.type(:file).newproperty(:checksum) do
     # Retrieve the cached sum
     def getcachedsum
         hash = nil
-        unless hash = @resource.cached(:checksums) 
+        unless hash = @resource.cached(:checksums)
             hash = {}
             @resource.cache(:checksums, hash)
         end
@@ -200,7 +200,7 @@ Puppet::Type.type(:file).newproperty(:checksum) do
             end
             return nil
         end
-        
+
         # If the sums are different, then return an event.
         if self.updatesum(currentvalue)
             return :file_changed
@@ -219,7 +219,7 @@ Puppet::Type.type(:file).newproperty(:checksum) do
             return true
         end
     end
-    
+
     # Even though they can specify multiple checksums, the insync?
     # mechanism can really only test against one, so we'll just retrieve
     # the first specified sum type.
@@ -246,7 +246,7 @@ Puppet::Type.type(:file).newproperty(:checksum) do
         # out of sync.  We don't want to generate an event the first
         # time we get a sum.
         self.updatesum(currentvalue) unless cache(checktype())
-        
+
         # @resource.debug "checksum state is %s" % self.is
         return currentvalue
     end

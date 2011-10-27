@@ -5,12 +5,12 @@ require 'mocha/missing_expectation'
 require 'mocha/metaclass'
 
 module Mocha # :nodoc:
-  
+
   # Traditional mock object.
   #
   # Methods return an Expectation which can be further modified by methods on Expectation.
   class Mock
-    
+
     # :call-seq: expects(method_name) -> expectation
     #            expects(method_names) -> last expectation
     #
@@ -46,7 +46,7 @@ module Mocha # :nodoc:
         @expectations.add(Expectation.new(self, method_name_or_hash, backtrace))
       end
     end
-    
+
     # :call-seq: stubs(method_name) -> expectation
     #            stubs(method_names) -> last expectation
     #
@@ -79,7 +79,7 @@ module Mocha # :nodoc:
         @expectations.add(Stub.new(self, method_name_or_hash, backtrace))
       end
     end
-    
+
     # :call-seq: responds_like(responder) -> mock
     #
     # Constrains the +mock+ so that it can only expect or stub methods to which +responder+ responds. The constraint is only applied at method invocation time.
@@ -124,9 +124,9 @@ module Mocha # :nodoc:
       @responder = object
       self
     end
-    
+
     # :stopdoc:
-    
+
     def initialize(name = nil, &block)
       @mock_name = name
       @expectations = ExpectationList.new
@@ -140,17 +140,17 @@ module Mocha # :nodoc:
     alias_method :__expects__, :expects
 
     alias_method :__stubs__, :stubs
-    
+
     alias_method :quacks_like, :responds_like
 
     def add_expectation(expectation)
       @expectations.add(expectation)
     end
-    
+
     def stub_everything
       @everything_stubbed = true
     end
-    
+
     def method_missing(symbol, *arguments, &block)
       if @responder and not @responder.respond_to?(symbol)
         raise NoMethodError, "undefined method `#{symbol}' for #{self.mocha_inspect} which responds like #{@responder.mocha_inspect}"
@@ -164,7 +164,7 @@ module Mocha # :nodoc:
         unexpected_method_called(symbol, *arguments)
       end
     end
-    
+
     def respond_to?(symbol)
       if @responder then
         @responder.respond_to?(symbol)
@@ -172,25 +172,25 @@ module Mocha # :nodoc:
         @expectations.matches_method?(symbol)
       end
     end
-  
+
     def unexpected_method_called(symbol, *arguments)
       MissingExpectation.new(self, symbol).with(*arguments).verify
     end
-  
+
     def verify(&block)
       @expectations.verify(&block)
     end
-  
+
     def mocha_inspect
       address = self.__id__ * 2
       address += 0x100000000 if address < 0
       @mock_name ? "#<Mock:#{@mock_name}>" : "#<Mock:0x#{'%x' % address}>"
     end
-    
+
     def inspect
       mocha_inspect
     end
-    
+
     def ensure_method_not_already_defined(method_name)
       self.__metaclass__.send(:undef_method, method_name) if self.__metaclass__.method_defined?(method_name)
     end

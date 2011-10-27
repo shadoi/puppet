@@ -62,7 +62,7 @@ module Puppet::Util::POSIX
         end
         return nil
     end
-    
+
     # Determine what the field name is for users and groups.
     def idfield(space)
         case Puppet::Util.symbolize(space)
@@ -72,7 +72,7 @@ module Puppet::Util::POSIX
             raise ArgumentError.new("Can only handle users and groups")
         end
     end
-    
+
     # Get the GID of a given group, provided either a GID or a name
     def gid(group)
         get_posix_field(:group, :gid, group)

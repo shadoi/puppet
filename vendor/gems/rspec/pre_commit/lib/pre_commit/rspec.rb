@@ -8,7 +8,7 @@ class PreCommit::Rspec < PreCommit
     pre_commit_rails
     ok_to_commit
   end
-  
+
   def check_for_gem_dependencies
     require "rubygems"
     gem 'rake'
@@ -39,7 +39,7 @@ class PreCommit::Rspec < PreCommit
       end
     end
   end
-  
+
   # TODO - move me up to the project root
   def touch_revision_storing_files
     files = [
@@ -56,13 +56,13 @@ class PreCommit::Rspec < PreCommit
       end
     end
   end
-  
+
   def pre_commit_core
     Dir.chdir 'rspec' do
       rake = (PLATFORM == "i386-mswin32") ? "rake.bat" : "rake"
       system("#{rake} pre_commit --verbose --trace")
       raise "RSpec Core pre_commit failed" if error_code?
-    end    
+    end
   end
 
   def pre_commit_textmate_bundle
@@ -70,7 +70,7 @@ class PreCommit::Rspec < PreCommit
       rake = (PLATFORM == "i386-mswin32") ? "rake.bat" : "rake"
       system("#{rake} spec --verbose --trace")
       raise "RSpec Textmate Bundle specs failed" if error_code?
-    end    
+    end
   end
 
   def install_dependencies
@@ -104,7 +104,7 @@ class PreCommit::Rspec < PreCommit
       end
     end
   end
-  
+
   def ok_to_commit
     puts "OK TO COMMIT"
   end

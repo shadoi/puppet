@@ -4,7 +4,7 @@ require 'mocha/standalone'
 require 'mocha/test_case_adapter'
 
 module TestRunner
-  
+
   def run_test(test_result = Test::Unit::TestResult.new, &block)
     test_class = Class.new(Test::Unit::TestCase) do
       include Mocha::Standalone
@@ -18,7 +18,7 @@ module TestRunner
     end
     test_result
   end
-  
+
   def assert_passed(test_result)
     flunk "Test failed unexpectedly with message: #{test_result.failures}" if test_result.failure_count > 0
     flunk "Test failed unexpectedly with message: #{test_result.errors}" if test_result.error_count > 0

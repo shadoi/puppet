@@ -218,7 +218,7 @@ class Puppet::SimpleGraph
     def remove_edge!(edge)
         @vertices[edge.source].remove_edge(:out, edge)
         @vertices[edge.target].remove_edge(:in, edge)
-        
+
         # Here we are looking for an exact edge, so we don't want to use ==, because
         # it's too darn expensive (in testing, deleting 3000 edges went from 6 seconds to
         # 0.05 seconds with this change).
@@ -239,9 +239,9 @@ class Puppet::SimpleGraph
     def setup_vertex(vertex)
         @vertices[vertex] = VertexWrapper.new(vertex)
     end
- 
+
     public
-    
+
 #    # For some reason, unconnected vertices do not show up in
 #    # this graph.
 #    def to_jpg(path, name)
@@ -293,7 +293,7 @@ class Puppet::SimpleGraph
       end
       graph
     end
-    
+
     # Output the dot format as a string
     def to_dot (params={}) to_dot_graph(params).to_s; end
 
@@ -309,9 +309,9 @@ class Puppet::SimpleGraph
     def write_to_graphic_file (fmt='png', dotfile='graph')
       src = dotfile + '.dot'
       dot = dotfile + '.' + fmt
-      
+
       File.open(src, 'w') {|f| f << self.to_dot << "\n"}
-      
+
       system( "dot -T#{fmt} #{src} -o #{dot}" )
       dot
     end

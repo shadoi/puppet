@@ -2,11 +2,11 @@ require File.dirname(__FILE__) + '/test_unit_spec_helper'
 
 describe "ExampleGroup with test/unit/interop" do
   include TestUnitSpecHelper
-  
+
   before(:each) do
     @dir = File.dirname(__FILE__) + "/resources"
   end
-  
+
   describe "with passing examples" do
     it "should output 0 failures" do
       output = ruby("#{@dir}/spec_that_passes.rb")

@@ -138,7 +138,7 @@ class Puppet::Util::Autoload
         # JJM: Search for optional lib directories in each module bundle.
         module_lib_dirs = Puppet[:modulepath].split(":").collect do |d|
             Dir.glob("%s/*/{plugins,lib}" % d).select do |f|
-                FileTest.directory?(f) 
+                FileTest.directory?(f)
             end
         end.flatten
         [module_lib_dirs, Puppet[:libdir], $:].flatten

@@ -110,9 +110,9 @@ class Puppet::Util::FileType
             raise("Cannot create file %s in absent directory" % @path) unless FileTest.exist?(File.dirname(@path))
 
             require "tempfile"
-            tf = Tempfile.new("puppet") 
-            tf.print text; tf.flush 
-            FileUtils.cp(tf.path, @path) 
+            tf = Tempfile.new("puppet")
+            tf.print text; tf.flush
+            FileUtils.cp(tf.path, @path)
             tf.close
         end
     end
@@ -308,7 +308,7 @@ class Puppet::Util::FileType
                             raise ArgumentError, "Could not match value %s" % value
                         end
                     end
-                else    
+                else
                     raise ArgumentError, "Could not match line %s" % line
                 end
             end

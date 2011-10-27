@@ -10,7 +10,7 @@ class ObjectAdd < Puppet::Provider::NameService
             return false
         end
     end
-    
+
     def deletecmd
         [command(:delete), @resource[:name]]
     end

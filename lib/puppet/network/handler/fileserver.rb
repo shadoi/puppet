@@ -53,7 +53,7 @@ class Puppet::Network::Handler
             mount = Mount.new(MODULES)
             mount.allow("*")
             @mounts[MODULES] = mount
-            
+
             Puppet.debug "No file server configuration file; autocreating #{PLUGINS} mount with default permissions"
             mount = PluginMount.new(PLUGINS)
             mount.allow("*")
@@ -143,7 +143,7 @@ class Puppet::Network::Handler
 
             desc.collect { |sub| sub.join("\t") }.join("\n")
         end
-        
+
         def local?
             self.local
         end
@@ -348,14 +348,14 @@ class Puppet::Network::Handler
                 mount.allow("*")
                 newmounts[MODULES] = mount
             end
-            
+
             unless newmounts[PLUGINS]
                 Puppet.debug "No #{PLUGINS} mount given; autocreating with default permissions"
                 mount = PluginMount.new(PLUGINS)
                 mount.allow("*")
                 newmounts[PLUGINS] = mount
             end
-            
+
             unless newmounts[PLUGINS].valid?
                 Puppet.debug "No path given for #{PLUGINS} mount; creating a special PluginMount"
                 # We end up here if the user has specified access rules for
@@ -371,7 +371,7 @@ class Puppet::Network::Handler
                                  )
                 newmounts[PLUGINS] = mount
             end
-                
+
             # Verify each of the mounts are valid.
             # We let the check raise an error, so that it can raise an error
             # pointing to the specific problem.
@@ -432,7 +432,7 @@ class Puppet::Network::Handler
             # Create a map for a specific client.
             def clientmap(client)
                 {
-                    "h" => client.sub(/\..*$/, ""), 
+                    "h" => client.sub(/\..*$/, ""),
                     "H" => client,
                     "d" => client.sub(/[^.]+\./, "") # domain name
                 }
@@ -453,7 +453,7 @@ class Puppet::Network::Handler
                 end
                 path.gsub(/%(.)/) do |v|
                     key = $1
-                    if key == "%" 
+                    if key == "%"
                         "%"
                     else
                         map[key] || v
@@ -662,11 +662,11 @@ class Puppet::Network::Handler
                 abspath = basepath if abspath.nil?
                 relpath = abspath.sub(%r{^#{basepath}}, '')
                 relpath = "/#{relpath}" if relpath[0] != ?/  #/
-                
+
                 return unless FileTest.exists?(abspath)
-                
+
                 desc = [relpath]
-                
+
                 ftype = File.stat(abspath).ftype
 
                 desc << ftype
@@ -680,7 +680,7 @@ class Puppet::Network::Handler
                         children = Dir.entries(abspath)
                         if ignore
                             children = handleignore(children, abspath, ignore)
-                        end  
+                        end
                         children.each { |child|
                             next if child =~ /^\.\.?$/
                             reclist(basepath, File.join(abspath, child), recurse, ignore).each { |cobj|
@@ -702,12 +702,12 @@ class Puppet::Network::Handler
                 end
                 return files
             end
-        end  
+        end
 
         # A special mount class specifically for the plugins mount -- just
         # has some magic to effectively do a union mount of the 'plugins'
         # directory of all modules.
-        # 
+        #
         class PluginMount < Mount
             def path(client)
                 ''
@@ -728,7 +728,7 @@ class Puppet::Network::Handler
             def mod_file_path(mod, relpath, client = nil)
                 File.join(mod, PLUGINS, relpath)
             end
-            
+
             def file_path(relpath, client = nil)
                 mod = valid_modules.map { |m| mod_path_exists?(m, relpath, client) ? m : nil }.compact.first
                 mod_file_path(mod, relpath, client)
@@ -749,7 +749,7 @@ class Puppet::Network::Handler
             def valid_modules
                Puppet::Module.all.find_all { |m| File.directory?(File.join(m, PLUGINS)) }
             end
-            
+
             def add_to_filetree(f, filetree)
                first, rest = f.split(File::SEPARATOR, 2)
             end

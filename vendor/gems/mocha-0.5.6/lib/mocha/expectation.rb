@@ -8,10 +8,10 @@ require 'mocha/yield_parameters'
 require 'mocha/is_a'
 
 module Mocha # :nodoc:
-  
+
   # Methods on expectations returned from Mock#expects, Mock#stubs, Object#expects and Object#stubs.
   class Expectation
-  
+
     # :call-seq: times(range) -> expectation
     #
     # Modifies expectation so that the number of calls to the expected method must be within a specific +range+.
@@ -40,7 +40,7 @@ module Mocha # :nodoc:
       @expected_count = range
       self
     end
-  
+
     # :call-seq: once() -> expectation
     #
     # Modifies expectation so that the expected method must be called exactly once.
@@ -63,7 +63,7 @@ module Mocha # :nodoc:
       times(1)
       self
     end
-  
+
     # :call-seq: never() -> expectation
     #
     # Modifies expectation so that the expected method must never be called.
@@ -80,7 +80,7 @@ module Mocha # :nodoc:
       times(0)
       self
     end
-  
+
     # :call-seq: at_least(minimum_number_of_times) -> expectation
     #
     # Modifies expectation so that the expected method must be called at least a +minimum_number_of_times+.
@@ -97,7 +97,7 @@ module Mocha # :nodoc:
       times(Range.at_least(minimum_number_of_times))
       self
     end
-  
+
     # :call-seq: at_least_once() -> expectation
     #
     # Modifies expectation so that the expected method must be called at least once.
@@ -113,7 +113,7 @@ module Mocha # :nodoc:
       at_least(1)
       self
     end
-  
+
     # :call-seq: at_most(maximum_number_of_times) -> expectation
     #
     # Modifies expectation so that the expected method must be called at most a +maximum_number_of_times+.
@@ -130,7 +130,7 @@ module Mocha # :nodoc:
       times(Range.at_most(maximum_number_of_times))
       self
     end
-  
+
     # :call-seq: at_most_once() -> expectation
     #
     # Modifies expectation so that the expected method must be called at most once.
@@ -147,7 +147,7 @@ module Mocha # :nodoc:
       at_most(1)
       self
     end
-  
+
     # :call-seq: with(*expected_parameters, &matching_block) -> expectation
     #
     # Modifies expectation so that the expected method must be called with +expected_parameters+.
@@ -177,7 +177,7 @@ module Mocha # :nodoc:
       @parameters_matcher = ParametersMatcher.new(expected_parameters, &matching_block)
       self
     end
-  
+
     # :call-seq: yields(*parameters) -> expectation
     #
     # Modifies expectation so that when the expected method is called, it yields with the specified +parameters+.
@@ -199,7 +199,7 @@ module Mocha # :nodoc:
       @yield_parameters.add(*parameters)
       self
     end
-    
+
     # :call-seq: multiple_yields(*parameter_groups) -> expectation
     #
     # Modifies expectation so that when the expected method is called, it yields multiple times per invocation with the specified +parameter_groups+.
@@ -221,7 +221,7 @@ module Mocha # :nodoc:
       @yield_parameters.multiple_add(*parameter_groups)
       self
     end
-    
+
     # :call-seq: returns(value) -> expectation
     #            returns(*values) -> expectation
     #
@@ -261,7 +261,7 @@ module Mocha # :nodoc:
       @return_values += ReturnValues.build(*values)
       self
     end
-  
+
     # :call-seq: raises(exception = RuntimeError, message = nil) -> expectation
     #
     # Modifies expectation so that when the expected method is called, it raises the specified +exception+ with the specified +message+.
@@ -296,14 +296,14 @@ module Mocha # :nodoc:
     def then
       self
     end
-    
+
     # :stopdoc:
-    
+
     def in_sequence(*sequences)
       sequences.each { |sequence| sequence.constrain_as_next_in_sequence(self) }
       self
     end
-    
+
     attr_reader :backtrace
 
     def initialize(mock, expected_method_name, backtrace = nil)
@@ -316,23 +316,23 @@ module Mocha # :nodoc:
       @yield_parameters = YieldParameters.new
       @backtrace = backtrace || caller
     end
-    
+
     def add_ordering_constraint(ordering_constraint)
       @ordering_constraints << ordering_constraint
     end
-    
+
     def in_correct_order?
       @ordering_constraints.all? { |ordering_constraint| ordering_constraint.allows_invocation_now? }
     end
-    
+
     def matches_method?(method_name)
       @method_matcher.match?(method_name)
     end
-    
+
     def match?(actual_method_name, *actual_parameters)
       @method_matcher.match?(actual_method_name) && @parameters_matcher.match?(actual_parameters) && in_correct_order?
     end
-    
+
     def invocations_allowed?
       if @expected_count.is_a?(Range) then
         @invoked_count < @expected_count.last
@@ -348,7 +348,7 @@ module Mocha # :nodoc:
         @invoked_count >= @expected_count
       end
     end
-  
+
     def invoke
       @invoked_count += 1
       if block_given? then
@@ -366,19 +366,19 @@ module Mocha # :nodoc:
         raise error
       end
     end
-    
+
     def method_signature
       signature = "#{@mock.mocha_inspect}.#{@method_matcher.mocha_inspect}#{@parameters_matcher.mocha_inspect}"
       signature << "; #{@ordering_constraints.map { |oc| oc.mocha_inspect }.join("; ")}" unless @ordering_constraints.empty?
       signature
     end
-    
+
     def error_message(expected_count, actual_count)
       "#{method_signature} - expected calls: #{expected_count.mocha_inspect}, actual calls: #{actual_count}"
     end
-  
+
     # :startdoc:
-    
+
   end
 
 end

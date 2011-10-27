@@ -76,7 +76,7 @@
   Time.now # => Mon Jan 01 00:00:00 UTC 2007
   Time.stubs(:now).returns(Time.parse('Thu Feb 01 00:00:00 UTC 2007'))
   Time.now # => Thu Feb 01 00:00:00 UTC 2007
-  
+
 - Deprecate passing an instance of Proc to Expectation#returns.
 - Explicitly include all Rakefile dependencies in project.
 - Fixed old Stubba example.

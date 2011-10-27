@@ -27,7 +27,7 @@ module Spec
         Spec::Example::ExampleGroupFactory.create_example_group(*args, &block)
       end
       alias :context :describe
-      
+
       # Creates an example group that can be shared by other example groups
       #
       # == Examples
@@ -38,7 +38,7 @@ module Spec
       #
       #  describe SmallEdition do
       #    it_should_behave_like "All Editions"
-      #  
+      #
       #    it "should do small edition stuff" do
       #      ...
       #    end
@@ -46,9 +46,9 @@ module Spec
       def share_examples_for(name, &block)
         describe(name, :shared => true, &block)
       end
-      
+
       alias :shared_examples_for :share_examples_for
-      
+
       # Creates a Shared Example Group and assigns it to a constant
       #
       #  share_as :AllEditions do
@@ -57,7 +57,7 @@ module Spec
       #
       #  describe SmallEdition do
       #    it_should_behave_like AllEditions
-      #  
+      #
       #    it "should do small edition stuff" do
       #      ...
       #    end
@@ -68,7 +68,7 @@ module Spec
       #
       #  describe SmallEdition do
       #    include AllEditions
-      #  
+      #
       #    it "should do small edition stuff" do
       #      ...
       #    end
@@ -82,7 +82,7 @@ module Spec
       end
 
     private
-    
+
       def rspec_options
         $rspec_options ||= begin; \
           parser = ::Spec::Runner::OptionParser.new(STDERR, STDOUT); \
@@ -91,7 +91,7 @@ module Spec
         end
         $rspec_options
       end
-      
+
       def init_rspec_options(options)
         $rspec_options = options if $rspec_options.nil?
       end

@@ -3,7 +3,7 @@ require 'mocha'
 require 'test_runner'
 
 class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
-  
+
   include TestRunner
 
   def test_should_match_hash_parameter_with_specified_key
@@ -23,7 +23,7 @@ class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
     end
     assert_failed(test_result)
   end
-  
+
   def test_should_match_hash_parameter_with_specified_value
     test_result = run_test do
       mock = mock()
@@ -41,7 +41,7 @@ class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
     end
     assert_failed(test_result)
   end
-  
+
   def test_should_match_hash_parameter_with_specified_key_value_pair
     test_result = run_test do
       mock = mock()
@@ -59,7 +59,7 @@ class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
     end
     assert_failed(test_result)
   end
-  
+
   def test_should_match_hash_parameter_with_specified_hash_entry
     test_result = run_test do
       mock = mock()
@@ -77,7 +77,7 @@ class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
     end
     assert_failed(test_result)
   end
-  
+
   def test_should_match_hash_parameter_with_specified_entries
     test_result = run_test do
       mock = mock()
@@ -95,7 +95,7 @@ class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
     end
     assert_failed(test_result)
   end
-  
+
   def test_should_match_parameter_that_matches_regular_expression
     test_result = run_test do
       mock = mock()
@@ -113,5 +113,5 @@ class ParameterMatcherAcceptanceTest < Test::Unit::TestCase
     end
     assert_failed(test_result)
   end
-  
+
 end

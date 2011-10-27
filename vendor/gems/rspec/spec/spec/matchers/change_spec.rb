@@ -54,7 +54,7 @@ describe "should change { block }" do
       lambda {}.should change{ @instance.some_value }
     end.should fail_with("result should have changed, but is still 5")
   end
-  
+
   it "should warn if passed a block using do/end" do
     lambda do
       lambda {}.should change do
@@ -78,7 +78,7 @@ describe "should_not change { block }" do
       lambda {@instance.some_value = 6}.should_not change { @instance.some_value }
     end.should fail_with("result should not have changed, but did change from 5 to 6")
   end
-  
+
   it "should warn if passed a block using do/end" do
     lambda do
       lambda {}.should_not change do
@@ -142,10 +142,10 @@ describe "should change(actual, message).by_at_least(expected)" do
   it "should pass when attribute is changed by greater than the expected amount" do
     lambda { @instance.some_value += 2 }.should change(@instance, :some_value).by_at_least(1)
   end
-  
+
   it "should pass when attribute is changed by the expected amount" do
     lambda { @instance.some_value += 2 }.should change(@instance, :some_value).by_at_least(2)
-  end  
+  end
 
   it "should fail when the attribute is changed by less than the expected amount" do
     lambda do
@@ -164,10 +164,10 @@ describe "should change{ block }.by_at_least(expected)" do
   it "should pass when attribute is changed by greater than expected amount" do
     lambda { @instance.some_value += 2 }.should change{@instance.some_value}.by_at_least(1)
   end
-  
+
   it "should pass when attribute is changed by the expected amount" do
     lambda { @instance.some_value += 2 }.should change{@instance.some_value}.by_at_least(2)
-  end  
+  end
 
   it "should fail when the attribute is changed by less than the unexpected amount" do
     lambda do
@@ -186,10 +186,10 @@ describe "should change(actual, message).by_at_most(expected)" do
   it "should pass when attribute is changed by less than the expected amount" do
     lambda { @instance.some_value += 2 }.should change(@instance, :some_value).by_at_most(3)
   end
-  
+
   it "should pass when attribute is changed by the expected amount" do
     lambda { @instance.some_value += 2 }.should change(@instance, :some_value).by_at_most(2)
-  end  
+  end
 
   it "should fail when the attribute is changed by greater than the expected amount" do
     lambda do
@@ -208,10 +208,10 @@ describe "should change{ block }.by_at_most(expected)" do
   it "should pass when attribute is changed by less than expected amount" do
     lambda { @instance.some_value += 2 }.should change{@instance.some_value}.by_at_most(3)
   end
-  
+
   it "should pass when attribute is changed by the expected amount" do
     lambda { @instance.some_value += 2 }.should change{@instance.some_value}.by_at_most(2)
-  end  
+  end
 
   it "should fail when the attribute is changed by greater than the unexpected amount" do
     lambda do
@@ -259,7 +259,7 @@ describe "should change(actual, message).to(new)" do
     @instance = SomethingExpected.new
     @instance.some_value = 'string'
   end
-  
+
   it "should pass when attribute is == to expected value after executing block" do
     lambda { @instance.some_value = "cat" }.should change(@instance, :some_value).to("cat")
   end
@@ -276,7 +276,7 @@ describe "should change{ block }.to(new)" do
     @instance = SomethingExpected.new
     @instance.some_value = 'string'
   end
-  
+
   it "should pass when attribute is == to expected value after executing block" do
     lambda { @instance.some_value = "cat" }.should change{@instance.some_value}.to("cat")
   end
@@ -293,7 +293,7 @@ describe "should change(actual, message).from(old).to(new)" do
     @instance = SomethingExpected.new
     @instance.some_value = 'string'
   end
-  
+
   it "should pass when #to comes before #from" do
     lambda { @instance.some_value = "cat" }.should change(@instance, :some_value).to("cat").from("string")
   end
@@ -308,7 +308,7 @@ describe "should change{ block }.from(old).to(new)" do
     @instance = SomethingExpected.new
     @instance.some_value = 'string'
   end
-  
+
   it "should pass when #to comes before #from" do
     lambda { @instance.some_value = "cat" }.should change{@instance.some_value}.to("cat").from("string")
   end

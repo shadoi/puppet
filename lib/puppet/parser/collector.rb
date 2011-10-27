@@ -155,7 +155,7 @@ class Puppet::Parser::Collector
         resource = obj.to_resource(self.scope)
 
         resource.exported = false
-        
+
         scope.compiler.add_resource(scope, resource)
 
         return resource

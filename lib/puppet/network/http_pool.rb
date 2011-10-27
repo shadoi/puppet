@@ -104,7 +104,7 @@ module Puppet::Network::HttpPool
     end
 
     private
-    
+
     def self.http_cache
         # Default to an empty hash.
         attr_cache(:http) { Hash.new }

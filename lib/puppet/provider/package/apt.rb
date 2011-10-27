@@ -72,7 +72,7 @@ Puppet::Type.type(:package).provide :apt, :parent => :dpkg, :source => :dpkg do
         end
 
         cmd << :install << str
-        
+
         aptget(*cmd)
     end
 
@@ -96,7 +96,7 @@ Puppet::Type.type(:package).provide :apt, :parent => :dpkg, :source => :dpkg do
             self.info("Preseeding %s to debconf-set-selections" % response)
 
             preseed response
-        else 
+        else
             self.info "No responsefile specified or non existant, not preseeding anything"
         end
     end

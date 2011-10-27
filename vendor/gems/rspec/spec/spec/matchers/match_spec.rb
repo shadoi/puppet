@@ -10,7 +10,7 @@ describe "should match(expected)" do
       "string".should match(/rings/)
     }.should fail
   end
-  
+
   it "should provide message, expected and actual on failure" do
     matcher = match(/rings/)
     matcher.matches?("string")

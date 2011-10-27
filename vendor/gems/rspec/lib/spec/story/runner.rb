@@ -12,7 +12,7 @@ module Spec
         def run_options # :nodoc:
           @run_options ||= ::Spec::Runner::OptionParser.parse(ARGV, $stderr, $stdout)
         end
-        
+
         def story_runner # :nodoc:
           unless @story_runner
             @story_runner = StoryRunner.new(scenario_runner, world_creator)
@@ -23,33 +23,33 @@ module Spec
           end
           @story_runner
         end
-        
+
         def scenario_runner # :nodoc:
           @scenario_runner ||= ScenarioRunner.new
         end
-        
+
         def world_creator # :nodoc:
           @world_creator ||= World
         end
-        
+
         # Use this to register a customer output formatter.
         def register_listener(listener)
           story_runner.add_listener(listener) # run_started, story_started, story_ended, #run_ended
           world_creator.add_listener(listener) # found_scenario, step_succeeded, step_failed, step_failed
           scenario_runner.add_listener(listener) # scenario_started, scenario_succeeded, scenario_pending, scenario_failed
         end
-        
+
         def register_exit_hook # :nodoc:
           at_exit do
             Runner.story_runner.run_stories unless $!
           end
           # TODO exit with non-zero status if run fails
         end
-        
+
         def dry_run
           run_options.dry_run
         end
-        
+
       end
     end
   end

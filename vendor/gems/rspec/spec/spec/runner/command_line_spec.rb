@@ -107,7 +107,7 @@ module Spec
 
         ::Spec::Runner::Options.should_receive(:new).with(@err, @out).and_return(options)
         options.reporter.should_receive(:add_example_group).with(example_group)
-        
+
         Spec::Runner::CommandLine.run(OptionParser.parse([], @err, @out))
       end
 

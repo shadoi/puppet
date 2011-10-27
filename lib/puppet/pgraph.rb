@@ -23,7 +23,7 @@ class Puppet::PGraph < Puppet::SimpleGraph
     def dependents(resource)
         tree_from_vertex(resource).keys
     end
-    
+
     # Which resources depend upon the given resource.
     def dependencies(resource)
         # Cache the reversal graph, because it's somewhat expensive
@@ -36,14 +36,14 @@ class Puppet::PGraph < Puppet::SimpleGraph
         # in the :in direction.
         @reversal.tree_from_vertex(resource, :out).keys
     end
-    
+
     # Determine all of the leaf nodes below a given vertex.
     def leaves(vertex, direction = :out)
         tree = tree_from_vertex(vertex, direction)
         l = tree.keys.find_all { |c| adjacent(c, :direction => direction).empty? }
         return l
     end
-    
+
     # Collect all of the edges that the passed events match.  Returns
     # an array of edges.
     def matching_edges(events, base = nil)
@@ -62,11 +62,11 @@ class Puppet::PGraph < Puppet::SimpleGraph
             end
         end.compact.flatten
     end
-    
+
     # Take container information from another graph and use it
     # to replace any container vertices with their respective leaves.
     # This creates direct relationships where there were previously
-    # indirect relationships through the containers. 
+    # indirect relationships through the containers.
     def splice!(other, type)
         # We have to get the container list via a topological sort on the
         # configuration graph, because otherwise containers that contain
@@ -84,7 +84,7 @@ class Puppet::PGraph < Puppet::SimpleGraph
                 remove_vertex!(container)
                 next
             end
-            
+
             # First create new edges for each of the :in edges
             [:in, :out].each do |dir|
                 edges = adjacent(container, :direction => dir, :type => :edges)
@@ -116,6 +116,6 @@ class Puppet::PGraph < Puppet::SimpleGraph
         walk(start, direction) do |parent, child|
             predecessor[child] = parent
         end
-        predecessor       
+        predecessor
     end
 end

@@ -21,7 +21,7 @@ module Spec
           mock.rspec_verify
         end
         example = example_group.new(example_definition)
-        
+
         reporter.should_receive(:example_finished) do |spec, error|
           error.backtrace.detect {|line| line =~ /\/path\/to\/blah.ext:37/}.should_not be_nil
         end

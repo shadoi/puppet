@@ -4,7 +4,7 @@ module Spec
   module Example
     describe 'Nested Example Groups' do
       parent = self
-      
+
       def count
         @count ||= 0
         @count = @count + 1
@@ -49,7 +49,7 @@ module Spec
 
       describe 'nested example group' do
         self.superclass.should == parent
-        
+
         it "should run all before and after callbacks" do
           count.should == 5
         end

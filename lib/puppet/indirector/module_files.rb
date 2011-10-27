@@ -52,7 +52,7 @@ class Puppet::Indirector::ModuleFiles < Puppet::Indirector::Terminus
     def configuration
         Puppet::FileServing::Configuration.create
     end
-    
+
     # Determine the environment to use, if any.
     def environment(node_name)
         if node_name and node = Puppet::Node.find(node_name)

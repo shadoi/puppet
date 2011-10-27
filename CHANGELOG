@@ -10,14 +10,14 @@
 0.24.?
     Removed support for the 'node_name' setting in LDAP and external node lookups.
 
-    Removed support for the 'node_name' setting in LDAP and external node 
+    Removed support for the 'node_name' setting in LDAP and external node
     lookups.
 
     Also removed support for 'default' nodes in external nodes.
     LDAP nodes now use the certificate name, the short name, and 'default',
     but external nodes just use the certificate name and any custom terminus
     types will use just the certificate name.
-    
+
     Fixed #1201 - all external node attributes are converted to strings.
 
     Fixing #1168 (for 0.24.x) -- automatically downcasing the fqdn.
@@ -37,7 +37,7 @@
     The Master handler previously provided the support for the :node_name
     setting, and that functionality has now been moved into the Node
     class.  At the same time, the names to search through have been
-    changed somewhat:  Previously, the certificate name and the 
+    changed somewhat:  Previously, the certificate name and the
     hostname were both used for searching, but now, the cert name
     is always searched first (unless node_name == facter), but only
     the Facter hostname, domain, and fqdn are used otherwise.  We no
@@ -47,28 +47,28 @@
 
     Adding support for settings within the existing Facter provider confines.
 
-    Moving all confine code out of the Provider class, and fixing #1197. 
-    Created a Confiner module for the Provider class methods, enhanced 
-    the interface between it and the Confine class to make sure binary 
+    Moving all confine code out of the Provider class, and fixing #1197.
+    Created a Confiner module for the Provider class methods, enhanced
+    the interface between it and the Confine class to make sure binary
     paths are searched for fresh each time.
 
     Modified the 'factpath' setting to automatically configure
     Facter to load facts there if a new enough version of
     Facter is used.
 
-    Crontab provider: fix a parse error when a line begins with a space 
+    Crontab provider: fix a parse error when a line begins with a space
     character (fixes #1216)
 
-    Instead of deleting the init scripts (with --del) we should simply 
-    disable it with chkconfig service off, and respectfully do the same 
+    Instead of deleting the init scripts (with --del) we should simply
+    disable it with chkconfig service off, and respectfully do the same
     for enable => true;
- 
+
     Added ldap providers for users and groups.
 
     Added support for the --all option to puppetca --clean.  If
     puppetca --clean --all is issued then all client certificates
     are removed.
- 
+
     Resources now return the 'should' value for properties from
     the [] accessor method (they previously threw an exception when
     this method was used with properties).  This shouldn't have any
@@ -134,7 +134,7 @@
     that it can cause corruption, especially in file serving (but
     it's client-side corruption).
 
-    Applying patch by Ryan McBride to fix OpenBSD package 
+    Applying patch by Ryan McBride to fix OpenBSD package
     matching.  The actual problem was caused by the fix to #1001.
 
     Found all instances of methods where split() is used without
@@ -384,7 +384,7 @@
     the bootproto (#762).
 
     You now must specify an environment and you are required to specify
-    the valid environments for your site. (#911) 
+    the valid environments for your site. (#911)
 
     Certificates now always specify a subjectAltName, but it defaults
     to '*', meaning that it doesn't require DNS names to match.  You
@@ -515,7 +515,7 @@
     exactly the feature asked for, but I could not find a
     way to directly copy ActiveRecord's concept of an environment.
 
-    External node sources can now return undefined classes (#687). 
+    External node sources can now return undefined classes (#687).
 
     Puppet clients now have http proxy support (#701).
 
@@ -568,7 +568,7 @@
 
         Only ONE node source can be used -- you can use LDAP, code, or
         an external node program, but not more than one.
-    
+
         LDAP node support has two changes:  First, the "ldapattrs" attribute is
         now used for setting the attributes to retrieve from the server (in
         addition to required attriutes), and second, all retrieved attributes
@@ -583,8 +583,8 @@
         handle that on its own.
 
     Reworked the database schema used to store configurations with the
-    storeconfigs option.  
-    
+    storeconfigs option.
+
     Replaced the obsolete RRD ruby library with the maintained
     RubyRRDtool library (which requires rrdtool2) (#659).
 
@@ -657,7 +657,7 @@
     fail on cycles.
 
     Added a 'dynamicfacts' configuration option; any facts in that
-    comma-separated list will be ignored when comparing facts to 
+    comma-separated list will be ignored when comparing facts to
     see if they have changed and thus whether a recompile is necessary.
 
     Renamed some poorly named internal variables:
@@ -829,7 +829,7 @@
     Fixing a bug related to link recursion that caused link directories
     to always be considered out of sync.
 
-    The bind address for puppetmasterd can now be specified with 
+    The bind address for puppetmasterd can now be specified with
     --bindaddress.
 
     Added (probably experimental) mongrel support.  At this point you're
@@ -1009,7 +1009,7 @@
     Correctly handling spaces in file sources.
 
     Moved documentation into svn tree.
-    
+
 0.18.0
     Added support for a "default" node.
 
@@ -1207,7 +1207,7 @@
 
 0.9.4
     Small fix to wrap the StatusServer class in the checks for required classes.
-    
+
 0.9.3
     Fixed some significant bugs in cron job management.
 

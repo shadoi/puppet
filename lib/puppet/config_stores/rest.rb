@@ -2,12 +2,12 @@ Puppet::Util::SettingsStore.newstore(:rest) do
     desc "Store client configurations via a REST web service."
 
     require 'net/http'
- 
+
     # Get a client's config. (called in collector?)
     def get(client, config)
         # Assuming this comes in as Puppet::Parser objects
         # we may need way to choose which transport data type we use.
-       
+
         # hmm.. is this even useful for stored configs? I suppose there could
         # be scenarios where it'd be cool, like ralsh or something.
     end
@@ -45,7 +45,7 @@ Puppet::Util::SettingsStore.newstore(:rest) do
         begin
             # Gotta be a better way... seems goofy to me.
             # maybe using a nested rails rest route...
-           
+
             # filterhost so we don't get exported resources for the current client
             url = "/resources?restype=exported&filterhost=#{client}"
             conditions.each_pair {|k,v| url << "&#{k}=#{v}"}

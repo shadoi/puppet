@@ -188,12 +188,12 @@ module Functions
         result
     end
 
-    newfunction(:fqdn_rand, :type => :rvalue, :doc => "Generates random 
+    newfunction(:fqdn_rand, :type => :rvalue, :doc => "Generates random
     numbers based on the node's fqdn. The first argument sets the range.
     The second argument specifies a number to add to the seed and is
     optional.") do |args|
 	require 'md5'
-	max = args[0] 
+	max = args[0]
 	if args[1] then
 	     seed = args[1]
 	else
@@ -202,7 +202,7 @@ module Functions
 	fqdn_seed = MD5.new(lookupvar('fqdn')).to_s.hex
 	srand(seed+fqdn_seed)
 	rand(max).to_s
-    end 
+    end
 
     newfunction(:fail, :doc => "Fail with a parse error.") do |vals|
         vals = vals.collect { |s| s.to_s }.join(" ") if vals.is_a? Array
@@ -210,11 +210,11 @@ module Functions
     end
 
     # Runs a newfunction to create a function for each of the log levels
-    Puppet::Util::Log.levels.each do |level|      
+    Puppet::Util::Log.levels.each do |level|
         newfunction(level, :doc => "Log a message on the server at level
-        #{level.to_s}.") do |vals| 
-            send(level, vals.join(" ")) 
-        end 
+        #{level.to_s}.") do |vals|
+            send(level, vals.join(" "))
+        end
     end
 
     newfunction(:template, :type => :rvalue, :doc => "Evaluate a template and

@@ -1,7 +1,7 @@
 require 'mocha/parameter_matchers/base'
 
 module Mocha
-  
+
   module ParameterMatchers
 
     # :call-seq: anything -> parameter_matcher
@@ -14,20 +14,20 @@ module Mocha
     def anything
       Anything.new
     end
-    
+
     class Anything < Base # :nodoc:
-    
+
       def matches?(available_parameters)
         available_parameters.shift
         return true
       end
-      
+
       def mocha_inspect
         "anything"
       end
-      
+
     end
-    
+
   end
-  
+
 end

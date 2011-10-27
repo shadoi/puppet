@@ -146,7 +146,7 @@ LOOPBACKDUMMY
 
     # Where should the file be written out?
     # This defaults to INTERFACE_DIR/ifcfg-<namevar>, but can have a
-    # more symbolic name by setting interface_desc in the type. 
+    # more symbolic name by setting interface_desc in the type.
     def file_path
         if resource and val = resource[:interface_desc]
             desc = val

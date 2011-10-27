@@ -23,7 +23,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         if Puppet[:factsync]
             self.getfacts()
         end
-        
+
         down = Puppet[:downcasefacts]
 
         facts = Facter.to_hash.inject({}) do |newhash, array|
@@ -44,7 +44,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         unless facts.include?("environment")
             facts["environment"] = Puppet[:environment]
         end
- 
+
         facts
     end
 
@@ -52,7 +52,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
     # NOTE:LAK(2008/04/10): This code is currently unused, since we now always
     # recompile.
     def self.dynamic_facts
-        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
         x = Puppet.settings[:dynamicfacts].split(/\s*,\s*/).collect { |fact| fact.downcase }
     end
 
@@ -166,12 +166,12 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         # Keep the state database up to date.
         @catalog.host_config = true
     end
-    
+
     # A simple proxy method, so it's easy to test.
     def getplugins
         self.class.getplugins
     end
-    
+
     # Just so we can specify that we are "the" instance.
     def initialize(*args)
         Puppet.settings.use(:main, :ssl, :puppetd)
@@ -207,7 +207,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         end
     end
 
-    # The code that actually runs the catalog.  
+    # The code that actually runs the catalog.
     # This just passes any options on to the catalog,
     # which accepts :tags and :ignoreschedules.
     def run(options = {})
@@ -240,7 +240,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
                 # reason to leave them lying open.
                 Puppet::Network::HttpPool.clear_http_instances
             end
-            
+
             lockfile.unlock
 
             # Did we get HUPped during the run?  If so, then restart now that we're
@@ -301,7 +301,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
         end
         downconfig = Puppet::Node::Catalog.new("downloading")
         downconfig.add_resource Puppet::Type.type(:file).create(hash)
-        
+
         Puppet.info "Retrieving #{args[:name]}s"
 
         files = []
@@ -397,12 +397,12 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
     end
 
     def self.loadfacts
-        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
         x = Puppet[:factpath].split(":").each do |dir|
             loaddir(dir, "fact")
         end
     end
-    
+
     def self.timeout
         timeout = Puppet[:configtimeout]
         case timeout
@@ -434,7 +434,7 @@ class Puppet::Network::Client::Master < Puppet::Network::Client
             return nil
         end
     end
-    
+
     # Retrieve a config from a remote master.
     def get_remote_config(facts)
         textobjects = ""

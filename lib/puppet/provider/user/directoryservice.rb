@@ -19,15 +19,15 @@ Puppet::Type.type(:user).provide :directoryservice, :parent => Puppet::Provider:
 
     commands :dscl => "/usr/bin/dscl"
     confine :operatingsystem => :darwin
-    
+
     # JJM: DirectoryService can manage passwords.
     #      This needs to be a special option to dscl though (-passwd)
     has_feature :manages_passwords
-    
+
     # JJM: comment matches up with the /etc/passwd concept of an user
     options :comment, :key => "realname"
     options :password, :key => "passwd"
-    
+
     autogen_defaults :home => "/var/empty", :shell => "/usr/bin/false"
 
     verify :gid, "GID must be an integer" do |value|
@@ -37,11 +37,11 @@ Puppet::Type.type(:user).provide :directoryservice, :parent => Puppet::Provider:
     verify :uid, "UID must be an integer" do |value|
         value.is_a? Integer
     end
-    
+
     def autogen_comment
         return @resource[:name].capitalize
     end
-    
+
     # The list of all groups the user is a member of.  Different
     # user mgmt systems will need to override this method.
     # JJM: FIXME: Override this method...
@@ -56,7 +56,7 @@ Puppet::Type.type(:user).provide :directoryservice, :parent => Puppet::Provider:
         #         next unless members
         #         next if members =~ /NoValue/
         #         members = members.split(",")
-        # 
+        #
         #         if members.include? user
         #             groups << name
         #         end
@@ -79,12 +79,12 @@ Puppet::Type.type(:user).provide :directoryservice, :parent => Puppet::Provider:
         # end
         # # Get just the groups we need to modify
         # diff = groups - (@is || [])
-        # 
+        #
         # data = {}
         # open("| #{command(:nireport)} / /groups name users") do |file|
         #     file.each do |line|
         #         name, members = line.split(/\s+/)
-        # 
+        #
         #         if members.nil? or members =~ /NoValue/
         #             data[name] = []
         #         else
@@ -93,7 +93,7 @@ Puppet::Type.type(:user).provide :directoryservice, :parent => Puppet::Provider:
         #         end
         #     end
         # end
-        # 
+        #
         # user = @resource[:name]
         # data.each do |name, members|
         #     if members.include? user and groups.include? name
@@ -111,6 +111,6 @@ Puppet::Type.type(:user).provide :directoryservice, :parent => Puppet::Provider:
         #     end
         # end
     end
-    
-    
+
+
 end

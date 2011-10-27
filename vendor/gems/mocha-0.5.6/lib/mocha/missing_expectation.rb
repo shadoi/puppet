@@ -1,7 +1,7 @@
 require 'mocha/expectation'
 
 module Mocha # :nodoc:
-  
+
   class MissingExpectation < Expectation # :nodoc:
 
     def verify

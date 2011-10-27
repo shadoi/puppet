@@ -16,7 +16,7 @@ module Puppet::Daemon
             Process.detach(pid)
             exit(0)
         end
-        
+
         setpidfile()
 
         # Get rid of console logging

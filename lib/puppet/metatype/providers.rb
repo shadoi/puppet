@@ -49,7 +49,7 @@ class Puppet::Type
     # Convert a hash, as provided by, um, a provider, into an instance of self.
     def self.hash2obj(hash)
         obj = nil
-        
+
         namevar = self.namevar
         unless hash.include?(namevar) and hash[namevar]
             raise Puppet::DevError, "Hash was not passed with namevar"

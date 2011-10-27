@@ -4,5 +4,5 @@ class Puppet::Rails::ResourceTag < ActiveRecord::Base
 
     def to_label
       "#{self.puppet_tag.name}"
-    end  
+    end
 end

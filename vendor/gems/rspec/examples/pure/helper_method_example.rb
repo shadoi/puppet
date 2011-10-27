@@ -5,7 +5,7 @@ module HelperMethodExample
     def helper_method
       "received call"
     end
-  
+
     it "should make that method available to specs" do
       helper_method.should == "received call"
     end

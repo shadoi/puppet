@@ -171,16 +171,16 @@ class Puppet::Parser::Resource
         end
 
         # Handle file specially
-        if (self.file and  
+        if (self.file and
             (!db_resource.file or db_resource.file != self.file))
             db_resource.file = self.file
         end
-        
+
         updated_params = @params.inject({}) do |hash, ary|
             hash[ary[0].to_s] = ary[1]
             hash
         end
-        
+
         db_resource.ar_hash_merge(db_resource.get_params_hash(db_resource.param_values), updated_params,
                                   :create => Proc.new { |name, parameter|
                                       parameter.to_rails(db_resource)
@@ -189,13 +189,13 @@ class Puppet::Parser::Resource
                                   }, :modify => Proc.new { |db, mem|
                                       mem.modify_rails_values(db)
                                   })
-        
-        updated_tags = tags.inject({}) { |hash, tag| 
+
+        updated_tags = tags.inject({}) { |hash, tag|
             hash[tag] = tag
             hash
         }
-            
-        db_resource.ar_hash_merge(db_resource.get_tag_hash(), 
+
+        db_resource.ar_hash_merge(db_resource.get_tag_hash(),
                                   updated_tags,
                                   :create => Proc.new { |name, tag|
                                       db_resource.add_resource_tag(name)
@@ -258,7 +258,7 @@ class Puppet::Parser::Resource
         end
     end
 
-    # Turn our parser resource into a Rails resource.  
+    # Turn our parser resource into a Rails resource.
     def to_rails(host)
         args = rails_args
 
@@ -272,7 +272,7 @@ class Puppet::Parser::Resource
         @params.each { |name, param|
             param.to_rails(db_resource)
         }
-        
+
         tags.each { |tag| db_resource.add_resource_tag(tag) }
 
         return db_resource
@@ -342,7 +342,7 @@ class Puppet::Parser::Resource
 
         return obj
     end
-    
+
     private
 
     # Add default values from our definition.
@@ -420,7 +420,7 @@ class Puppet::Parser::Resource
     def paramcheck(param)
         param = param.to_s
         # Now make sure it's a valid argument to our class.  These checks
-        # are organized in order of commonhood -- most types, it's a valid 
+        # are organized in order of commonhood -- most types, it's a valid
         # argument and paramcheck is enabled.
         if @ref.typeclass.validattr?(param)
             true
@@ -437,7 +437,7 @@ class Puppet::Parser::Resource
             # 'type' isn't a valid column name, so we have to use another name.
             to = (param == :type) ? :restype : param
             if value = self.send(param)
-                hash[to] = value 
+                hash[to] = value
             end
             hash
         end

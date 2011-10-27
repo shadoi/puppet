@@ -27,7 +27,7 @@ Puppet::Type.newtype(:interface) do
 	end
 
 	newparam(:interface_desc) do
-		desc "On Linux, the description / symbolic name you wish to refer to the 
+		desc "On Linux, the description / symbolic name you wish to refer to the
               interface by. When absent, Redhat Linux defaults to uses the namevar
               which will be either the IP address, or hostname."
 	end

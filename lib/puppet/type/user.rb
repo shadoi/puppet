@@ -6,7 +6,7 @@ module Puppet
         @doc = "Manage users.  This type is mostly built to manage system
             users, so it is lacking some features useful for managing normal
             users.
-            
+
             This resource type uses the prescribed native tools for creating
             groups and generally uses POSIX APIs for retrieving information
             about them.  It does not directly modify /etc/passwd or anything."
@@ -95,7 +95,7 @@ module Puppet
         newproperty(:gid) do
             desc "The user's primary group.  Can be specified numerically or
                 by name."
-            
+
             def found?
                 defined? @found and @found
             end
@@ -260,7 +260,7 @@ module Puppet
             desc "Whether specified groups should be treated as the only groups
                 of which the user is a member or whether they should merely
                 be treated as the minimum membership list."
-                
+
             newvalues(:inclusive, :minimum)
 
             defaultto :minimum
@@ -268,7 +268,7 @@ module Puppet
 
         newparam(:allowdupe, :boolean => true) do
             desc "Whether to allow duplicate UIDs."
-                
+
             newvalues(:true, :false)
 
             defaultto false

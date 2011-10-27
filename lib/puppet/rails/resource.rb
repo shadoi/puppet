@@ -11,7 +11,7 @@ class Puppet::Rails::Resource < ActiveRecord::Base
 
     has_many :resource_tags, :dependent => :destroy
     has_many :puppet_tags, :through => :resource_tags
-    
+
     belongs_to :source_file
     belongs_to :host
 
@@ -41,7 +41,7 @@ class Puppet::Rails::Resource < ActiveRecord::Base
             hash
         end
     end
-    
+
     def get_tag_hash(tags = nil)
         tags ||= resource_tags.find(:all, :include => :puppet_tag)
         return tags.inject({}) do |hash, tag|

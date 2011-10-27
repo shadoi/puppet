@@ -34,7 +34,7 @@ class DirectoryService < Puppet::Provider::NameService
     #   of methods.  If I put initvars after commands, confine and defaultfor,
     #   then getinfo is called from the parent class, not this class.
     initvars()
-    
+
     commands :dscl => "/usr/bin/dscl"
     confine :operatingsystem => :darwin
     # JJM FIXME: This will need to be the default around October 2007.
@@ -66,28 +66,28 @@ class DirectoryService < Puppet::Provider::NameService
         :comment => 'RealName',
         :password => 'Password',
     }
-    
+
     def self.instances
         # JJM Class method that provides an array of instance objects of this
         #     type.
-        
+
         # JJM: Properties are dependent on the Puppet::Type we're managine.
         type_property_array = [:name] + @resource_type.validproperties
         # JJM: No sense reporting the password.  It's hashed.
         type_property_array.delete(:password) if type_property_array.include? :password
-        
+
         # Create a new instance of this Puppet::Type for each object present
         #    on the system.
         list_all_present.collect do |name_string|
             self.new(single_report(name_string, *type_property_array))
         end
     end
-    
+
     def self.get_ds_path
         # JJM: 2007-07-24 This method dynamically returns the DS path we're concerned with.
         #      For example, if we're working with an user type, this will be /Users
         #      with a group type, this will be /Groups.
-        #   @ds_path is an attribute of the class itself.  
+        #   @ds_path is an attribute of the class itself.
         if defined? @ds_path
             return @ds_path
         else
@@ -108,30 +108,30 @@ class DirectoryService < Puppet::Provider::NameService
         end
         return dscl_output.split("\n")
     end
-    
+
     def self.single_report(resource_name, *type_properties)
         # JJM 2007-07-24:
         #     Given a the name of an object and a list of properties of that
         #     object, return all property values in a hash.
-        #     
+        #
         #     This class method returns nil if the object doesn't exist
         #     Otherwise, it returns a hash of the object properties.
-        
+
         all_present_str_array = list_all_present()
-        
+
         # JJM: Return nil if the named object isn't present.
         return nil unless all_present_str_array.include? resource_name
-        
+
         dscl_vector = get_exec_preamble("-read", resource_name)
         begin
             dscl_output = execute(dscl_vector)
         rescue Puppet::ExecutionFailure => detail
             raise Puppet::Error, "Could not get report.  command execution failed."
         end
-        
+
         # JJM: We need a new hash to return back to our caller.
         attribute_hash = Hash.new
-        
+
         # JJM: First, the output string goes into an array.
         #      Then, the each array element is split
         #      If you want to figure out what this is doing, I suggest
@@ -142,7 +142,7 @@ class DirectoryService < Puppet::Provider::NameService
 
             # Split sets the values to nil if there's nothing after the :
             ds_values_string ||= ""
-            
+
             # JJM: skip this attribute line if the Puppet::Type doesn't care about it.
             next unless (@@ds_to_ns_attribute_map.keys.include?(ds_attribute) and type_properties.include? @@ds_to_ns_attribute_map[ds_attribute])
 
@@ -153,11 +153,11 @@ class DirectoryService < Puppet::Provider::NameService
                 url_decoded_value = CGI::unescape v
                 if url_decoded_value =~ /^[-0-9]+$/
                     url_decoded_value.to_i
-                else                
+                else
                     url_decoded_value
                 end
             end
-            
+
             # JJM: Finally, we're able to build up our attribute hash.
             #    Remember, the hash is keyed by NameService attribute names,
             #    not DirectoryService attribute names.
@@ -171,7 +171,7 @@ class DirectoryService < Puppet::Provider::NameService
         end
         return attribute_hash
     end
-    
+
     def self.get_exec_preamble(ds_action, resource_name = nil)
         # JJM 2007-07-24
         #     DSCL commands are often repetitive and contain the same positional
@@ -210,9 +210,9 @@ class DirectoryService < Puppet::Provider::NameService
                 # JJM: This calls the method.
                 self.send(name.to_s + "=", val)
             end
-        end 
+        end
     end
-    
+
     def password=(passphrase)
         # JJM: Setting the password is a special case.  We don't just
         #      set the attribute because we need to update the password
@@ -225,8 +225,8 @@ class DirectoryService < Puppet::Provider::NameService
             dscl_output = execute(dscl_vector)
         rescue Puppet::ExecutionFailure => detail
             raise Puppet::Error, "Could not set AuthenticationAuthority."
-        end        
-        
+        end
+
         # JJM: Second, we need to actually set the password.  dscl does
         #   some magic, creating the proper hash for us based on the
         #   AuthenticationAuthority attribute, set above.
@@ -240,7 +240,7 @@ class DirectoryService < Puppet::Provider::NameService
             raise Puppet::Error, "Could not set password using command vector: %{dscl_vector.inspect}"
         end
     end
-    
+
     # JJM: nameservice.rb defines methods for each attribute of the type.
     #   We implement these methods here, by implementing get() and set()
     #   See the resource_type= method defined in nameservice.rb
@@ -254,7 +254,7 @@ class DirectoryService < Puppet::Provider::NameService
         #   I'll implement here.
         super
     end
-    
+
     def get(param)
         hash = getinfo(false)
         if hash
@@ -263,7 +263,7 @@ class DirectoryService < Puppet::Provider::NameService
             return :absent
         end
     end
-    
+
     def modifycmd(property, value)
         # JJM: This method will assemble a exec vector which modifies
         #    a single property and it's value using dscl.
@@ -277,9 +277,9 @@ class DirectoryService < Puppet::Provider::NameService
         exec_arg_vector << value.to_s
         return exec_arg_vector
     end
-    
+
     def addcmd
-        # JJM 2007-07-24: 
+        # JJM 2007-07-24:
         #    - addcmd returns an array to be executed to create a new object.
         #    - This method is probably being called from the
         #      ensure= method in nameservice.rb, or here...
@@ -288,20 +288,20 @@ class DirectoryService < Puppet::Provider::NameService
         #
         self.class.get_exec_preamble("-create", @resource[:name])
     end
-    
+
     def deletecmd
         # JJM: Like addcmd, only called when deleting the object itself
         #    Note, this isn't used to delete properties of the object,
         #    at least that's how I understand it...
         self.class.get_exec_preamble("-delete", @resource[:name])
     end
-    
+
     def getinfo(refresh = false)
-        # JJM 2007-07-24: 
+        # JJM 2007-07-24:
         #      Override the getinfo method, which is also defined in nameservice.rb
         #      This method returns and sets @infohash, which looks like:
         #      (NetInfo provider, user type...)
-        #       @infohash = {:comment=>"Jeff McCune", :home=>"/Users/mccune", 
+        #       @infohash = {:comment=>"Jeff McCune", :home=>"/Users/mccune",
         #       :shell=>"/bin/zsh", :password=>"********", :uid=>502, :gid=>502,
         #       :name=>"mccune"}
         #
@@ -310,24 +310,24 @@ class DirectoryService < Puppet::Provider::NameService
         if refresh or (! defined?(@property_value_cache_hash) or ! @property_value_cache_hash)
             # JJM 2007-07-24: OK, there's a bit of magic that's about to
             # happen... Let's see how strong my grip has become... =)
-            # 
+            #
             # self is a provider instance of some Puppet::Type, like
             # Puppet::Type::User::ProviderDirectoryservice for the case of the
             # user type and this provider.
-            # 
+            #
             # self.class looks like "user provider directoryservice", if that
             # helps you ...
-            # 
+            #
             # self.class.resource_type is a reference to the Puppet::Type class,
             # probably Puppet::Type::User or Puppet::Type::Group, etc...
-            # 
+            #
             # self.class.resource_type.validproperties is a class method,
             # returning an Array of the valid properties of that specific
             # Puppet::Type.
-            # 
+            #
             # So... something like [:comment, :home, :password, :shell, :uid,
             # :groups, :ensure, :gid]
-            # 
+            #
             # Ultimately, we add :name to the list, delete :ensure from the
             # list, then report on the remaining list. Pretty whacky, ehh?
             type_properties = [:name] + self.class.resource_type.validproperties

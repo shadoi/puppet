@@ -84,7 +84,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
 
     # Create an alias for a resource.
     def alias(resource, name)
-        #set $1 
+        #set $1
         resource.ref =~ /^(.+)\[/
 
         newref = "%s[%s]" % [$1 || resource.class.name, name]
@@ -128,7 +128,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
         end
 
         yield transaction if block_given?
-        
+
         transaction.send_report if host_config and (Puppet[:report] or Puppet[:summarize])
 
         return transaction
@@ -142,7 +142,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
     def applying?
         @applying
     end
-    
+
     def clear(remove_resources = true)
         super()
         # We have to do this so that the resources clean themselves up.
@@ -273,7 +273,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
         make_default_resources
 
         @resource_table.values.each { |resource| resource.finish }
-        
+
         write_graph(:resources)
     end
 
@@ -306,13 +306,13 @@ class Puppet::Node::Catalog < Puppet::PGraph
 
         # First create the default scheduling objects
         Puppet::Type.type(:schedule).mkdefaultschedules.each { |res| add_resource(res) unless resource(res.ref) }
-        
+
         # And filebuckets
         if bucket = Puppet::Type.type(:filebucket).mkdefaultbucket
             add_resource(bucket) unless resource(bucket.ref)
         end
     end
-    
+
     # Create a graph of all of the relationships in our catalog.
     def relationship_graph
         raise(Puppet::DevError, "Tried get a relationship graph for a relationship graph") if self.is_relationship_graph
@@ -326,7 +326,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
             @relationship_graph = Puppet::Node::Catalog.new
             @relationship_graph.host_config = host_config?
             @relationship_graph.is_relationship_graph = true
-            
+
             # First create the dependency graph
             self.vertices.each do |vertex|
                 @relationship_graph.add_vertex vertex
@@ -334,7 +334,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
                     @relationship_graph.add_edge(edge)
                 end
             end
-            
+
             # Lastly, add in any autorequires
             @relationship_graph.vertices.each do |vertex|
                 vertex.autorequire(self).each do |edge|
@@ -348,9 +348,9 @@ class Puppet::Node::Catalog < Puppet::PGraph
                     end
                 end
             end
-            
+
             @relationship_graph.write_graph(:relationships)
-            
+
             # Then splice in the container information
             @relationship_graph.splice!(self, Puppet::Type::Component)
 
@@ -411,7 +411,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
     def write_graph(name)
         # We only want to graph the main host catalog.
         return unless host_config?
-        
+
         return unless Puppet[:graph]
 
         Puppet.settings.use(:graphing)
@@ -446,7 +446,7 @@ class Puppet::Node::Catalog < Puppet::PGraph
 
     # Verify that the given resource isn't defined elsewhere.
     def fail_unless_unique(resource)
-        # Short-curcuit the common case, 
+        # Short-curcuit the common case,
         return unless existing_resource = @resource_table[resource.ref]
 
         # Either it's a defined type, which are never

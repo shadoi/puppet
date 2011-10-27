@@ -2,11 +2,11 @@ require File.dirname(__FILE__) + '/test_unit_spec_helper'
 
 describe "Test::Unit::TestCase" do
   include TestUnitSpecHelper
-  
+
   before(:each) do
     @dir = File.dirname(__FILE__) + "/resources"
   end
-  
+
   describe "with passing test case" do
     it "should output 0 failures" do
       output = ruby("#{@dir}/test_case_that_passes.rb")

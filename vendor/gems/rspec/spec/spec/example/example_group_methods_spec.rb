@@ -320,12 +320,12 @@ module Spec
           end
           child_example_group.description.should == "ExampleGroup.foobar Does something"
         end
-        
+
         it "should return the class name if nil" do
           example_group.set_description(nil)
           example_group.description.should =~ /Class:/
         end
-        
+
         it "should return the class name if nil" do
           example_group.set_description("")
           example_group.description.should =~ /Class:/
@@ -461,7 +461,7 @@ module Spec
         it "should add ExampleGroup to set of ExampleGroups to be run" do
           options.example_groups.delete(example_group)
           options.example_groups.should_not include(example_group)
-          
+
           example_group.register {}
           options.example_groups.should include(example_group)
         end

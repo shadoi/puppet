@@ -2,16 +2,16 @@ require 'fileutils'
 
 class Puppet::Util::Pidlock
 	attr_reader :lockfile
-	
+
 	def initialize(lockfile)
 		@lockfile = lockfile
 	end
-	
+
 	def locked?
 		clear_if_stale
 		File.exists? @lockfile
 	end
-	
+
 	def mine?
 		Process.pid == lock_pid
 	end
@@ -20,7 +20,7 @@ class Puppet::Util::Pidlock
 		return false unless File.exists?(@lockfile)
 		File.read(@lockfile) == ""
 	end
-	
+
 	def lock(opts = {})
 		opts = {:anonymous => false}.merge(opts)
 
@@ -35,7 +35,7 @@ class Puppet::Util::Pidlock
 			true
 		end
 	end
-	
+
 	def unlock(opts = {})
 		opts = {:anonymous => false}.merge(opts)
 
@@ -58,7 +58,7 @@ class Puppet::Util::Pidlock
 
 	def clear_if_stale
 		return if lock_pid.nil?
-		
+
 		begin
 			Process.kill(0, lock_pid)
 		rescue Errno::ESRCH

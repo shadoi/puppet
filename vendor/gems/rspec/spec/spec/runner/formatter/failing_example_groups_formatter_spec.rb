@@ -13,7 +13,7 @@ module Spec
           @formatter = FailingExampleGroupsFormatter.new(options, io)
           @example_group = Class.new(::Spec::Example::ExampleGroup)
         end
-        
+
         it "should add example name for each failure" do
           formatter.add_example_group(Class.new(ExampleGroup).describe("b 1"))
           formatter.example_failed("e 1", nil, Reporter::Failure.new(nil, RuntimeError.new))
@@ -22,7 +22,7 @@ module Spec
           formatter.example_failed("e 3", nil, Reporter::Failure.new(nil, RuntimeError.new))
           io.string.should == "b 1\nb 2\n"
         end
-        
+
         it "should delimit ExampleGroup superclass descriptions with :" do
           parent_example_group = Class.new(example_group).describe("Parent")
           child_example_group = Class.new(parent_example_group).describe("#child_method")

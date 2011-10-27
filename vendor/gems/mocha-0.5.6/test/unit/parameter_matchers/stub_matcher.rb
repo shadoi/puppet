@@ -1,5 +1,5 @@
 module Stub
-  
+
   class Matcher
 
     attr_accessor :value
@@ -19,5 +19,5 @@ module Stub
     end
 
   end
-  
+
 end

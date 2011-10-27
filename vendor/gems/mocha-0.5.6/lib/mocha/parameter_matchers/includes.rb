@@ -1,7 +1,7 @@
 require 'mocha/parameter_matchers/base'
 
 module Mocha
-  
+
   module ParameterMatchers
 
     # :call-seq: includes(item) -> parameter_matcher
@@ -36,5 +36,5 @@ module Mocha
     end
 
   end
-  
+
 end

@@ -44,7 +44,7 @@ module Spec
           @instance.rspec_verify
         end.should_not raise_error
       end
-      
+
       it "should clear itself when verified" do
         @instance.stub!(:this_should_go).and_return(:blah)
         @instance.this_should_go.should == :blah
@@ -79,7 +79,7 @@ module Spec
         @instance.rspec_verify
         @instance.existing_instance_method.should equal(:original_value)
       end
-      
+
       it "should revert to original class method if there is one" do
         @class.existing_class_method.should equal(:original_value)
         @class.stub!(:existing_class_method).and_return(:mock_value)
@@ -104,7 +104,7 @@ module Spec
         current_value.should == [:yielded_value, :another_value]
         @instance.rspec_verify
       end
-      
+
       it "should yield a specified object and return another specified object" do
         yielded_obj = mock("my mock")
         yielded_obj.should_receive(:foo).with(:bar)
@@ -118,12 +118,12 @@ module Spec
           @mock.something
         end.should throw_symbol(:up)
       end
-      
+
       it "should override a pre-existing stub" do
         @stub.stub!(:existing_instance_method).and_return(:updated_stub_value)
         @stub.existing_instance_method.should == :updated_stub_value
       end
-      
+
       it "should limit " do
         @stub.stub!(:foo).with("bar")
         @stub.should_receive(:foo).with("baz")
@@ -131,7 +131,7 @@ module Spec
         @stub.foo("baz")
       end
     end
-    
+
     describe "A method stub with args" do
       before(:each) do
         @stub = Object.new
@@ -171,7 +171,7 @@ module Spec
           @stub.foo("other")
         end.should raise_error
       end
-      
+
       it "should support options" do
         @stub.stub!(:foo, :expected_from => "bar")
       end

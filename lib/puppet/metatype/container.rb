@@ -9,7 +9,7 @@ class Puppet::Type
             return false
         end
     end
-    
+
     def depthfirst?
         self.class.depthfirst?
     end

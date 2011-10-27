@@ -1,7 +1,7 @@
 require 'mocha/parameter_matchers/base'
 
 module Mocha
-  
+
   module ParameterMatchers
 
     # :call-seq: kind_of(klass) -> parameter_matcher
@@ -19,24 +19,24 @@ module Mocha
     def kind_of(klass)
       KindOf.new(klass)
     end
-    
+
     class KindOf < Base # :nodoc:
-      
+
       def initialize(klass)
         @klass = klass
       end
-    
+
       def matches?(available_parameters)
         parameter = available_parameters.shift
         parameter.kind_of?(@klass)
       end
-      
+
       def mocha_inspect
         "kind_of(#{@klass.mocha_inspect})"
       end
-      
+
     end
-    
+
   end
-  
+
 end

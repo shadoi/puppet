@@ -42,11 +42,11 @@ class Puppet::Type
                         next
                     end
                 end
-                
+
                 reqs << Puppet::Relationship.new(dep, self)
             }
         }
-        
+
         return reqs
     end
 
@@ -59,7 +59,7 @@ class Puppet::Type
             end
         end.flatten.reject { |r| r.nil? }
     end
-    
+
     # Does this resource have a relationship with the other?  We have to
     # check each object for both directions of relationship.
     def requires?(other)
@@ -98,7 +98,7 @@ class Puppet::Type
             }
         end
     end
-    
+
     # Unsubscribe from a given object, possibly with a specific event.
     def unsubscribe(object, event = nil)
         # First look through our own relationship params

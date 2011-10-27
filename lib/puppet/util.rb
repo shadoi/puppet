@@ -9,7 +9,7 @@ module Puppet
     end
 module Util
     require 'benchmark'
-    
+
     require 'puppet/util/posix'
     extend Puppet::Util::POSIX
 
@@ -35,8 +35,8 @@ module Util
             end
             unless Puppet::Util::SUIDManager.gid == group
                 begin
-                    Puppet::Util::SUIDManager.egid = group 
-                    Puppet::Util::SUIDManager.gid = group 
+                    Puppet::Util::SUIDManager.egid = group
+                    Puppet::Util::SUIDManager.gid = group
                 rescue => detail
                     Puppet.warning "could not change to group %s: %s" %
                         [group.inspect, detail]
@@ -56,8 +56,8 @@ module Util
             end
             unless Puppet::Util::SUIDManager.uid == user
                 begin
-                    Puppet::Util::SUIDManager.uid = user 
-                    Puppet::Util::SUIDManager.euid = user 
+                    Puppet::Util::SUIDManager.uid = user
+                    Puppet::Util::SUIDManager.euid = user
                 rescue
                     $stderr.puts "could not change to user %s" % user
                     exit(74)
@@ -226,7 +226,7 @@ module Util
                 return nil
             end
         else
-            # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+            # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
             x = ENV['PATH'].split(":").each do |dir|
                 if FileTest.exists? File.join(dir, bin)
                     return File.join(dir, bin)
@@ -285,14 +285,14 @@ module Util
         else
             Puppet.debug "Executing '%s'" % str
         end
-        
+
         if arguments[:uid]
             arguments[:uid] = Puppet::Util::SUIDManager.convert_xid(:uid, arguments[:uid])
         end
         if arguments[:gid]
             arguments[:gid] = Puppet::Util::SUIDManager.convert_xid(:gid, arguments[:gid])
         end
-        
+
         @@os ||= Facter.value(:operatingsystem)
         output = nil
         child_pid, child_status = nil
@@ -340,7 +340,7 @@ module Util
                 exit!(1)
             end # begin; rescue
         end # if child_pid
- 	
+
         # read output in if required
         if ! arguments[:squelch]
 

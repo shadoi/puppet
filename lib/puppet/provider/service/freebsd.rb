@@ -10,7 +10,7 @@ Puppet::Type.type(:service).provide :freebsd, :parent => :init do
     def self.defpath
         superclass.defpath
     end
-    
+
     # remove service file from rc.conf.d to disable it
     def disable
         rcfile = File.join(@@rcconf_dir, @model[:name])
@@ -18,7 +18,7 @@ Puppet::Type.type(:service).provide :freebsd, :parent => :init do
             File.delete(rcfile)
         end
     end
-    
+
     # if the service file exists in rc.conf.d then it's already enabled
     def enabled?
         rcfile = File.join(@@rcconf_dir, @model[:name])
@@ -28,7 +28,7 @@ Puppet::Type.type(:service).provide :freebsd, :parent => :init do
 
         return :false
     end
-    
+
     # enable service by creating a service file under rc.conf.d with the
     # proper contents
     def enable
@@ -38,7 +38,7 @@ Puppet::Type.type(:service).provide :freebsd, :parent => :init do
         rcfile = File.join(@@rcconf_dir, @model[:name])
         open(rcfile, 'w') { |f| f << "%s_enable=\"YES\"\n" % @model[:name] }
     end
-    
+
     # Override stop/start commands to use one<cmd>'s and the avoid race condition
     # where provider trys to stop/start the service before it is enabled
     def startcmd

@@ -63,14 +63,14 @@ class Puppet::FileServing::Configuration
     private
 
     # Deal with ignore parameters.
-    def handleignore(children, path, ignore)            
-        ignore.each { |ignore|                
+    def handleignore(children, path, ignore)
+        ignore.each { |ignore|
             Dir.glob(File.join(path,ignore), File::FNM_DOTMATCH) { |match|
                 children.delete(File.basename(match))
-            }                
+            }
         }
         return children
-    end  
+    end
 
     # Read the configuration file.
     def readconfig(check = true)

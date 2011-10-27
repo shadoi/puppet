@@ -4,7 +4,7 @@ class Puppet::Node::Environment
     # Return the list of valid environments.  Just looks them up in
     # the settings.
     def self.valid
-        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
         x = Puppet.settings.value(:environments).split(",").collect { |e| e.to_sym }
     end
 

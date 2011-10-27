@@ -201,7 +201,7 @@ module Puppet
                     end
                 end
             end
-                
+
             begin
                 delver.call(self)
                 catalog.finalize
@@ -210,7 +210,7 @@ module Puppet
                 catalog.clear if (clear_on_failure)
                 raise
             end
-            
+
             return catalog
         end
 

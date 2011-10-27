@@ -1,6 +1,6 @@
 module Spec
   module Matchers
-    
+
     #Based on patch from Wilson Bilkovich
     class Change #:nodoc:
       def initialize(receiver=nil, message=nil, &block)
@@ -8,7 +8,7 @@ module Spec
         @message = message
         @block = block
       end
-      
+
       def matches?(target, &block)
         if block
           raise MatcherError.new(<<-EOF
@@ -22,16 +22,16 @@ EOF
         return false if @to && (@to != @after)
         return (@before + @amount == @after) if @amount
         return ((@after - @before) >= @minimum) if @minimum
-        return ((@after - @before) <= @maximum) if @maximum        
+        return ((@after - @before) <= @maximum) if @maximum
         return @before != @after
       end
-      
+
       def execute_change
         @before = @block.nil? ? @receiver.send(@message) : @block.call
         @target.call
         @after = @block.nil? ? @receiver.send(@message) : @block.call
       end
-      
+
       def failure_message
         if @to
           "#{result} should have been changed to #{@to.inspect}, but is now #{@after.inspect}"
@@ -47,45 +47,45 @@ EOF
           "#{result} should have changed, but is still #{@before.inspect}"
         end
       end
-      
+
       def result
         @message || "result"
       end
-      
+
       def actual_delta
         @after - @before
       end
-      
+
       def negative_failure_message
         "#{result} should not have changed, but did change from #{@before.inspect} to #{@after.inspect}"
       end
-      
+
       def by(amount)
         @amount = amount
         self
       end
-      
+
       def by_at_least(minimum)
         @minimum = minimum
         self
       end
-      
+
       def by_at_most(maximum)
         @maximum = maximum
         self
-      end      
-      
+      end
+
       def to(to)
         @to = to
         self
       end
-      
+
       def from (from)
         @from = from
         self
       end
     end
-    
+
     # :call-seq:
     #   should change(receiver, message, &block)
     #   should change(receiver, message, &block).by(value)
@@ -97,20 +97,20 @@ EOF
     # == Examples
     #
     #   lambda {
-    #     team.add_player(player) 
+    #     team.add_player(player)
     #   }.should change(roster, :count)
     #
     #   lambda {
-    #     team.add_player(player) 
+    #     team.add_player(player)
     #   }.should change(roster, :count).by(1)
     #
     #   lambda {
-    #     team.add_player(player) 
+    #     team.add_player(player)
     #   }.should change(roster, :count).by_at_least(1)
     #
     #   lambda {
     #     team.add_player(player)
-    #   }.should change(roster, :count).by_at_most(1)    
+    #   }.should change(roster, :count).by_at_most(1)
     #
     #   string = "string"
     #   lambda {
@@ -120,7 +120,7 @@ EOF
     #   lambda {
     #     person.happy_birthday
     #   }.should change(person, :birthday).from(32).to(33)
-    #       
+    #
     #   lambda {
     #     employee.develop_great_new_social_networking_app
     #   }.should change(employee, :title).from("Mail Clerk").to("CEO")

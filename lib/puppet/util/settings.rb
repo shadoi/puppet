@@ -94,7 +94,7 @@ class Puppet::Util::Settings
         }
         @values.each do |name, values|
             next if name == :cli and exceptcli
-            @values.delete(name) 
+            @values.delete(name)
         end
 
         # Don't clear the 'used' in this case, since it's a config file reparse,
@@ -732,7 +732,7 @@ Generated on #{Time.now}.
 
         return obj
     end
-    
+
     # Create the transportable objects for users and groups.
     def add_user_resources(section, obj, done)
         resources = []
@@ -1116,7 +1116,7 @@ Generated on #{Time.now}.
 
             # And set the loglevel to debug for everything
             obj[:loglevel] = "debug"
-            
+
             # We're not actually modifying any files here, and if we allow a
             # filebucket to get used here we get into an infinite recursion
             # trying to set the filebucket up.

@@ -15,7 +15,7 @@ class MySpec < Test::Unit::TestCase
   def should_pass_with_assert
     assert true
   end
-  
+
   def should_fail_with_assert
     assert false
   end

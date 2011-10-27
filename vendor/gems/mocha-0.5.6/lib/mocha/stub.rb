@@ -8,7 +8,7 @@ module Mocha # :nodoc:
       super
       @expected_count = Range.at_least(0)
     end
-    
+
     def verify
       true
     end

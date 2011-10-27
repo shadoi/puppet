@@ -18,21 +18,21 @@ module Spec
           @options.examples.should == []
         end
       end
-      
+
       describe "#include_pattern" do
         it "should default to '**/*_spec.rb'" do
           @options.filename_pattern.should == "**/*_spec.rb"
         end
       end
-      
+
       describe "#files_to_load" do
-        
+
         it "should load files not following pattern if named explicitly" do
           file = File.expand_path(File.dirname(__FILE__) + "/resources/a_bar.rb")
           @options.files << file
           @options.files_to_load.should include(file)
         end
-        
+
         describe "with default --pattern" do
           it "should load files named _spec.rb" do
             dir = File.expand_path(File.dirname(__FILE__) + "/resources/")
@@ -40,33 +40,33 @@ module Spec
             @options.files_to_load.should == ["#{dir}/a_spec.rb"]
           end
         end
-        
+
         describe "with explicit pattern (single)" do
           before(:each) do
             @options.filename_pattern = "**/*_foo.rb"
           end
-        
+
           it "should load files following pattern" do
             file = File.expand_path(File.dirname(__FILE__) + "/resources/a_foo.rb")
             @options.files << file
             @options.files_to_load.should include(file)
           end
-        
+
           it "should load files in directories following pattern" do
             dir = File.expand_path(File.dirname(__FILE__) + "/resources")
             @options.files << dir
             @options.files_to_load.should include("#{dir}/a_foo.rb")
           end
-        
+
           it "should not load files in directories not following pattern" do
             dir = File.expand_path(File.dirname(__FILE__) + "/resources")
             @options.files << dir
             @options.files_to_load.should_not include("#{dir}/a_bar.rb")
           end
         end
-        
+
         describe "with explicit pattern (comma,separated,values)" do
-          
+
           before(:each) do
             @options.filename_pattern = "**/*_foo.rb,**/*_bar.rb"
           end
@@ -77,16 +77,16 @@ module Spec
             @options.files_to_load.should include("#{dir}/a_foo.rb")
             @options.files_to_load.should include("#{dir}/a_bar.rb")
           end
-        
+
           it "should support comma separated values with spaces" do
             dir = File.expand_path(File.dirname(__FILE__) + "/resources")
             @options.files << dir
             @options.files_to_load.should include("#{dir}/a_foo.rb")
             @options.files_to_load.should include("#{dir}/a_bar.rb")
           end
-        
+
         end
-      
+
       end
 
       describe "#backtrace_tweaker" do

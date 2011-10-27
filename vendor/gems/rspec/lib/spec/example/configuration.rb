@@ -30,11 +30,11 @@ module Spec
           mock_framework
         end
       end
-      
+
       def mock_framework # :nodoc:
         @mock_framework ||= mock_framework_path("rspec")
       end
-      
+
       # Declares modules to be included in all example groups (<tt>describe</tt> blocks).
       #
       #   config.include(My::Bottle, My::Cup)
@@ -75,7 +75,7 @@ module Spec
       def predicate_matchers
         @predicate_matchers ||= {}
       end
-      
+
       # Prepends a global <tt>before</tt> block to all example groups.
       # See #append_before for filtering semantics.
       def prepend_before(*args, &proc)
@@ -135,7 +135,7 @@ module Spec
       def get_type_from_options(options)
         options[:type] || options[:behaviour_type]
       end
-    
+
       def mock_framework_path(framework_name)
         File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "plugins", "mock_frameworks", framework_name))
       end

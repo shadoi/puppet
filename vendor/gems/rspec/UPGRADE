@@ -25,7 +25,7 @@ You'll need to update spec/spec_helper.rb accordingly. You can either
 just re-generate it:
 
   script/generate rspec
-  
+
 Or modify spec_helper.rb based on the template, which can be found at:
 
   vendor/plugins/rspec_on_rails/generators/rspec/templates/spec_helper.rb

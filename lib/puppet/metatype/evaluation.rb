@@ -60,14 +60,14 @@ class Puppet::Type
     # it's really only used for testing
     def insync?(is)
         insync = true
-        
+
         if property = @parameters[:ensure]
             unless is.include? property
                raise Puppet::DevError,
                         "The is value is not in the is array for '%s'" %
                         [property.name]
             end
-            ensureis = is[property]           
+            ensureis = is[property]
             if property.insync?(ensureis) and property.should == :absent
                 return true
             end
@@ -93,19 +93,19 @@ class Puppet::Type
         #self.debug("%s sync status is %s" % [self,insync])
         return insync
     end
-        
+
     # retrieve the current value of all contained properties
     def retrieve
          return currentpropvalues
     end
-    
-    # get a hash of the current properties.  
+
+    # get a hash of the current properties.
     def currentpropvalues(override_value = nil)
         # it's important to use the method here, as it follows the order
         # in which they're defined in the object
         return properties().inject({}) { | prophash, property|
-                   prophash[property] = override_value.nil? ? 
-                                          property.retrieve : 
+                   prophash[property] = override_value.nil? ?
+                                          property.retrieve :
                                              override_value
                    prophash
                }
@@ -123,7 +123,7 @@ class Puppet::Type
     def noop
         noop?
     end
-     
+
     # Retrieve the changes associated with all of the properties.
     def propertychanges(currentvalues)
         # If we are changing the existence of the object, then none of

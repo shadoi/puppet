@@ -12,7 +12,7 @@ describe "OptionParser" do
     @parser.parse(args)
     @parser.options
   end
-  
+
   it "should accept files to include" do
     options = parse(["--pattern", "foo"])
     options.filename_pattern.should == "foo"
@@ -27,7 +27,7 @@ describe "OptionParser" do
     options = parse(["--format", "Custom::Formatter"])
     options.formatters[0].class.should be(Custom::Formatter)
   end
-  
+
   it "should support formatters with relative and absolute paths, even on windows" do
     options = parse([
       "--format", "Custom::Formatter:C:\\foo\\bar",
@@ -66,8 +66,8 @@ describe "OptionParser" do
   end
 
   it "should print instructions about how to require missing formatter" do
-    lambda do 
-      options = parse(["--format", "Custom::MissingFormatter"]) 
+    lambda do
+      options = parse(["--format", "Custom::MissingFormatter"])
       options.formatters
     end.should raise_error(NameError)
     @err.string.should match(/Couldn't find formatter class Custom::MissingFormatter/n)
@@ -78,7 +78,7 @@ describe "OptionParser" do
     @out.rewind
     @out.read.should match(/RSpec-\d+\.\d+\.\d+.*\(build \d+\) - BDD for Ruby\nhttp:\/\/rspec.rubyforge.org\/\n/n)
   end
-  
+
   it "should require file when require specified" do
     lambda do
       parse(["--require", "whatever"])
@@ -118,10 +118,10 @@ describe "OptionParser" do
   it "should read several example names from file if --example is given an existing file name" do
     options = parse(["--example", File.dirname(__FILE__) + '/examples.txt'])
     options.examples.should eql([
-      "Sir, if you were my husband, I would poison your drink.", 
+      "Sir, if you were my husband, I would poison your drink.",
       "Madam, if you were my wife, I would drink it."])
   end
-  
+
   it "should read no examples if given an empty file" do
     options = parse(["--example", File.dirname(__FILE__) + '/empty_file.txt'])
     options.examples.should eql([])
@@ -303,7 +303,7 @@ describe "OptionParser" do
     options.colour.should be_true
     options.formatters.first.should be_instance_of(::Spec::Runner::Formatter::SpecdocFormatter)
   end
-   
+
   it "should save config to file when --generate-options is specified" do
     FileUtils.rm 'test.spec.opts' if File.exist?('test.spec.opts')
     options = parse(["--colour", "--generate-options", "test.spec.opts", "--diff"])
@@ -327,7 +327,7 @@ describe "OptionParser" do
     end
     parse(["some/spec.rb", "--diff", "--drb", "--colour"])
   end
-  
+
   it "should reverse spec order when --reverse is specified" do
     options = parse(["some/spec.rb", "--reverse"])
   end

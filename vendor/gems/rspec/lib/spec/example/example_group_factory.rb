@@ -12,13 +12,13 @@ module Spec
         #
         #   Spec::Example::ExampleGroupFactory.register(:farm, Spec::Farm::Example::FarmExampleGroup)
         #
-        # This will cause Main#describe from a file living in 
+        # This will cause Main#describe from a file living in
         # <tt>spec/farm</tt> to create example group instances of type
         # Spec::Farm::Example::FarmExampleGroup.
         def register(id, example_group_class)
           @example_group_types[id] = example_group_class
         end
-        
+
         # Sets the default ExampleGroup class
         def default(example_group_class)
           old = @example_group_types
@@ -33,7 +33,7 @@ module Spec
             @example_group_types[id]
           end
         end
-        
+
         def create_example_group(*args, &block)
           opts = Hash === args.last ? args.last : {}
           if opts[:shared]

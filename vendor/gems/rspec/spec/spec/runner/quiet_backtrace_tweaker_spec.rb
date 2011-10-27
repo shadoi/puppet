@@ -45,7 +45,7 @@ module Spec
         @tweaker.tweak_backtrace(@error)
         @error.backtrace.should be_empty
       end
-      
+
       it "should clean up double slashes" do
         @error.set_backtrace(["/a//b/c//d.rb"])
         @tweaker.tweak_backtrace(@error)

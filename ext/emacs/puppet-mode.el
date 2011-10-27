@@ -1,6 +1,6 @@
 ;;;
 ;;; puppet-mode.el
-;;; 
+;;;
 ;;; Author: lutter
 ;;; Author: Russ Allbery <rra@stanford.edu>
 ;;;
@@ -151,23 +151,23 @@ of the initial include plus puppet-include-indent."
         ;; Indent the line to the same indentation as the first
         ;; element in that array.  That is, this...
         ;;
-        ;;    exec {     
+        ;;    exec {
         ;;      "add_puppetmaster_mongrel_startup_links":
         ;;      command => "string1",
-        ;;      creates => [ "string2", "string3", 
-        ;;      "string4", "string5", 
+        ;;      creates => [ "string2", "string3",
+        ;;      "string4", "string5",
         ;;      "string6", "string7",
         ;;      "string3" ],
         ;;      refreshonly => true,
         ;;    }
-        ;; 
+        ;;
         ;; ...should instead look like this:
         ;;
-        ;;    exec {     
+        ;;    exec {
         ;;      "add_puppetmaster_mongrel_startup_links":
         ;;      command => "string1",
-        ;;      creates => [ "string2", "string3", 
-        ;;                   "string4", "string5", 
+        ;;      creates => [ "string2", "string3",
+        ;;                   "string4", "string5",
         ;;                   "string6", "string7",
         ;;                   "string8" ],
         ;;      refreshonly => true,
@@ -215,12 +215,12 @@ of the initial include plus puppet-include-indent."
              ;; if there is more than one block opened and closed on the same
              ;; line but it's still unbalanced; hopefully people don't do that.
              ((looking-at "^.*{[^\n}]*$")
-              (setq cur-indent (+ (current-indentation) puppet-indent-level)) 
+              (setq cur-indent (+ (current-indentation) puppet-indent-level))
               (setq not-indented nil))
 
              ;; Indent by one level if the line ends with an open paren.
              ((looking-at "^.*\(\\s-*$")
-              (setq cur-indent (+ (current-indentation) puppet-indent-level)) 
+              (setq cur-indent (+ (current-indentation) puppet-indent-level))
               (setq not-indented nil))
 
              ;; Semicolon ends a block for a resource when multiple resources

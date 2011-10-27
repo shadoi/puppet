@@ -62,13 +62,13 @@ class Puppet::Rails::Host < ActiveRecord::Base
     # Return the value of a fact.
     def fact(name)
         if fv = self.fact_values.find(:all, :include => :fact_name,
-                                      :conditions => "fact_names.name = '#{name}'") 
+                                      :conditions => "fact_names.name = '#{name}'")
             return fv
         else
             return nil
         end
     end
-    
+
     # returns a hash of fact_names.name => [ fact_values ] for this host.
     def get_facts_hash
         fact_values = self.fact_values.find(:all, :include => :fact_name)
@@ -78,12 +78,12 @@ class Puppet::Rails::Host < ActiveRecord::Base
             hash
         end
     end
-    
+
 
     def setfacts(facts)
         facts = facts.dup
-        
-        ar_hash_merge(get_facts_hash(), facts, 
+
+        ar_hash_merge(get_facts_hash(), facts,
                       :create => Proc.new { |name, values|
                           fact_name = Puppet::Rails::FactName.find_or_create_by_name(name)
                           values = [values] unless values.is_a?(Array)
@@ -98,14 +98,14 @@ class Puppet::Rails::Host < ActiveRecord::Base
                           fact_name = db[0].fact_name
                           db_values = db.collect { |fact_value| fact_value.value }
                           (db_values - (db_values & mem)).each do |value|
-                              db.find_all { |fact_value| 
-                                  fact_value.value == value 
+                              db.find_all { |fact_value|
+                                  fact_value.value == value
                               }.each { |fact_value|
                                   fact_values.delete(fact_value)
                               }
                           end
                           (mem - (db_values & mem)).each do |value|
-                              fact_values.build(:value => value, 
+                              fact_values.build(:value => value,
                                                 :fact_name => fact_name)
                           end
                       })
@@ -132,7 +132,7 @@ class Puppet::Rails::Host < ActiveRecord::Base
             hash[resource.ref] = resource
             hash
         end
-        
+
         ar_hash_merge(existing, compiled,
                       :create => Proc.new { |ref, resource|
                           resource.to_rails(self)

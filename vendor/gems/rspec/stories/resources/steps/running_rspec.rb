@@ -6,7 +6,7 @@ steps_for :running_rspec do
       raise "could not find file at #{@path}"
     end
   end
-  
+
   When("I run it with the $interpreter") do |interpreter|
     stderr_file = Tempfile.new('rspec')
     stderr_file.close
@@ -23,13 +23,13 @@ steps_for :running_rspec do
     @stderr = IO.read(stderr_file.path)
     @exit_code = $?.to_i
   end
-  
+
   Then("the exit code should be $exit_code") do |exit_code|
     if @exit_code != exit_code.to_i
       raise "Did not exit with #{exit_code}, but with #{@exit_code}. Standard error:\n#{@stderr}"
     end
   end
-  
+
   Then("the $stream should match $regex") do |stream, string_or_regex|
     written = case(stream)
       when 'stdout' then @stdout
@@ -38,7 +38,7 @@ steps_for :running_rspec do
     end
     written.should smart_match(string_or_regex)
   end
-  
+
   Then("the $stream should not match $regex") do |stream, string_or_regex|
     written = case(stream)
       when 'stdout' then @stdout

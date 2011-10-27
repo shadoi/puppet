@@ -1,7 +1,7 @@
 require 'mocha/expectation_error'
 
 module Mocha
-  
+
   module TestCaseAdapter
 
     def self.included(base)
@@ -39,11 +39,11 @@ module Mocha
           result.add_run
           yield(Test::Unit::TestCase::FINISHED, name)
         end
-                
+
       end
-      
+
     end
-    
+
   end
-  
+
 end

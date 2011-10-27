@@ -23,6 +23,6 @@ class Puppet::Rails::ParamValue < ActiveRecord::Base
 
     def to_label
       "#{self.param_name.name}"
-    end  
+    end
 end
 

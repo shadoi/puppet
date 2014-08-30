@@ -25,7 +25,7 @@ class ATest < Test::Unit::TestCase
   def test_should_pass_with_assert
     assert true
   end
-  
+
   def test_should_fail_with_assert
     assert false
   end
@@ -33,7 +33,7 @@ class ATest < Test::Unit::TestCase
   def test_should_pass_with_should
     1.should == 1
   end
-  
+
   def test_should_fail_with_should
     1.should == 2
   end

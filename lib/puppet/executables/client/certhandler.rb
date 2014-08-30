@@ -5,7 +5,7 @@ module Puppet
             class CertHandler
                 attr_writer :wait_for_cert, :one_time
                 attr_reader :caclient, :new_cert
-                
+
                 def initialize(wait_time, is_one_time)
                     @wait_for_cert = wait_time
                     @one_time = is_one_time
@@ -18,12 +18,12 @@ module Puppet
                 def new_cert?
                     new_cert
                 end
-                
+
                 # Read, or retrieve if necessary, our certificate.  Returns true if we retrieved
                 # a new cert, false if the cert already exists.
-                def read_retrieve 
+                def read_retrieve
                     #NOTE: ACS this is checking that a file exists, maybe next time just do that?
-                    unless read_cert 
+                    unless read_cert
                         # If we don't already have the certificate, then create a client to
                         # request one.  Use the special ca stuff, don't use the normal server and port.
                         retrieve_cert
@@ -35,11 +35,11 @@ module Puppet
                 def retrieve_cert
                     while true do
                        begin
-                           if caclient.request_cert 
+                           if caclient.request_cert
                                break if read_new_cert
                            else
                                Puppet.notice "Did not receive certificate"
-                               if @one_time 
+                               if @one_time
                                    Puppet.notice "Set to run 'one time'; exiting with no certificate"
                                    exit(1)
                                end
@@ -49,7 +49,7 @@ module Puppet
                           exit(23) if @one_time
                        end
 
-                       sleep @wait_for_cert 
+                       sleep @wait_for_cert
                     end
                 end
 

@@ -100,7 +100,7 @@ module Spec
 
       def examples_should_not_be_run
         @examples_should_be_run = false
-      end      
+      end
 
       def colour=(colour)
         @colour = colour
@@ -147,7 +147,7 @@ module Spec
         @format_options ||= []
         @format_options << [format, where]
       end
-      
+
       def formatters
         @format_options ||= [['progress', @output_stream]]
         @formatters ||= load_formatters(@format_options, EXAMPLE_FORMATTERS)
@@ -157,7 +157,7 @@ module Spec
         @format_options ||= [['plain', @output_stream]]
         @formatters ||= load_formatters(@format_options, STORY_FORMATTERS)
       end
-      
+
       def load_formatters(format_options, formatters)
         format_options.map do |format, where|
           formatter_type = if formatters[format]
@@ -197,13 +197,13 @@ module Spec
         end
         result
       end
-      
+
       protected
       def examples_should_be_run?
         return @examples_should_be_run unless @examples_should_be_run.nil?
         @examples_should_be_run = true
       end
-      
+
       def differ_class=(klass)
         return unless klass
         @differ_class = klass
@@ -227,7 +227,7 @@ module Spec
           if $_spec_spec ; raise e ; else exit(1) ; end
         end
       end
-      
+
       def custom_runner
         return nil unless custom_runner?
         klass_name, arg = ClassAndArgumentsParser.parse(user_input_for_runner)
@@ -238,13 +238,13 @@ module Spec
       def custom_runner?
         return user_input_for_runner ? true : false
       end
-      
+
       def heckle
         returns = self.heckle_runner.heckle_with
         self.heckle_runner = nil
         returns
       end
-      
+
       def sorted_files
         return sorter ? files.sort(&sorter) : files
       end

@@ -5,7 +5,7 @@ module Spec
     superclass = ['Test::Unit::AssertionFailedError', '::StandardError'].map do |c|
       eval(c) rescue nil
     end.compact.first
-    
+
     class ExpectationNotMetError < superclass
     end
   end

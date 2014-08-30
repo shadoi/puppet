@@ -1,5 +1,5 @@
 # rdot.rb
-# 
+#
 #
 # This is a modified version of dot.rb from Dave Thomas's rdoc project.  I [Horst Duchene]
 # renamed it to rdot.rb to avoid collision with an installed rdoc/dot.
@@ -7,19 +7,19 @@
 # It also supports undirected edges.
 
 module DOT
-    
+
   # These glogal vars are used to make nice graph source.
 
   $tab  = '    '
   $tab2 = $tab * 2
-    
+
   # if we don't like 4 spaces, we can change it any time
 
   def change_tab (t)
     $tab  = t
     $tab2 = t * 2
   end
-    
+
   # options for node declaration
 
   NODE_OPTS = [
@@ -56,7 +56,7 @@ module DOT
     'bgcolor',
     'rank'
   ]
-    
+
   # options for edge declaration
 
   EDGE_OPTS = [
@@ -96,7 +96,7 @@ module DOT
     # maintained for backward compatibility or rdot internal
     'id'
   ]
-    
+
   # options for graph declaration
 
   GRAPH_OPTS = [
@@ -111,7 +111,7 @@ module DOT
     'rank', 'rankdir', 'ranksep', 'ratio',
     'size'
   ]
-    
+
   # a root class for any element in dot notation
 
   class DOTSimpleElement
@@ -126,7 +126,7 @@ module DOT
       @name
     end
   end
-    
+
   # an element that has options ( node, edge, or graph )
 
   class DOTElement < DOTSimpleElement
@@ -136,7 +136,7 @@ module DOT
 
     def initialize (params = {}, option_list = [])
       super(params)
-      @name   = params['name']   ? params['name']   : nil 
+      @name   = params['name']   ? params['name']   : nil
       @parent = params['parent'] ? params['parent'] : nil
       @options = {}
       option_list.each{ |i|
@@ -144,7 +144,7 @@ module DOT
       }
       @options['label'] ||= @name if @name != 'node'
     end
-        
+
     def each_option
       @options.each{ |i| yield i }
     end
@@ -159,15 +159,15 @@ module DOT
     #end
 
   end
-    
-    
+
+
   # This is used when we build nodes that have shape=record
   # ports don't have options :)
 
   class DOTPort < DOTSimpleElement
 
     attr_accessor :label
-        
+
     def initialize (params = {})
       super(params)
       @name = params['label'] ? params['label'] : ''
@@ -177,7 +177,7 @@ module DOT
       ( @name && @name != "" ? "<#{@name}>" : "" ) + "#{@label}"
     end
   end
-    
+
   # node element
 
   class DOTNode < DOTElement
@@ -210,7 +210,7 @@ module DOT
       # This code is totally incomprehensible; it needs to be replaced!
 
       label = @options['shape'] != 'record' && @ports.length == 0 ?
-                @options['label'] ? 
+                @options['label'] ?
                     t + $tab + "label = \"#{@options['label']}\"\n" :
                     '' :
                 t + $tab + 'label = "' + " \\\n" +
@@ -219,14 +219,14 @@ module DOT
                     t + $tab2 + i.to_s
                 }.join( "| \\\n" ) + " \\\n" +
                 t + $tab + '"' + "\n"
-            
+
             t + "#{@name} [\n" +
             @options.to_a.collect{ |i|
-                i[1] && i[0] != 'label' ? 
+                i[1] && i[0] != 'label' ?
                     t + $tab + "#{i[0]} = #{i[1]}" : nil
-            }.compact.join( ",\n" ) + ( label != '' ? ",\n" : "\n" ) + 
+            }.compact.join( ",\n" ) + ( label != '' ? ",\n" : "\n" ) +
             label +
-            t + "]\n" 
+            t + "]\n"
       end
 
   end		# class DOTNode
@@ -252,7 +252,7 @@ module DOT
     def << (thing)
       @nodes << thing
     end
-       
+
     def push (thing)
       @nodes.push( thing )
     end
@@ -265,14 +265,14 @@ module DOT
       hdr = t + "#{@dot_string} #{@name} {\n"
 
       options = @options.to_a.collect{ |name, val|
-        val && name != 'label' ? 
-          t + $tab + "#{name} = #{val}" : 
+        val && name != 'label' ?
+          t + $tab + "#{name} = #{val}" :
           name ? t + $tab + "#{name} = \"#{val}\"" : nil
       }.compact.join( "\n" ) + "\n"
 
       nodes = @nodes.collect{ |i|
         i.to_s( t + $tab )
-      }.join( "\n" ) + "\n" 
+      }.join( "\n" ) + "\n"
       hdr + options + nodes + t + "}\n"
     end
 
@@ -300,7 +300,7 @@ module DOT
       @from = params['from'] ? params['from'] : nil
       @to   = params['to'] ? params['to'] : nil
     end
-       
+
     def edge_link
       '--'
     end
@@ -308,14 +308,14 @@ module DOT
     def to_s (t = '')
       t + "#{@from} #{edge_link} #{to} [\n" +
           @options.to_a.collect{ |i|
-            i[1] && i[0] != 'label' ? 
-              t + $tab + "#{i[0]} = #{i[1]}" : 
+            i[1] && i[0] != 'label' ?
+              t + $tab + "#{i[0]} = #{i[1]}" :
               i[1] ? t + $tab + "#{i[0]} = \"#{i[1]}\"" : nil
           }.compact.join( "\n" ) + "\n" + t + "]\n"
     end
 
   end		# class DOTEdge
-          
+
   class DOTDirectedEdge < DOTEdge
 
     def edge_link

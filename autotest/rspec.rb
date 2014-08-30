@@ -4,13 +4,13 @@ Autotest.add_hook :initialize do |at|
   at.clear_mappings
   # watch out: Ruby bug (1.8.6):
   # %r(/) != /\//
-  at.add_mapping(%r%^spec/.*\.rb$%) { |filename, _| 
-    filename 
+  at.add_mapping(%r%^spec/.*\.rb$%) { |filename, _|
+    filename
   }
-  at.add_mapping(%r%^lib/(.*)\.rb$%) { |_, m| 
+  at.add_mapping(%r%^lib/(.*)\.rb$%) { |_, m|
     ["spec/#{m[1]}_spec.rb"]
   }
-  at.add_mapping(%r%^spec/(spec_helper|shared/.*)\.rb$%) { 
+  at.add_mapping(%r%^spec/(spec_helper|shared/.*)\.rb$%) {
     at.files_matching %r{^spec/.*_spec\.rb$}
   }
 end
@@ -40,7 +40,7 @@ class Autotest::Rspec < Autotest
   def make_test_cmd(files_to_test)
     return "#{ruby} -S #{spec_command} #{add_options_if_present} #{files_to_test.keys.flatten.join(' ')}"
   end
-  
+
   def add_options_if_present
     File.exist?("spec/spec.opts") ? "-O spec/spec.opts " : ""
   end

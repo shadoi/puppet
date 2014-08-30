@@ -77,7 +77,7 @@ rule(/_is_runnable$/) do |t|
     ENV['PATH'].split(':').each do |elem|
         available = true if File.executable? File.join(elem, executable)
     end
-    
+
     unless available
         puts "You do not have #{executable} available in your path"
         exit 1
@@ -139,7 +139,7 @@ end
 task :tracdocs do
     require 'puppet'
     require 'puppet/util/reference'
-    Puppet::Util::Reference.references.each do |ref| 
+    Puppet::Util::Reference.references.each do |ref|
         sh "puppetdoc -m trac -r #{ref.to_s}"
     end
 end

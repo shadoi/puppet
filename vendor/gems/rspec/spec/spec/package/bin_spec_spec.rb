@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../../ruby_forker'
 
 describe "The bin/spec script" do
   include RubyForker
-  
+
   it "should have no warnings" do
     pending "Hangs on JRuby" if PLATFORM =~ /java/
     spec_path = "#{File.dirname(__FILE__)}/../../../bin/spec"

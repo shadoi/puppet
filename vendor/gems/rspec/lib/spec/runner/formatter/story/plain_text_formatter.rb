@@ -13,7 +13,7 @@ module Spec
             @pending_steps = []
             @previous_type = nil
           end
-        
+
           def run_started(count)
             @count = count
             @output.puts "Running #@count scenarios\n\n"
@@ -27,7 +27,7 @@ module Spec
               @output.print line
             end
           end
-        
+
           def story_ended(title, narrative)
             @output.puts
             @output.puts
@@ -39,22 +39,22 @@ module Spec
             @output.print "\n\n  Scenario: #{scenario_name}"
             @scenario_ok = true
           end
-        
+
           def scenario_succeeded(story_title, scenario_name)
             @successful_scenario_count += 1
           end
-        
+
           def scenario_failed(story_title, scenario_name, err)
             @options.backtrace_tweaker.tweak_backtrace(err)
             @failed_scenarios << [story_title, scenario_name, err] unless @scenario_already_failed
             @scenario_already_failed = true
           end
-        
+
           def scenario_pending(story_title, scenario_name, msg)
             @pending_scenario_count += 1 unless @scenario_already_failed
             @scenario_already_failed = true
           end
-        
+
           def run_ended
             @output.puts "#@count scenarios: #@successful_scenario_count succeeded, #{@failed_scenarios.size} failed, #@pending_scenario_count pending"
             unless @pending_steps.empty?
@@ -74,32 +74,32 @@ module Spec
     #{err.backtrace.join("\n")}
 ]
               end
-            end            
+            end
           end
 
           def step_upcoming(type, description, *args)
           end
-                  
+
           def step_succeeded(type, description, *args)
             found_step(type, description, false, *args)
           end
-        
+
           def step_pending(type, description, *args)
             found_step(type, description, false, *args)
             @pending_steps << [@current_story_title, @current_scenario_name, description]
             @output.print " (PENDING)"
             @scenario_ok = false
           end
-        
+
           def step_failed(type, description, *args)
             found_step(type, description, true, *args)
             @output.print red(@scenario_ok ? " (FAILED)" : " (SKIPPED)")
             @scenario_ok = false
           end
-          
+
           def collected_steps(steps)
           end
-          
+
           def method_missing(sym, *args, &block) #:nodoc:
             # noop - ignore unknown messages
           end

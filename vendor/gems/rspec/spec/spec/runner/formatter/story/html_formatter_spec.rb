@@ -11,7 +11,7 @@ module Spec
             @options = mock('options')
             @reporter = HtmlFormatter.new(@options, @out)
           end
-          
+
           it "should just be poked at" do
             @reporter.run_started(1)
             @reporter.story_started('story_title', 'narrative')
@@ -27,19 +27,19 @@ module Spec
             @reporter.scenario_started('story_title', 'failed_scenario_name')
             @reporter.step_failed('then', 'failed_step', 'en', 'to')
             @reporter.scenario_failed('story_title', 'failed_scenario_name', NameError.new('sup'))
-            
+
             @reporter.scenario_started('story_title', 'scenario_with_given_scenario_name')
             @reporter.found_scenario('given scenario', 'succeeded_scenario_name')
-            
+
             @reporter.story_ended('story_title', 'narrative')
             @reporter.run_ended
           end
-          
+
           it "should create spans for params" do
             @reporter.step_succeeded('given', 'a $coloured $animal', 'brown', 'dog')
             @out.string.should == "                <li class=\"passed\">Given a <span class=\"param\">brown</span> <span class=\"param\">dog</span></li>\n"
           end
-          
+
           it 'should create spanes for params in regexp steps' do
             @reporter.step_succeeded :given, /a (pink|blue) (.*)/, 'brown', 'dog'
             @out.string.should == "                <li class=\"passed\">Given a <span class=\"param\">brown</span> <span class=\"param\">dog</span></li>\n"

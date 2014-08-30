@@ -9,7 +9,7 @@ class Puppet::Node::Ldap < Puppet::Indirector::Ldap
 
     # The attributes that Puppet class information is stored in.
     def class_attributes
-        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
         x = Puppet[:ldapclassattrs].split(/\s*,\s*/)
     end
 
@@ -80,7 +80,7 @@ class Puppet::Node::Ldap < Puppet::Indirector::Ldap
                 result[:stacked] = result[:stacked] + values
             end
         }
-        
+
 
         result[:parameters] = entry.to_hash.inject({}) do |hash, ary|
             if ary[1].length == 1

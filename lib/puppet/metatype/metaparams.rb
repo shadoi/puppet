@@ -12,7 +12,7 @@ class Puppet::Type
     newmetaparam(:noop) do
         desc "Boolean flag indicating whether work should actually
             be done."
-            
+
         newvalues(:true, :false)
         munge do |value|
             case value
@@ -91,14 +91,14 @@ class Puppet::Type
             }
         end
     end
-    
+
     # We've got four relationship metaparameters, so this method is used
     # to reduce code duplication between them.
     def munge_relationship(param, values)
         # We need to support values passed in as an array or as a
         # resource reference.
         result = []
-        
+
         # 'values' could be an array or a reference.  If it's an array,
         # it could be an array of references or an array of arrays.
         if values.is_a?(Puppet::Type)
@@ -125,11 +125,11 @@ class Puppet::Type
                 end
             end
         end
-        
+
         if existing = self[param]
             result = existing + result
         end
-        
+
         result
     end
 
@@ -145,8 +145,8 @@ class Puppet::Type
         munge do |loglevel|
             val = super(loglevel)
             if val == :verbose
-                val = :info 
-            end        
+                val = :info
+            end
             val
         end
     end
@@ -154,7 +154,7 @@ class Puppet::Type
     newmetaparam(:alias) do
         desc "Creates an alias for the object.  Puppet uses this internally when you
             provide a symbolic name::
-            
+
                 file { sshdconfig:
                     path => $operatingsystem ? {
                         solaris => \"/usr/local/etc/ssh/sshd_config\",
@@ -187,7 +187,7 @@ class Puppet::Type
             should be affecting the same file.
 
             See the `LanguageTutorial language tutorial`:trac: for more information.
-            
+
             "
 
         munge do |aliases|
@@ -221,7 +221,7 @@ class Puppet::Type
 
             Tags are currently useful for things like applying a subset of a
             host's configuration::
-                
+
                 puppetd --test --tags mytag
 
             This way, when you're testing a configuration you can run just the
@@ -235,18 +235,18 @@ class Puppet::Type
             end
         end
     end
-    
+
     class RelationshipMetaparam < Puppet::Parameter
         class << self
             attr_accessor :direction, :events, :callback, :subclasses
         end
-        
+
         @subclasses = []
-        
+
         def self.inherited(sub)
             @subclasses << sub
         end
-        
+
         def munge(rels)
             @resource.munge_relationship(self.class.name, rels)
         end
@@ -259,7 +259,7 @@ class Puppet::Type
                 end
             end
         end
-        
+
         # Create edges from each of our relationships.    :in
         # relationships are specified by the event-receivers, and :out
         # relationships are specified by the event generator.  This
@@ -275,7 +275,7 @@ class Puppet::Type
                 tname, name = value
                 reference = Puppet::ResourceReference.new(tname, name)
                 reference.catalog = resource.catalog
-                
+
                 # Either of the two retrieval attempts could have returned
                 # nil.
                 unless object = reference.resolve
@@ -304,12 +304,12 @@ class Puppet::Type
                     subargs = nil
                     self.debug("requires %s" % [object.ref])
                 end
-                
+
                 rel = Puppet::Relationship.new(source, target, subargs)
             end
         end
     end
-    
+
     def self.relationship_params
         RelationshipMetaparam.subclasses
     end
@@ -324,7 +324,7 @@ class Puppet::Type
         desc "One or more objects that this object depends on.
             This is used purely for guaranteeing that changes to required objects
             happen before the dependent object.  For instance::
-            
+
                 # Create the destination directory before you copy things down
                 file { \"/usr/local/scripts\":
                     ensure => directory
@@ -350,7 +350,7 @@ class Puppet::Type
             any parent directories that are being managed; it will
             automatically realize that the parent directory should be created
             before the script is pulled down.
-            
+
             Currently, exec resources will autorequire their CWD (if it is
             specified) plus any fully qualified paths that appear in the
             command.   For instance, if you had an ``exec`` command that ran
@@ -365,7 +365,7 @@ class Puppet::Type
         desc "One or more objects that this object depends on.  Changes in the
             subscribed to objects result in the dependent objects being
             refreshed (e.g., a service will get restarted).  For instance::
-            
+
                 class nagios {
                     file { \"/etc/nagios/nagios.conf\":
                         source => \"puppet://server/module/nagios.conf\",
@@ -376,7 +376,7 @@ class Puppet::Type
                         subscribe => File[nagconf]
                     }
                 }
-	 		
+
             Currently the ``exec``, ``mount`` and ``service`` type support
             refreshing.
             "
@@ -397,11 +397,11 @@ class Puppet::Type
                     command => "/usr/bin/make",
                     cwd => "/var/nagios/configuration"
                 }
-            
+
             This will make sure all of the files are up to date before the
             make command is run.}
     end
-    
+
     newmetaparam(:notify, :parent => RelationshipMetaparam, :attributes => {:direction => :out, :events => :ALL_EVENTS, :callback => :refresh}) do
         desc %{This parameter is the opposite of **subscribe** -- it sends events
             to the specified object::
@@ -414,7 +414,7 @@ class Puppet::Type
                 service { sshd:
                     ensure => running
                 }
-            
+
             This will restart the sshd service if the sshd config file changes.}
     end
 end # Puppet::Type

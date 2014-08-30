@@ -8,7 +8,7 @@ Puppet::Type.type(:package).provide :dpkg, :parent => Puppet::Provider::Package 
     commands :dpkg => "/usr/bin/dpkg"
     commands :dpkg_deb => "/usr/bin/dpkg-deb"
     commands :dpkgquery => "/usr/bin/dpkg-query"
-    
+
     def self.instances
         packages = []
 
@@ -53,7 +53,7 @@ Puppet::Type.type(:package).provide :dpkg, :parent => Puppet::Provider::Package 
         unless file = @resource[:source]
             raise ArgumentError, "You cannot install dpkg packages without a source"
         end
-        
+
         args = []
 
         if config = @resource[:configfiles]
@@ -109,7 +109,7 @@ Puppet::Type.type(:package).provide :dpkg, :parent => Puppet::Provider::Package 
         regex = %r{^(\S+) (\S+) (\S+) (\S+) (\S*)$}
 
         line = output.split("\n").shift.chomp
-        
+
         if match = regex.match(line)
             fields.zip(match.captures) { |field,value|
                 hash[field] = value

@@ -97,7 +97,7 @@ class Puppet::Parser::Parser
         end
         if @files.detect { |f| f.file == file }
             raise Puppet::AlreadyImportedError.new("Import loop detected")
-        elsif FileTest.directory?(file)    
+        elsif FileTest.directory?(file)
             #moan and skip it
             Puppet.debug("Tried to import a directory: '%s'" % file)
         else
@@ -295,7 +295,7 @@ class Puppet::Parser::Parser
                 if tmp == ""
                     tmp = "main"
                 end
-                
+
                 Puppet.debug addcontext("Adding code to %s" % tmp)
                 # Else, add our code to it.
                 if other.code and code

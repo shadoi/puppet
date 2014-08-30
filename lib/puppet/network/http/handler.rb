@@ -33,7 +33,7 @@ module Puppet::Network::HTTP::Handler
     def do_search(request, response)
         args = params(request)
         result = model.search(args).collect {|result| result.to_yaml }.to_yaml
-        encode_result(request, response, result) 
+        encode_result(request, response, result)
     end
 
     def do_destroy(request, response)
@@ -63,7 +63,7 @@ module Puppet::Network::HTTP::Handler
     end
 
     def find_model_for_handler(handler)
-        Puppet::Indirector::Indirection.model(handler) || 
+        Puppet::Indirector::Indirection.model(handler) ||
             raise(ArgumentError, "Cannot locate indirection [#{handler}].")
     end
 
@@ -99,7 +99,7 @@ module Puppet::Network::HTTP::Handler
 
     def path(request)
         raise NotImplementedError
-    end    
+    end
 
     def request_key(request)
         raise NotImplementedError

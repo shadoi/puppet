@@ -91,7 +91,7 @@ class Property < Puppet::Parameter
     # * <tt>:event</tt>: The event that should be returned when this value is set.
     # * <tt>:call</tt>: When to call any associated block.  The default value
     #   is ``instead``, which means to call the value instead of calling the
-    #   provider.  You can also specify ``before`` or ``after``, which will 
+    #   provider.  You can also specify ``before`` or ``after``, which will
     #   call both the block and the provider, according to the order you specify
     #   (the ``first`` refers to when the block is called, not the provider).
     def self.newvalue(name, options = {}, &block)
@@ -207,7 +207,7 @@ class Property < Puppet::Parameter
     # Figure out which event to return.
     def event(name, event = nil)
         if value_event = self.class.value_option(name, :event)
-            return value_event 
+            return value_event
         end
 
         if event and event.is_a?(Symbol)
@@ -231,7 +231,7 @@ class Property < Puppet::Parameter
 
         return event
     end
-    
+
     # initialize our property
     def initialize(hash = {})
         super
@@ -347,7 +347,7 @@ class Property < Puppet::Parameter
 
         # If we're supposed to call the block first or instead, call it now
         if call == :before or call == :instead
-            event, tmp = call_valuemethod(name, value) 
+            event, tmp = call_valuemethod(name, value)
         end
         unless call == :instead
             if @resource.provider
@@ -360,7 +360,7 @@ class Property < Puppet::Parameter
             end
         end
         if call == :after
-            event, tmp = call_valuemethod(name, value) 
+            event, tmp = call_valuemethod(name, value)
         end
 
         return event(name, event)

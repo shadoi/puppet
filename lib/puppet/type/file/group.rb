@@ -87,7 +87,7 @@ module Puppet
             if value =~ /^\d+$/
                 value = value.to_i
             end
-        
+
             if gid = Puppet::Util.gid(value)
                 return gid
             else

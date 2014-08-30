@@ -29,15 +29,15 @@ module Puppet
             will use the local filesystem.  This makes it easy to use the same
             configuration in both local and centralized forms.
 
-            Currently, only the ``puppet`` scheme is supported for source 
-            URL's. Puppet will connect to the file server running on 
-            ``server`` to retrieve the contents of the file. If the 
-            ``server`` part is empty, the behavior of the command-line 
+            Currently, only the ``puppet`` scheme is supported for source
+            URL's. Puppet will connect to the file server running on
+            ``server`` to retrieve the contents of the file. If the
+            ``server`` part is empty, the behavior of the command-line
             interpreter (``puppet``) and the client demon (``puppetd``) differs
             slightly: ``puppet`` will look such a file up on the module path
-            on the local host, whereas ``puppetd`` will connect to the 
+            on the local host, whereas ``puppetd`` will connect to the
             puppet server that it received the manifest from.
-     
+
             See the `FileServingConfiguration fileserver configuration documentation`:trac: for information on how to configure
             and use file services within Puppet.
 
@@ -52,21 +52,21 @@ module Puppet
                         \"/nfs/files/file\"
                     ]
                 }
-            
+
             This will use the first found file as the source.
-            
+
             You cannot currently copy links using this mechanism; set ``links``
             to ``follow`` if any remote sources are links.
             "
 
         uncheckable
-        
+
         validate do |source|
             unless @resource.uri2obj(source)
                 raise Puppet::Error, "Invalid source %s" % source
             end
         end
-            
+
         munge do |source|
             # if source.is_a? Symbol
             #     return source
@@ -75,7 +75,7 @@ module Puppet
             # Remove any trailing slashes
             source.sub(/\/$/, '')
         end
-        
+
         def change_to_s(currentvalue, newvalue)
             # newvalue = "{md5}" + @stats[:checksum]
             if @resource.property(:ensure).retrieve == :absent
@@ -84,7 +84,7 @@ module Puppet
                 return "replacing from source %s with contents %s" % [@source, @stats[:checksum]]
             end
         end
-        
+
         def checksum
             if defined?(@stats)
                 @stats[:checksum]
@@ -131,15 +131,15 @@ module Puppet
             unless Puppet::Util::SUIDManager.uid == 0
                 args.delete(:owner)
             end
-            
+
             return args
         end
-        
+
         # Have we successfully described the remote source?
         def described?
             ! @stats.nil? and ! @stats[:type].nil? #and @is != :notdescribed
         end
-        
+
         # Use the info we get from describe() to check if we're in sync.
         def insync?(currentvalue)
             unless described?
@@ -150,13 +150,13 @@ module Puppet
             if currentvalue == :nocopy
                 return true
             end
-            
+
             # the only thing this actual state can do is copy files around.  Therefore,
             # only pay attention if the remote is a file.
-            unless @stats[:type] == "file" 
+            unless @stats[:type] == "file"
                 return true
             end
-            
+
             #FIXARB: Inefficient?  Needed to call retrieve on parent's ensure and checksum
             parentensure = @resource.property(:ensure).retrieve
             if parentensure != :absent and ! @resource.replace?
@@ -180,7 +180,7 @@ module Puppet
         def pinparams
             [:mode, :type, :owner, :group]
         end
-        
+
         # This basically calls describe() on our file, and then sets all
         # of the local states appropriately.  If the remote file is a normal
         # file then we set it to copy; if it's a directory, then we just mark
@@ -205,7 +205,7 @@ module Puppet
             if @stats.nil? or @stats[:type].nil?
                 return nil # :notdescribed
             end
-            
+
             case @stats[:type]
             when "directory", "file", "link":
                 @resource[:ensure] = @stats[:type] unless @resource.deleting?
@@ -228,18 +228,18 @@ module Puppet
 
             return @stats[:checksum]
         end
-        
+
         def should
             @should
         end
-        
+
         # Make sure we're also checking the checksum
         def should=(value)
             super
 
             checks = (pinparams + [:ensure])
             checks.delete(:checksum)
-            
+
             @resource[:check] = checks
             @resource[:checksum] = :md5 unless @resource.property(:checksum)
         end

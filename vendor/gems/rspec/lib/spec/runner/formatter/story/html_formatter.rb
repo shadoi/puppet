@@ -7,11 +7,11 @@ module Spec
       module Story
         class HtmlFormatter < BaseTextFormatter
           include ERB::Util
-          
+
           def run_started(count)
             @output.puts <<-EOF
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html 
+<!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -47,7 +47,7 @@ EOF
 </head>
 EOF
           end
-          
+
           def story_started(title, narrative)
             @output.puts <<-EOF
       <dl class="story passed">
@@ -82,7 +82,7 @@ EOF
           </dl>
 EOF
           end
-          
+
           def found_scenario(type, description)
           end
 
@@ -112,11 +112,11 @@ EOF
           def step_failed(type, description, *args)
             print_step('failed', type, description, *args)
           end
-          
+
           def print_step(klass, type, description, *args)
             spans = args.map { |arg| "<span class=\"param\">#{arg}</span>" }
             desc_string = description.step_name
-            arg_regexp = description.arg_regexp           
+            arg_regexp = description.arg_regexp
             i = -1
             inner = type.to_s.capitalize + ' ' + desc_string.gsub(arg_regexp) { |param| spans[i+=1] }
             @output.puts "                <li class=\"#{klass}\">#{inner}</li>"

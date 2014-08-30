@@ -10,14 +10,14 @@ module Puppet
 
             Anything other than those values will be considered to be a symlink.
             For instance, the following text creates a link::
-                
+
                 # Useful on solaris
                 file { \"/etc/inetd.conf\":
                     ensure => \"/etc/inet/inetd.conf\"
                 }
-            
+
             You can make relative links::
-                
+
                 # Useful on solaris
                 file { \"/etc/inetd.conf\":
                     ensure => \"inet/inetd.conf\"
@@ -113,7 +113,7 @@ module Puppet
         def change_to_s(currentvalue, newvalue)
             if property = (@resource.property(:content) || @resource.property(:source)) and ! property.insync?(currentvalue)
                 currentvalue = property.retrieve
-                
+
                 return property.change_to_s(property.retrieve, property.should)
             else
                 super(currentvalue, newvalue)

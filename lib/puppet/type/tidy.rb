@@ -18,14 +18,14 @@ module Puppet
         end
 
         copyparam(Puppet.type(:file), :backup)
-        
+
         newproperty(:ensure) do
             desc "An internal attribute used to determine which files should be removed."
 
             @nodoc = true
-            
+
             TATTRS = [:age, :size]
-            
+
             defaultto :anything # just so we always get this property
 
             def change_to_s(currentvalue, newvalue)
@@ -65,7 +65,7 @@ module Puppet
                             end
                         end
                     end
-                    
+
                     if @out.length > 0
                         return false
                     else
@@ -73,13 +73,13 @@ module Puppet
                     end
                 end
             end
-            
+
             def retrieve
                 stat = nil
                 unless stat = @resource.stat
                     return { self => :absent}
                 end
-                
+
                 if stat.ftype == "directory" and ! @resource[:rmdirs]
                     return {self => :notidy}
                 end
@@ -90,7 +90,7 @@ module Puppet
                     end
                     prophash
                 }
-                return { self => allprops } 
+                return { self => allprops }
             end
 
             def sync
@@ -148,7 +148,7 @@ module Puppet
                 else
                     type = @resource[:type] || :atime
                 end
-                
+
                 return stat.send(type).to_i
             end
 
@@ -213,7 +213,7 @@ module Puppet
                     self.fail "Invalid size unit '%s'" % unit
                 end
             end
-            
+
             def insync?(is)
                 if is > self.should
                     return false
@@ -221,7 +221,7 @@ module Puppet
 
                 true
             end
-            
+
             munge do |size|
                 case size
                 when /^([0-9]+)(\w)\w*$/:
@@ -240,7 +240,7 @@ module Puppet
 
         newparam(:type) do
             desc "Set the mechanism for determining age."
-            
+
             newvalues(:atime, :mtime, :ctime)
 
             defaultto :atime
@@ -257,7 +257,7 @@ module Puppet
                 This will only remove empty directories, so all contained
                 files must also be tidied before a directory gets removed."
         end
-        
+
         # Erase PFile's validate method
         validate do
         end
@@ -284,16 +284,16 @@ module Puppet
                 self[:backup] = false
             end
         end
-        
+
         def retrieve
             # Our ensure property knows how to retrieve everything for us.
-            if obj = @parameters[:ensure] 
+            if obj = @parameters[:ensure]
                 return obj.retrieve
             else
                 return {}
             end
         end
-        
+
         # Hack things a bit so we only ever check the ensure property.
         def properties
             []

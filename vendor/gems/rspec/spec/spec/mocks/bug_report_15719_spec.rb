@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../../spec_helper.rb'
 module Spec
   module Mocks
     describe "mock failure" do
-      
+
       it "should tell you when it receives the right message with the wrong args" do
         m = mock("foo")
         m.should_receive(:bar).with("message")

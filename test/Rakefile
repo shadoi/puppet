@@ -74,8 +74,8 @@ filemap.each do |dir, files|
             Rake::PuppetTestTask.new File.basename(file, '.rb').to_sym do |t|
                 t.libs << $test_library_paths + ['..']
                 t.test_files = [ file ]
-                t.verbose = true 
-            end 
+                t.verbose = true
+            end
         end
     end
 

@@ -536,7 +536,7 @@ classname:       NAME
 
 # Multiple hostnames, as used for node names.  These are all literal
 # strings, not AST objects.
-hostnames:    hostname 
+hostnames:    hostname
   | hostnames COMMA hostname {
     result = val[0]
     result = [result] unless result.is_a?(Array)

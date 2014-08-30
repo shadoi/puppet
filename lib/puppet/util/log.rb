@@ -120,7 +120,7 @@ class Puppet::Util::Log
         unless @levels.index(hash[:level])
             raise Puppet::DevError, "Invalid log level %s" % hash[:level]
         end
-        if @levels.index(hash[:level]) >= @loglevel 
+        if @levels.index(hash[:level]) >= @loglevel
             return Puppet::Util::Log.new(hash)
         else
             return nil
@@ -242,8 +242,8 @@ class Puppet::Util::Log
     end
 
     newdesttype :console do
-                
-        
+
+
         PINK = {:console => "[0;31m", :html => "FFA0A0"}
         GREEN = {:console => "[0;32m", :html => "00CD00"}
         YELLOW = {:console => "[0;33m", :html => "FFFF60"}
@@ -262,7 +262,7 @@ class Puppet::Util::Log
             :emerg => RESET,
             :crit => RESET
         }
-        
+
         def colorize(level, str)
             case Puppet[:color]
             when false: str
@@ -270,11 +270,11 @@ class Puppet::Util::Log
             when :html, "html": html_color(level, str)
             end
         end
-        
+
         def console_color(level, str)
             @@colormap[level][:console] + str + RESET[:console]
         end
-        
+
         def html_color(level, str)
             %{<span style="color: %s">%s</span>} % [@@colormap[level][:html], str]
         end
@@ -419,7 +419,7 @@ class Puppet::Util::Log
     # for a loop here, if the machine somehow gets the destination set as
     # itself.
     def Log.newmessage(msg)
-        if @levels.index(msg.level) < @loglevel 
+        if @levels.index(msg.level) < @loglevel
             return
         end
 
@@ -431,7 +431,7 @@ class Puppet::Util::Log
     end
 
     def Log.sendlevel?(level)
-        @levels.index(level) >= @loglevel 
+        @levels.index(level) >= @loglevel
     end
 
     # Reopen all of our logs.

@@ -37,6 +37,6 @@ class Puppet::Provider::Confine::Variable < Puppet::Provider::Confine
     end
 
     def test_value
-        setting? ? Puppet.settings[name] : facter_value 
+        setting? ? Puppet.settings[name] : facter_value
     end
 end

@@ -7,23 +7,23 @@ require 'mocha/any_instance_method'
 #
 # Methods return a Mocha::Expectation which can be further modified by methods on Mocha::Expectation.
 class Object
-  
+
   def mocha # :nodoc:
     @mocha ||= Mocha::Mock.new
   end
-  
+
   def reset_mocha # :nodoc:
     @mocha = nil
   end
-  
+
   def stubba_method # :nodoc:
     Mocha::InstanceMethod
   end
-  
+
   def stubba_object # :nodoc:
     self
   end
-  
+
   # :call-seq: expects(symbol) -> expectation
   #
   # Adds an expectation that a method identified by +symbol+ must be called exactly once with any parameters.
@@ -35,12 +35,12 @@ class Object
   # The original implementation of <tt>Product#save</tt> is replaced temporarily.
   #
   # The original implementation of <tt>Product#save</tt> is restored at the end of the test.
-  def expects(symbol) 
+  def expects(symbol)
     method = stubba_method.new(stubba_object, symbol)
     $stubba.stub(method)
     mocha.expects(symbol, caller)
   end
-  
+
   # :call-seq: stubs(symbol) -> expectation
   #
   # Adds an expectation that a method identified by +symbol+ may be called any number of times with any parameters.
@@ -52,48 +52,48 @@ class Object
   # The original implementation of <tt>Product#save</tt> is replaced temporarily.
   #
   # The original implementation of <tt>Product#save</tt> is restored at the end of the test.
-  def stubs(symbol) 
+  def stubs(symbol)
     method = stubba_method.new(stubba_object, symbol)
     $stubba.stub(method)
     mocha.stubs(symbol, caller)
   end
-  
+
   def verify # :nodoc:
     mocha.verify
   end
-  
+
 end
 
 class Module # :nodoc:
-  
+
   def stubba_method
     Mocha::ClassMethod
   end
-    
+
 end
-  
+
 class Class
-  
+
   def stubba_method # :nodoc:
     Mocha::ClassMethod
   end
 
   class AnyInstance # :nodoc:
-    
+
     def initialize(klass)
       @stubba_object = klass
     end
-    
+
     def stubba_method
       Mocha::AnyInstanceMethod
     end
-    
+
     def stubba_object
       @stubba_object
     end
-    
+
   end
-  
+
   # :call-seq: any_instance -> mock object
   #
   # Returns a mock object which will detect calls to any instance of this class.
@@ -105,6 +105,6 @@ class Class
   def any_instance
     @any_instance ||= AnyInstance.new(self)
   end
-  
+
 end
 

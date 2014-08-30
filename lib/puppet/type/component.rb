@@ -54,7 +54,7 @@ Puppet::Type.newtype(:component) do
     def finalize
         started = {}
         finished = {}
-        
+
         # First do all of the finish work, which mostly involves
         self.delve do |object|
             # Make sure we don't get into loops
@@ -109,7 +109,7 @@ Puppet::Type.newtype(:component) do
             return false
         end
     end
-    
+
     # Component paths are special because they function as containers.
     def pathbuilder
         if @reference.type == "Class"

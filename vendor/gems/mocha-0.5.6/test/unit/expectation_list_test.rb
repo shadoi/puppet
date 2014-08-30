@@ -5,9 +5,9 @@ require 'set'
 require 'method_definer'
 
 class ExpectationListTest < Test::Unit::TestCase
-  
+
   include Mocha
-  
+
   def test_should_return_added_expectation
     expectation_list = ExpectationList.new
     expectation = Expectation.new(nil, :my_method)
@@ -62,7 +62,7 @@ class ExpectationListTest < Test::Unit::TestCase
     expectation_list.add(expectation2)
     assert_equal [expectation1, expectation2].to_set, expectation_list.similar(:my_method).to_set
   end
-  
+
   def test_should_ignore_expectations_for_different_methods
     expectation_list = ExpectationList.new
     expectation1 = Expectation.new(nil, :method1).with(:argument1, :argument2)
@@ -71,5 +71,5 @@ class ExpectationListTest < Test::Unit::TestCase
     expectation_list.add(expectation2)
     assert_equal [expectation2], expectation_list.similar(:method2)
   end
-  
+
 end

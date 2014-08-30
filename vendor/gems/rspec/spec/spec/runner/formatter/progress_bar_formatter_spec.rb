@@ -22,7 +22,7 @@ module Spec
           @formatter.dump_summary(3, 2, 1, 0)
           @io.string.should eql("\nFinished in 3 seconds\n\n2 examples, 1 failure\n")
         end
-        
+
         it "should produce standard summary" do
           @formatter.example_pending("example_group", ExampleGroup.new("example"), "message")
           @io.rewind
@@ -82,14 +82,14 @@ EOE
 /tmp/x.rb:3:
 EOE
         end
-        
+
         it "should dump pending" do
           @formatter.example_pending("example_group", ExampleGroup.new("example"), "message")
           @formatter.dump_pending
           @io.string.should =~ /Pending\:\nexample_group example \(message\)\n/
         end
       end
-      
+
       describe "ProgressBarFormatter outputting to custom out" do
         before(:each) do
           @out = mock("out")
@@ -116,7 +116,7 @@ EOE
           options.stub!(:dry_run).and_return(true)
           @formatter = ProgressBarFormatter.new(options, @io)
         end
-      
+
         it "should not produce summary on dry run" do
           @formatter.dump_summary(3, 2, 1, 0)
           @io.string.should eql("")

@@ -345,7 +345,7 @@ x11-7		6007/tcp
 x11-7		6007/udp
 gnutella-svc	6346/tcp			# gnutella
 gnutella-svc	6346/udp
-gnutella-rtr	6347/tcp			# gnutella 
+gnutella-rtr	6347/tcp			# gnutella
 gnutella-rtr	6347/udp
 afs3-fileserver 7000/tcp	bbs		# file server itself
 afs3-fileserver 7000/udp	bbs
@@ -413,7 +413,7 @@ zip		6/ddp			# Zone Information Protocol
 kerberos4	750/udp		kerberos-iv kdc	# Kerberos (server)
 kerberos4	750/tcp		kerberos-iv kdc
 kerberos_master	751/udp				# Kerberos authentication
-kerberos_master	751/tcp	
+kerberos_master	751/tcp
 passwd_server	752/udp				# Kerberos passwd server
 krb_prop	754/tcp		krb5_prop hprop	# Kerberos slave propagation
 krbupdate	760/tcp		kreg		# Kerberos registration

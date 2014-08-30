@@ -4,7 +4,7 @@ require 'mocha/test_case_adapter'
 require 'execution_point'
 
 class MochaTestResultIntegrationTest < Test::Unit::TestCase
-  
+
   def test_should_include_expectation_verification_in_assertion_count
     test_result = run_test do
       object = mock()
@@ -13,14 +13,14 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     end
     assert_equal 1, test_result.assertion_count
   end
-  
+
   def test_should_include_assertions_in_assertion_count
     test_result = run_test do
       assert true
     end
     assert_equal 1, test_result.assertion_count
   end
-  
+
   def test_should_not_include_stubbing_expectation_verification_in_assertion_count
     test_result = run_test do
       object = mock()
@@ -29,7 +29,7 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     end
     assert_equal 0, test_result.assertion_count
   end
-  
+
   def test_should_include_expectation_verification_failure_in_failure_count
     test_result = run_test do
       object = mock()
@@ -37,7 +37,7 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     end
     assert_equal 1, test_result.failure_count
   end
-  
+
   def test_should_include_unexpected_verification_failure_in_failure_count
     test_result = run_test do
       object = mock()
@@ -45,14 +45,14 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     end
     assert_equal 1, test_result.failure_count
   end
-  
+
   def test_should_include_assertion_failure_in_failure_count
     test_result = run_test do
       flunk
     end
     assert_equal 1, test_result.failure_count
   end
-  
+
   def test_should_display_backtrace_indicating_line_number_where_expects_was_called
     test_result = Test::Unit::TestResult.new
     faults = []
@@ -65,7 +65,7 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     assert_equal 1, faults.length
     assert_equal execution_point, ExecutionPoint.new(faults.first.location)
   end
-  
+
   def test_should_display_backtrace_indicating_line_number_where_unexpected_method_was_called
     test_result = Test::Unit::TestResult.new
     faults = []
@@ -73,12 +73,12 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     execution_point = nil
     run_test(test_result) do
       object = mock()
-      execution_point = ExecutionPoint.current; object.message 
+      execution_point = ExecutionPoint.current; object.message
     end
     assert_equal 1, faults.length
     assert_equal execution_point, ExecutionPoint.new(faults.first.location)
   end
-  
+
   def test_should_display_backtrace_indicating_line_number_where_failing_assertion_was_called
     test_result = Test::Unit::TestResult.new
     faults = []
@@ -90,7 +90,7 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     assert_equal 1, faults.length
     assert_equal execution_point, ExecutionPoint.new(faults.first.location)
   end
-  
+
   def run_test(test_result = Test::Unit::TestResult.new, &block)
     test_class = Class.new(Test::Unit::TestCase) do
       include Mocha::Standalone
@@ -101,5 +101,5 @@ class MochaTestResultIntegrationTest < Test::Unit::TestCase
     test.run(test_result) {}
     test_result
   end
-  
+
 end

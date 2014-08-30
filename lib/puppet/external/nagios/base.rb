@@ -228,9 +228,9 @@ class Nagios::Base
 
     # This is probably a bad idea.
     def name=(value)
-        unless self.class.namevar.to_s == "name" 
-            send(self.class.namevar.to_s + "=", value) 
-        end    
+        unless self.class.namevar.to_s == "name"
+            send(self.class.namevar.to_s + "=", value)
+        end
     end
 
     def namevar
@@ -328,7 +328,7 @@ class Nagios::Base
     newtype :contact do
         setparameters :contact_name, :alias, :host_notification_period,
             :host_notification_commands, :service_notification_period,
-            :service_notification_commands, :register, :email, :pager, 
+            :service_notification_commands, :register, :email, :pager,
             :service_notification_options, :host_notification_options
 
         setsuperior "person"
@@ -367,7 +367,7 @@ class Nagios::Base
             :notification_interval, :contact_groups,
             :escalation_options, :register, :hostgroup_name
         setnamevar :name
-    end              
+    end
 
     newtype :hostgroupescalation do
         auxiliary = true
@@ -399,7 +399,7 @@ class Nagios::Base
         auxiliary = true
         setparameters :host_name, :service_description, :dependent_host_name,
             :dependent_service_description, :execution_failure_criteria,
-            :notification_failure_criteria, :hostgroup_name, 
+            :notification_failure_criteria, :hostgroup_name,
             :dependent_hostgroup_name
 
         setnamevar :host_name

@@ -25,7 +25,7 @@ Puppet::Type.type(:interface).provide(:sunos) do
 			return obj
         else
             return false
-		end	
+		end
 	end
 
     # Prefetch our interface list, yo.

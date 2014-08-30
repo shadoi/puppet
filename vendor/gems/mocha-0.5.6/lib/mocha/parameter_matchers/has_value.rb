@@ -1,7 +1,7 @@
 require 'mocha/parameter_matchers/base'
 
 module Mocha
-  
+
   module ParameterMatchers
 
     # :call-seq: has_value(value) -> parameter_matcher
@@ -21,22 +21,22 @@ module Mocha
     end
 
     class HasValue < Base # :nodoc:
-      
+
       def initialize(value)
         @value = value
       end
-      
+
       def matches?(available_parameters)
         parameter = available_parameters.shift
         parameter.values.include?(@value)
       end
-      
+
       def mocha_inspect
         "has_value(#{@value.mocha_inspect})"
       end
-      
+
     end
-    
+
   end
-  
+
 end

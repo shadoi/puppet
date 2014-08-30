@@ -97,7 +97,7 @@ module Spec
         reporter.should_not_receive(:add_example_group)
         example_group.run
       end
-      
+
       describe "when before_each fails" do
         before(:each) do
           $example_ran = $after_each_ran = false
@@ -116,7 +116,7 @@ module Spec
           example_group.run
           $example_ran.should be_false
         end
-        
+
         it "should run after_each" do
           example_group.run
           $after_each_ran.should be_true

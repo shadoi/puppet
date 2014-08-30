@@ -2,13 +2,13 @@ require File.dirname(__FILE__) + '/../../spec_helper.rb'
 
 module Spec
   module Example
-    
+
     describe Configuration do
       before(:each) do
         @config = Configuration.new
         @example_group = mock("example_group")
       end
-      
+
       describe "#mock_with" do
 
         it "should default mock framework to rspec" do
@@ -86,11 +86,11 @@ module Spec
         end
 
       end
-    
+
     end
 
     describe Configuration do
-      
+
       before(:each) do
         @config = Configuration.new
         @special_example_group = Class.new(ExampleGroup)
@@ -136,7 +136,7 @@ module Spec
           end
           @example_group.it "calls prepend_before" do
           end
-        
+
           @example_group.run
           order.should == [
             :prepend__before_all,

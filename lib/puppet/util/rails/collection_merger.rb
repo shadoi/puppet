@@ -37,7 +37,7 @@ module Puppet::Util::CollectionMerger
             send(collection).delete(object)
         end
     end
-    
+
     def ar_hash_merge(db_hash, mem_hash, args)
         (db_hash.keys | mem_hash.keys).each do |key|
             if (db_hash[key] && mem_hash[key])

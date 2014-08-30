@@ -1,7 +1,7 @@
 require 'mocha/parameter_matchers/base'
 
 module Mocha
-  
+
   module ParameterMatchers
 
     # :call-seq: has_entries(entries) -> parameter_matcher
@@ -19,24 +19,24 @@ module Mocha
     def has_entries(entries)
       HasEntries.new(entries)
     end
-    
+
     class HasEntries < Base # :nodoc:
-      
+
       def initialize(entries)
         @entries = entries
       end
-      
+
       def matches?(available_parameters)
         parameter = available_parameters.shift
         @entries.all? { |key, value| parameter[key] == value }
       end
-      
+
       def mocha_inspect
         "has_entries(#{@entries.mocha_inspect})"
       end
-      
+
     end
-    
+
   end
-  
+
 end

@@ -18,7 +18,7 @@ module Puppet
                         content => $str
                     }
                 }
-            
+
             This attribute is especially useful when used with
             `PuppetTemplating templating`:trac:."
 
@@ -73,7 +73,7 @@ module Puppet
         # Just write our content out to disk.
         def sync
             return_event = @resource.stat ? :file_changed : :file_created
-            
+
             @resource.write(self.should, :content)
 
             return return_event

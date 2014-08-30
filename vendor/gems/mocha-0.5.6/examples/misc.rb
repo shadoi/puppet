@@ -3,7 +3,7 @@ require 'rubygems'
 require 'mocha'
 
 class MiscExampleTest < Test::Unit::TestCase
-  
+
   def test_mocking_a_class_method
     product = Product.new
     Product.expects(:find).with(1).returns(product)
@@ -40,5 +40,5 @@ class MiscExampleTest < Test::Unit::TestCase
     assert_equal :result1, object.method1
     assert_equal :result2, object.method2
   end
-  
+
 end

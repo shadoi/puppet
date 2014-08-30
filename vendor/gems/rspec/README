@@ -16,7 +16,7 @@ Spec::Expectations supports setting expectations on your objects so you
 can do things like:
 
   result.should equal(expected_result)
-  
+
 Spec::Mocks supports creating Mock Objects, Stubs, and adding Mock/Stub
 behaviour to your existing objects.
 
@@ -58,7 +58,7 @@ Once those are all installed, you should be able to run the suite with the follo
 * cd ..
 * rake pre_commit
 
-Note that RSpec itself - once built - doesn't have any dependencies outside the Ruby core 
+Note that RSpec itself - once built - doesn't have any dependencies outside the Ruby core
 and stdlib - with a few exceptions:
 
 * The spec command line uses diff-lcs when --diff is specified.

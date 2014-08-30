@@ -27,9 +27,9 @@ BuildArchitectures: noarch
 BuildRequires: ruby >= 1.8.1
 
 %description
-Puppet lets you centrally manage every important aspect of your system using a 
-cross-platform specification language that manages all the separate elements 
-normally aggregated in different files, like users, cron jobs, and hosts, 
+Puppet lets you centrally manage every important aspect of your system using a
+cross-platform specification language that manages all the separate elements
+normally aggregated in different files, like users, cron jobs, and hosts,
 along with obviously discrete elements like packages, services, and files.
 
 %package server
@@ -45,7 +45,7 @@ The server can also function as a certificate authority and file server.
 %setup -q
 
 %build
-for f in bin/* ; do 
+for f in bin/* ; do
   sed -i -e '1c#!/usr/bin/ruby' $f
 done
 # Fix some rpmlint complaints
@@ -174,7 +174,7 @@ rm -rf %{buildroot}
 - Remove old config files
 
 * Wed Jun 20 2007 David Lutterkort <dlutter@redhat.com> - 0.23.0-1
-- Install one puppet.conf instead of old config files, keep old configs 
+- Install one puppet.conf instead of old config files, keep old configs
   around to ease update
 - Use plain shell commands in install instead of macros
 
@@ -235,7 +235,7 @@ rm -rf %{buildroot}
 
 * Mon Jun 19 2006 David Lutterkort <dlutter@redhat.com> - 0.18.0-1
 - Patch config for LSB compliance (lsb-config.patch)
-- Changed config moves /var/puppet to /var/lib/puppet, /etc/puppet/ssl 
+- Changed config moves /var/puppet to /var/lib/puppet, /etc/puppet/ssl
   to /var/lib/puppet, /etc/puppet/clases.txt to /var/lib/puppet/classes.txt,
   /etc/puppet/localconfig.yaml to /var/lib/puppet/localconfig.yaml
 
@@ -258,7 +258,7 @@ rm -rf %{buildroot}
 - Rebuilt for new version
 
 * Wed Mar 22 2006 David Lutterkort <dlutter@redhat.com> - 0.15.1-1
-- Patch0: Run puppetmaster as root; running as puppet is not ready 
+- Patch0: Run puppetmaster as root; running as puppet is not ready
   for primetime
 
 * Mon Mar 13 2006 David Lutterkort <dlutter@redhat.com> - 0.15.0-1
@@ -273,7 +273,7 @@ rm -rf %{buildroot}
   allocate the puppet uid/gid dynamically
 
 * Sun Feb 19 2006 David Lutterkort <dlutter@redhat.com> - 0.13.0-4
-- Use fedora-usermgmt to create puppet user/group. Use uid/gid 24. Fixed 
+- Use fedora-usermgmt to create puppet user/group. Use uid/gid 24. Fixed
 problem with listing fileserver.conf and puppetmaster.conf twice
 
 * Wed Feb  8 2006 David Lutterkort <dlutter@redhat.com> - 0.13.0-3
@@ -298,7 +298,7 @@ problem with listing fileserver.conf and puppetmaster.conf twice
 - Added basic fileserver.conf
 
 * Wed Jan 11 2006 David Lutterkort <dlutter@redhat.com> - 0.10.1-1
-- Updated. Moved installation of library files to sitelibdir. Pulled 
+- Updated. Moved installation of library files to sitelibdir. Pulled
 initscripts into separate files. Folded tools rpm into server
 
 * Thu Nov 24 2005 Duane Griffin <d.griffin@psenterprise.com>

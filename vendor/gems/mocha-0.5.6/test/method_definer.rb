@@ -1,7 +1,7 @@
 require 'mocha/metaclass'
 
 class Object
-  
+
   def define_instance_method(method_symbol, &block)
     __metaclass__.send(:define_method, method_symbol, block)
   end

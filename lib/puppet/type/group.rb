@@ -16,7 +16,7 @@ module Puppet
             uses the prescribed native tools for creating groups and generally
             uses POSIX APIs for retrieving information about them.  It does
             not directly modify ``/etc/group`` or anything.
-            
+
             For most platforms, the tools used are ``groupadd`` and its ilk;
             for Mac OS X, NetInfo is used.  This is currently unconfigurable,
             but if you desperately need it to be so, please contact us."
@@ -113,7 +113,7 @@ module Puppet
         newparam(:allowdupe) do
             desc "Whether to allow duplicate GIDs.  This option does not work on
                 FreeBSD (contract to the ``pw`` man page)."
-                
+
             newvalues(:true, :false)
 
             defaultto false
@@ -123,7 +123,7 @@ module Puppet
             if self.provider and @provider.exists?
                 return super
             else
-               return currentpropvalues(:absent) 
+               return currentpropvalues(:absent)
             end
         end
     end

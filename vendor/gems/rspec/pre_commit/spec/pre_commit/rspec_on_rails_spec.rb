@@ -4,7 +4,7 @@ require 'fileutils'
 include FileUtils
 
 ##
-# This is not a complete specification of PreCommit.RSpecOnRails, but 
+# This is not a complete specification of PreCommit.RSpecOnRails, but
 # just a collection of bug fix regression tests.
 describe "RSpecOnRails pre_commit" do
   before do

@@ -2,22 +2,22 @@ require 'mocha/mock'
 require 'mocha/sequence'
 
 module Mocha # :nodoc:
-  
+
   # Methods added to TestCase allowing creation of traditional mock objects.
   #
   # Mocks created this way will have their expectations automatically verified at the end of the test.
   #
   # See Mock for methods on mock objects.
   module AutoVerify
-  
+
     def mocks # :nodoc:
       @mocks ||= []
     end
-  
+
     def reset_mocks # :nodoc:
       @mocks = nil
     end
-    
+
     # :call-seq: mock(name, &block) -> mock object
     #            mock(expected_methods = {}, &block) -> mock object
     #            mock(name, expected_methods = {}, &block) -> mock object
@@ -36,7 +36,7 @@ module Mocha # :nodoc:
     #     assert_equal 'ipod', product.manufacturer
     #     assert_equal 100, product.price
     #     # an error will be raised unless both Product#manufacturer and Product#price have been called
-    #   end 
+    #   end
     def mock(*arguments, &block)
       name = arguments.shift if arguments.first.is_a?(String)
       expectations = arguments.shift || {}
@@ -45,7 +45,7 @@ module Mocha # :nodoc:
       mocks << mock
       mock
     end
-  
+
     # :call-seq: stub(name, &block) -> mock object
     #            stub(stubbed_methods = {}, &block) -> mock object
     #            stub(name, stubbed_methods = {}, &block) -> mock object
@@ -73,7 +73,7 @@ module Mocha # :nodoc:
       mocks << stub
       stub
     end
-  
+
     # :call-seq: stub_everything(name, &block) -> mock object
     #            stub_everything(stubbed_methods = {}, &block) -> mock object
     #            stub_everything(name, stubbed_methods = {}, &block) -> mock object
@@ -100,7 +100,7 @@ module Mocha # :nodoc:
       mocks << stub
       stub
     end
-    
+
     def verify_mocks # :nodoc:
       mocks.each { |mock| mock.verify { yield if block_given? } }
     end
@@ -108,11 +108,11 @@ module Mocha # :nodoc:
     def teardown_mocks # :nodoc:
       reset_mocks
     end
-    
+
     def sequence(name) # :nodoc:
       Sequence.new(name)
     end
-  
+
   end
-  
+
 end

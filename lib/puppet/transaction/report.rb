@@ -11,7 +11,7 @@ class Puppet::Transaction::Report
     indirects :report, :terminus_class => :processor
 
     attr_accessor :logs, :metrics, :time, :host
-    
+
     def <<(msg)
         @logs << msg
         return self

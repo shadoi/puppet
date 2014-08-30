@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../../spec_helper.rb'
 module Spec
   module Runner
     describe ClassAndArgumentsParser, ".parse" do
-      
+
       it "should use a single : to separate class names from arguments" do
         ClassAndArgumentsParser.parse('Foo').should == ['Foo', nil]
         ClassAndArgumentsParser.parse('Foo:arg').should == ['Foo', 'arg']
@@ -17,7 +17,7 @@ module Spec
         lambda do
           ClassAndArgumentsParser.parse('')
         end.should raise_error("Couldn't parse \"\"")
-      end      
+      end
     end
   end
 end

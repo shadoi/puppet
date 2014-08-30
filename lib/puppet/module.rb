@@ -4,7 +4,7 @@ class Puppet::Module
     TEMPLATES = "templates"
     FILES = "files"
     MANIFESTS = "manifests"
-    
+
     # Return an array of paths by splitting the +modulepath+ config
     # parameter. Only consider paths that are absolute and existing
     # directories

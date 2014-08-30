@@ -22,7 +22,7 @@ decl: object { result = [val[0]] }
 	| RETURN { result = nil }
 	| comment
 	;
-	
+
 comment: COMMENT RETURN { result = nil }
 	;
 

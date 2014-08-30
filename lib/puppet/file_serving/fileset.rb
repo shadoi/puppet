@@ -83,7 +83,7 @@ class Puppet::FileServing::Fileset
         # Else, return false.
         return false
     end
-    
+
     private
 
     # Pull the recursion logic into one place.  It's moderately hairy, and this

@@ -15,7 +15,7 @@ Puppet::Type.newtype(:zone) do
     class ZoneMultiConfigProperty < ZoneConfigProperty
         def configtext
             list = @should
-            
+
             current_value = self.retrieve
 
             unless current_value.is_a? Symbol
@@ -211,7 +211,7 @@ Puppet::Type.newtype(:zone) do
             end
 
             interface, address = value.split(':')
-            
+
             begin
                 IPAddr.new(address)
             rescue ArgumentError
@@ -229,7 +229,7 @@ end
 "
         end
 
-        # Convert a string into the component interface and address 
+        # Convert a string into the component interface and address
         def ipsplit(str)
             interface, address = str.split(':')
             return interface, address
@@ -259,7 +259,7 @@ end
     end
 
     newproperty(:pool, :parent => ZoneConfigProperty) do
-        desc "The resource pool for this zone." 
+        desc "The resource pool for this zone."
 
         def configtext
             "set pool=#{self.should}"
@@ -306,7 +306,7 @@ end
     newparam(:sysidcfg) do
         desc %{The text to go into the sysidcfg file when the zone is first
             booted.  The best way is to use a template::
-                
+
                 # $templatedir/sysidcfg
                 system_locale=en_US
                 timezone=GMT

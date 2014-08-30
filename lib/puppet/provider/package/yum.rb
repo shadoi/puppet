@@ -4,7 +4,7 @@ Puppet::Type.type(:package).provide :yum, :parent => :rpm, :source => :rpm do
     has_feature :versionable
 
     commands :yum => "yum", :rpm => "rpm", :python => "python"
-    
+
     YUMHELPER = File::join(File::dirname(__FILE__), "yumhelper.py")
 
     class << self

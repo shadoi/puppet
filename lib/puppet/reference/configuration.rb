@@ -57,20 +57,20 @@ it is most likely an option that is valid for everyone.
 I have tried to be as thorough as possible in the descriptions of the
 arguments, so it should be obvious whether an argument is appropriate or not.
 
-These parameters can be supplied to the executables either as command-line 
+These parameters can be supplied to the executables either as command-line
 options or in the configuration file.  For instance, the command-line
 invocation below would set the configuration directory to ``/private/puppet``::
-  
+
     $ puppetd --confdir=/private/puppet
-  
+
 Note that boolean options are turned on and off with a slightly different
 syntax on the command line::
 
     $ puppetd --storeconfigs
-      
+
     $ puppetd --no-storeconfigs
 
-The invocations above will enable and disable, respectively, the storage of 
+The invocations above will enable and disable, respectively, the storage of
 the client configuration.
 
 Configuration Files
@@ -99,7 +99,7 @@ The file follows INI-style formatting.  Here is an example of a very simple
     [main]
         confdir = /private/puppet
         storeconfigs = true
-    
+
 Note that boolean parameters must be explicitly specified as `true` or
 `false` as seen above.
 
@@ -116,16 +116,16 @@ will print a template configuration to standard output, which can be
 redirected to a file like so::
 
     $ puppetd --genconfig > /etc/puppet/puppet.conf
-  
+
 Note that this invocation will replace the contents of any pre-existing
 `puppet.conf` file, so make a backup of your present config if it contains
 valuable information.
 
 All parameters will be under a single section heading matching the name of
 the process used to generate the configuraiton ('puppetd', in this case).
-  
+
 Like the `--genconfig` argument, the executables also accept a `--genmanifest`
-argument, which will generate a manifest that can be used to manage all of 
+argument, which will generate a manifest that can be used to manage all of
 Puppet's directories and files and prints it to standard output.  This can
 likewise be redirected to a file::
 
@@ -135,16 +135,16 @@ Puppet can also create user and group accounts for itself (one `puppet` group
 and one `puppet` user) if it is invoked as `root` with the `--mkusers` argument::
 
     $ puppetd --mkusers
-  
+
 Signals
 -------
-The ``puppetd`` and ``puppetmasterd`` executables catch some signals for special 
-handling.  Both daemons catch (``SIGHUP``), which forces the server to restart 
-tself.  Predictably, interrupt and terminate (``SIGINT`` and ``SIGHUP``) will shut 
+The ``puppetd`` and ``puppetmasterd`` executables catch some signals for special
+handling.  Both daemons catch (``SIGHUP``), which forces the server to restart
+tself.  Predictably, interrupt and terminate (``SIGINT`` and ``SIGHUP``) will shut
 down the server, whether it be an instance of ``puppetd`` or ``puppetmasterd``.
 
-Sending the ``SIGUSR1`` signal to an instance of ``puppetd`` will cause it to 
-immediately begin a new configuration transaction with the server.  This 
+Sending the ``SIGUSR1`` signal to an instance of ``puppetd`` will cause it to
+immediately begin a new configuration transaction with the server.  This
 signal has no effect on ``puppetmasterd``.
 
 Configuration Parameter Reference

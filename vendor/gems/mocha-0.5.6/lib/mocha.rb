@@ -8,10 +8,10 @@ module Test
   module Unit
 
     class TestCase
-  
+
       include Mocha::Standalone
       include Mocha::TestCaseAdapter
-      
+
     end
 
   end

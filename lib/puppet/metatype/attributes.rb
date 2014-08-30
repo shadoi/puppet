@@ -152,7 +152,7 @@ class Puppet::Type
 
         return ens
     end
-    
+
     # Deal with any options passed into parameters.
     def self.handle_param_options(name, options)
         # If it's a boolean parameter, create a method to test the value easily
@@ -164,7 +164,7 @@ class Puppet::Type
                 end
             end
         end
-        
+
         # If this param handles relationships, store that information
     end
 
@@ -206,7 +206,7 @@ class Puppet::Type
         if options[:required_features]
             param.required_features = options[:required_features]
         end
-        
+
         handle_param_options(name, options)
 
         param.metaparam = true
@@ -244,7 +244,7 @@ class Puppet::Type
             :array => @parameters,
             :hash => @paramhash
         )
-        
+
         handle_param_options(name, options)
 
         # Grr.
@@ -292,7 +292,7 @@ class Puppet::Type
                 "Options must be a hash, not %s" % options.inspect
         end
 
-        if @validproperties.include?(name) 
+        if @validproperties.include?(name)
             raise Puppet::DevError, "Class %s already has a property named %s" %
                 [self.name, name]
         end
@@ -444,7 +444,7 @@ class Puppet::Type
             return name
         end
     end
-    
+
     # Are we deleting this resource?
     def deleting?
         obj = @parameters[:ensure] and obj.should == :absent
@@ -459,7 +459,7 @@ class Puppet::Type
         end
         return false
     end
-    
+
     # abstract accessing parameters and properties, and normalize
     # access to always be symbols, not strings
     # This returns a value, not an object.  It returns the 'is'
@@ -640,7 +640,7 @@ class Puppet::Type
     # Convert our object to a hash.  This just includes properties.
     def to_hash
         rethash = {}
-    
+
         @parameters.each do |name, obj|
             rethash[name] = obj.value
         end

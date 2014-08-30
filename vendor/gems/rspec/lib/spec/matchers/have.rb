@@ -1,12 +1,12 @@
 module Spec
   module Matchers
-    
+
     class Have #:nodoc:
       def initialize(expected, relativity=:exactly)
         @expected = (expected == :no ? 0 : expected)
         @relativity = relativity
       end
-    
+
       def relativities
         @relativities ||= {
           :exactly => "",
@@ -14,7 +14,7 @@ module Spec
           :at_most => "at most "
         }
       end
-    
+
       def method_missing(sym, *args, &block)
         @collection_name = sym
         @plural_collection_name = Inflector.pluralize(sym.to_s) if Object.const_defined?(:Inflector)
@@ -22,7 +22,7 @@ module Spec
         @block = block
         self
       end
-    
+
       def matches?(collection_owner)
         if collection_owner.respond_to?(@collection_name)
           collection = collection_owner.send(@collection_name, *@args, &@block)
@@ -40,11 +40,11 @@ module Spec
         return @actual <= @expected if @relativity == :at_most
         return @actual == @expected
       end
-      
+
       def not_a_collection
         "expected #{@collection_name} to be a collection but it does not respond to #length or #size"
       end
-    
+
       def failure_message
         "expected #{relative_expectation} #{@collection_name}, got #{@actual}"
       end
@@ -70,13 +70,13 @@ We recommend that you use this instead:
 EOF
         end
       end
-      
+
       def description
         "have #{relative_expectation} #{@collection_name}"
       end
-      
+
       private
-      
+
       def relative_expectation
         "#{relativities[@relativity]}#{@expected}"
       end

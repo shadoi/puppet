@@ -11,7 +11,7 @@ module Spec
       def execute(options, instance_variables)
         options.reporter.example_started(self)
         set_instance_variables_from_hash(instance_variables)
-        
+
         execution_error = nil
         Timeout.timeout(options.timeout) do
           begin
@@ -63,7 +63,7 @@ module Spec
       def description
         @_defined_description || @_matcher_description || "NO NAME"
       end
-      
+
       def set_instance_variables_from_hash(ivars)
         ivars.each do |variable_name, value|
           # Ruby 1.9 requires variable.to_s on the next line
@@ -85,11 +85,11 @@ module Spec
       def implementation_backtrace
         eval("caller", @_implementation)
       end
-      
+
       protected
       include Matchers
       include Pending
-      
+
       def before_example
         setup_mocks_for_rspec
         self.class.run_before_each(self)

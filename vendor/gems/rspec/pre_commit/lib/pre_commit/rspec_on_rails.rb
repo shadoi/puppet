@@ -42,7 +42,7 @@ class PreCommit::RspecOnRails < PreCommit
 
     rake_sh "spec"
     rake_sh "spec:plugins:rspec_on_rails"
-    
+
     # TODO - why is this necessary? Shouldn't the specs leave
     # a clean DB?
     rake_sh "db:test:prepare"
@@ -91,12 +91,12 @@ class PreCommit::RspecOnRails < PreCommit
     rm_rf 'spec/spec.opts'
     rm_rf 'spec/rcov.opts'
   end
-  
+
   def copy(source, target)
     output = silent_sh("cp -R #{File.expand_path(source)} #{File.expand_path(target)}")
     raise "Error installing rspec" if shell_error?(output)
   end
-  
+
   def generate_rspec
     result = silent_sh("ruby script/generate rspec --force")
     if error_code? || result =~ /^Missing/
@@ -158,7 +158,7 @@ class PreCommit::RspecOnRails < PreCommit
       raise "rspec_scaffold failed. #{result}"
     end
   end
-  
+
   def purchase_migration_version
     "005"
   end
@@ -205,7 +205,7 @@ class PreCommit::RspecOnRails < PreCommit
     end
     puts "#####################################################"
   end
-  
+
   def generate_login_controller
     generator = "ruby script/generate rspec_controller login signup login logout --force"
     notice = <<-EOF
@@ -269,7 +269,7 @@ class PreCommit::RspecOnRails < PreCommit
       end
     end
   end
-  
+
   def update_dependencies
     check_dependencies
     VENDOR_DEPS.each do |dep|

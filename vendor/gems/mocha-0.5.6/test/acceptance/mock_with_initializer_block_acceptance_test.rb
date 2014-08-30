@@ -3,7 +3,7 @@ require 'mocha'
 require 'test_runner'
 
 class MockWithInitializerBlockAcceptanceTest < Test::Unit::TestCase
-  
+
   include TestRunner
 
   def test_should_expect_two_method_invocations_and_receive_both_of_them

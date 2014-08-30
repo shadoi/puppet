@@ -16,7 +16,7 @@ class Puppet::FileServing::Mount < Puppet::Network::AuthStore
     extend Puppet::Util::Cacher
 
     def self.localmap
-        attr_cache(:localmap) { 
+        attr_cache(:localmap) {
             {   "h" =>  Facter.value("hostname"),
                 "H" => [Facter.value("hostname"),
                         Facter.value("domain")].join("."),
@@ -136,7 +136,7 @@ class Puppet::FileServing::Mount < Puppet::Network::AuthStore
     # Create a map for a specific node.
     def clientmap(node)
         {
-            "h" => node.sub(/\..*$/, ""), 
+            "h" => node.sub(/\..*$/, ""),
             "H" => node,
             "d" => node.sub(/[^.]+\./, "") # domain name
         }
@@ -158,7 +158,7 @@ class Puppet::FileServing::Mount < Puppet::Network::AuthStore
 
         path.gsub(/%(.)/) do |v|
             key = $1
-            if key == "%" 
+            if key == "%"
                 "%"
             else
                 map[key] || v

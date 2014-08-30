@@ -94,7 +94,7 @@ module Puppet
                     end
                 end
             end
-            
+
             unless stat = @resource.stat(false)
                 return :absent
             end
@@ -107,7 +107,7 @@ module Puppet
             end
 
             currentvalue = stat.uid
-            
+
             # On OS X, files that are owned by -2 get returned as really
             # large UIDs instead of negative ones.  This isn't a Ruby bug,
             # it's an OS X bug, since it shows up in perl, too.

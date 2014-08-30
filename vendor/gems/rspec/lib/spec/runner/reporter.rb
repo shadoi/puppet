@@ -2,27 +2,27 @@ module Spec
   module Runner
     class Reporter
       attr_reader :options, :example_groups
-      
+
       def initialize(options)
         @options = options
         @options.reporter = self
         clear
       end
-      
+
       def add_example_group(example_group)
         formatters.each do |f|
           f.add_example_group(example_group)
         end
         example_groups << example_group
       end
-      
+
       def example_started(example)
         formatters.each{|f| f.example_started(example)}
       end
-      
+
       def example_finished(example, error=nil)
         @examples << example
-        
+
         if error.nil?
           example_passed(example)
         elsif Spec::Example::ExamplePendingError === error
@@ -48,11 +48,11 @@ module Spec
         @start_time = Time.new
         formatters.each{|f| f.start(number_of_examples)}
       end
-  
+
       def end
         @end_time = Time.new
       end
-  
+
       # Dumps the summary and returns the total number of failures
       def dump
         formatters.each{|f| f.start_dump}
@@ -74,7 +74,7 @@ module Spec
       def backtrace_tweaker
         @options.backtrace_tweaker
       end
-  
+
       def clear
         @example_groups = []
         @failures = []
@@ -83,7 +83,7 @@ module Spec
         @start_time = nil
         @end_time = nil
       end
-  
+
       def dump_failures
         return if @failures.empty?
         @failures.inject(1) do |index, failure|
@@ -99,21 +99,21 @@ module Spec
         return @end_time - @start_time unless (@end_time.nil? or @start_time.nil?)
         return "0.0"
       end
-      
+
       def example_passed(example)
         formatters.each{|f| f.example_passed(example)}
       end
-      
+
       def example_pending(example_group, example, message="Not Yet Implemented")
         @pending_count += 1
         formatters.each do |f|
           f.example_pending(example_group.description, example, message)
         end
       end
-      
+
       class Failure
         attr_reader :exception
-        
+
         def initialize(example_name, exception)
           @example_name = example_name
           @exception = exception
@@ -128,7 +128,7 @@ module Spec
             "#{@exception.class.name} in '#{@example_name}'"
           end
         end
-        
+
         def pending_fixed?
           @exception.is_a?(Spec::Example::PendingExampleFixedError)
         end

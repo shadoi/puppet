@@ -10,7 +10,7 @@ module Spec
           def jruby?
             PLATFORM == 'java'
           end
-    
+
           it "should produce HTML identical to the one we designed manually with #{opt}" do
             root = File.expand_path(File.dirname(__FILE__) + '/../../../..')
             suffix = jruby? ? '-jruby' : ''

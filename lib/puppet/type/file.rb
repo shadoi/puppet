@@ -16,7 +16,7 @@ module Puppet
             retrieving entire files from remote servers.  As Puppet matures, it
             expected that the ``file`` resource will be used less and less to
             manage content, and instead native resources will be used to do so.
-            
+
             If you find that you are often copying files in from a central
             location, rather than using native resources, please contact
             Reductive Labs and we can hopefully work with you to develop a
@@ -45,11 +45,11 @@ module Puppet
                 the same directory with that value as the extension of the
                 backup. Setting ``backup => false`` disables all backups of the
                 file in question.
-                
+
                 Puppet automatically creates a local filebucket named ``puppet`` and
                 defaults to backing up there.  To use a server-based filebucket,
                 you must specify one in your configuration::
-                    
+
                     filebucket { main:
                         server => puppet
                     }
@@ -75,7 +75,7 @@ module Puppet
                 "
 
             defaultto { "puppet" }
-            
+
             munge do |value|
                 # I don't really know how this is happening.
                 value = value.shift if value.is_a?(Array)
@@ -155,7 +155,7 @@ module Puppet
                 engine, so shell metacharacters are fully supported, e.g. ``[a-z]*``.
                 Matches that would descend into the directory structure are ignored,
                 e.g., ``*/*``."
-       
+
             defaultto false
 
             validate do |value|
@@ -185,7 +185,7 @@ module Puppet
                 this will destroy data.  Only use this option for generated
                 files unless you really know what you are doing.  This option only
                 makes sense when recursively managing directories.
-                
+
                 Note that when using ``purge`` with ``source``, Puppet will purge any files
                 that are not on the remote system."
 
@@ -206,7 +206,7 @@ module Puppet
 
             newvalues(:first, :all)
         end
-        
+
         attr_accessor :bucket
 
         # Autorequire any parent directories.
@@ -234,7 +234,7 @@ module Puppet
                 end
             end
         end
-        
+
         CREATORS = [:content, :source, :target]
 
         validate do
@@ -246,7 +246,7 @@ module Puppet
                 self.fail "You cannot specify more than one of %s" % CREATORS.collect { |p| p.to_s}.join(", ")
             end
         end
-        
+
         def self.[](path)
             return nil unless path
             super(path.gsub(/\/+/, '/').sub(/\/$/, ''))
@@ -326,7 +326,7 @@ module Puppet
             end
             super
         end
-        
+
         # Create any children via recursion or whatever.
         def eval_generate
             recurse()
@@ -428,7 +428,7 @@ module Puppet
                 return false
             end
         end
-        
+
         def handleignore(children)
             return children unless self[:ignore]
             self[:ignore].each { |ignore|
@@ -440,7 +440,7 @@ module Puppet
             }
             return children
         end
-          
+
         def initialize(hash)
             # Store a copy of the arguments for later.
             tmphash = hash.to_hash
@@ -452,7 +452,7 @@ module Puppet
 
             # Get rid of any duplicate slashes, and remove any trailing slashes.
             @title = @title.gsub(/\/+/, "/")
-            
+
             @title.sub!(/\/$/, "") unless @title == "/"
 
             # Clean out as many references to any file paths as possible.
@@ -498,7 +498,7 @@ module Puppet
             end
 
             children = Dir.entries(target).reject { |d| d =~ /^\.+$/ }
-         
+
             # Get rid of ignored children
             if @parameters.include?(:ignore)
                 children = handleignore(children)
@@ -521,7 +521,7 @@ module Puppet
                     end
                 end
             end
-            
+
             added
         end
 
@@ -539,7 +539,7 @@ module Puppet
             end
 
             children = Dir.entries(self[:path])
-         
+
             #Get rid of ignored children
             if @parameters.include?(:ignore)
                 children = handleignore(children)
@@ -548,17 +548,17 @@ module Puppet
             added = []
             children.each { |file|
                 file = File.basename(file)
-                next if file =~ /^\.\.?$/ # skip . and .. 
+                next if file =~ /^\.\.?$/ # skip . and ..
                 options = {:recurse => recurse}
 
                 if child = self.newchild(file, true, options)
                     added << child
                 end
             }
-            
+
             added
         end
-        
+
         # Create a new file or directory object as a child to the current
         # object.
         def newchild(path, local, hash = {})
@@ -666,7 +666,7 @@ module Puppet
                 return [self.ref]
             end
         end
-        
+
         # Should we be purging?
         def purge?
             @parameters.include?(:purge) and (self[:purge] == :true or self[:purge] == "true")
@@ -692,9 +692,9 @@ module Puppet
             if recurse.is_a?(Integer)
                 recurse -= 1
             end
-            
+
             children = []
-            
+
             # We want to do link-recursing before normal recursion so that all
             # of the target stuff gets copied over correctly.
             if @parameters.include? :target and ret = self.linkrecurse(recurse)
@@ -721,7 +721,7 @@ module Puppet
                     end
                 end
             end
-            
+
             children
         end
 
@@ -773,7 +773,7 @@ module Puppet
             self.fail "Could not back up; will not replace" unless handlebackup
 
             unless should.to_s == "link"
-                return if s.ftype.to_s == should.to_s 
+                return if s.ftype.to_s == should.to_s
             end
 
             case s.ftype
@@ -823,14 +823,14 @@ module Puppet
             if @arghash.include?(:ensure)
                 @arghash.delete(:ensure)
             end
-            
+
             r = false
             if recurse
                 unless recurse == 0
                     r = 1
                 end
             end
-            
+
             ignore = self[:ignore]
 
             result = []
@@ -839,7 +839,7 @@ module Puppet
             # Keep track of all the files we found in the source, so we can purge
             # appropriately.
             sourced = []
-            
+
             @parameters[:source].should.each do |source|
                 sourceobj, path = uri2obj(source)
 
@@ -850,10 +850,10 @@ module Puppet
                 server = sourceobj.server
 
                 desc = server.list(path, self[:links], r, ignore)
-                if desc == "" 
+                if desc == ""
                     next
                 end
-            
+
                 # Now create a new child for every file returned in the list.
                 result += desc.split("\n").collect { |line|
                     file, type = line.split("\t")

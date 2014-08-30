@@ -1,7 +1,7 @@
 require 'mocha/parameter_matchers/base'
 
 module Mocha
-  
+
   module ParameterMatchers
 
     # :call-seq: Not(matcher) -> parameter_matcher
@@ -19,24 +19,24 @@ module Mocha
     def Not(matcher)
       Not.new(matcher)
     end
-    
+
     class Not < Base # :nodoc:
-      
+
       def initialize(matcher)
         @matcher = matcher
       end
-    
+
       def matches?(available_parameters)
         parameter = available_parameters.shift
         !@matcher.matches?([parameter])
       end
-      
+
       def mocha_inspect
         "Not(#{@matcher.mocha_inspect})"
       end
-      
+
     end
-    
+
   end
-  
+
 end

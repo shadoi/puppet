@@ -5,7 +5,7 @@ require 'mocha/test_case_adapter'
 require 'mocha/standalone'
 
 class StubbaIntegrationTest < Test::Unit::TestCase
-  
+
   class DontMessWithMe
     def self.my_class_method
       :original_return_value
@@ -14,7 +14,7 @@ class StubbaIntegrationTest < Test::Unit::TestCase
       :original_return_value
     end
   end
-  
+
   def test_should_stub_class_method_within_test
     test = build_test do
       DontMessWithMe.expects(:my_class_method).returns(:new_return_value)
@@ -34,15 +34,15 @@ class StubbaIntegrationTest < Test::Unit::TestCase
     test.run(Test::Unit::TestResult.new) {}
     assert_equal :original_return_value, DontMessWithMe.my_class_method
   end
-  
+
   def test_should_reset_class_expectations_after_test
     test = build_test do
       DontMessWithMe.expects(:my_class_method)
     end
-    
+
     test.run(Test::Unit::TestResult.new) {}
     assert_equal 0, DontMessWithMe.mocha.expectations.length
-  end  
+  end
 
   def test_should_stub_instance_method_within_test
     instance = DontMessWithMe.new
@@ -54,7 +54,7 @@ class StubbaIntegrationTest < Test::Unit::TestCase
     test.run(test_result) {}
     assert test_result.passed?
   end
-  
+
   def test_should_leave_stubbed_instance_method_unchanged_after_test
     instance = DontMessWithMe.new
     test = build_test do
@@ -64,16 +64,16 @@ class StubbaIntegrationTest < Test::Unit::TestCase
     test.run(Test::Unit::TestResult.new) {}
     assert_equal :original_return_value, instance.my_instance_method
   end
-  
+
   def test_should_reset_instance_expectations_after_test
     instance = DontMessWithMe.new
     test = build_test do
       instance.expects(:my_instance_method).returns(:new_return_value)
     end
-    
+
     test.run(Test::Unit::TestResult.new) {}
     assert_equal 0, instance.mocha.expectations.length
-  end  
+  end
 
   private
 

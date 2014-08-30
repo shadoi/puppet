@@ -36,7 +36,7 @@ module Spec
             Spec::Runner::CommandLine.run(options)
 
             yield(out.string)
-          end          
+          end
         end
 
         # # Uncomment this spec temporarily in order to overwrite the expected with actual.

@@ -71,7 +71,7 @@ puppet (0.23.2-10) unstable; urgency=low
 
 puppet (0.23.2-9) unstable; urgency=low
 
-  * Recycle the HTTP connection if we get an EPIPE during a request. 
+  * Recycle the HTTP connection if we get an EPIPE during a request.
     Closes: #444177.  Thanks to Jos Backus for helping with testing.
 
  -- Matthew Palmer <mpalmer@debian.org>  Thu, 27 Sep 2007 09:55:34 +1000
@@ -80,7 +80,7 @@ puppet (0.23.2-8) unstable; urgency=low
 
   * Remove extraneous debugging output accidentally left behind in the last
     release.
-  * Fix spelling mistakes in debian/control and debian/puppet.preinst. 
+  * Fix spelling mistakes in debian/control and debian/puppet.preinst.
     Closes: #444158.
 
  -- Matthew Palmer <mpalmer@debian.org>  Thu, 27 Sep 2007 07:45:07 +1000
@@ -230,7 +230,7 @@ puppet (0.18.4-1) unstable; urgency=low
     - Properly detect all services, including those in rcS.d.
       (Closes: #378351)
   * Add Homepage: to the long description.  (Closes: #377896)
-  
+
  -- Matthew Palmer <mpalmer@debian.org>  Mon, 24 Jul 2006 19:46:06 +1000
 
 puppet (0.18.3-1) unstable; urgency=low

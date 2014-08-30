@@ -10,10 +10,10 @@ module Spec
         return @name == other.name
       end
     end
-    
+
     class ClassWithMultiWordPredicate
       def multi_word_predicate?
-        true 
+        true
       end
     end
 
@@ -45,12 +45,12 @@ module Spec
         def add_to_collection_with_length_method(item)
           @items_in_collection_with_length_method.push(item)
         end
-        
+
         def items_for(arg)
           return [1, 2, 3] if arg == 'a'
           [1]
         end
-        
+
         def items
           @items_in_collection_with_size_method
         end
@@ -75,11 +75,11 @@ module Spec
           @funny_called = true
           @return_val
         end
-        
+
         def exists?
           @return_val
         end
-        
+
         def multi_word_predicate?
           @return_val
         end
@@ -102,7 +102,7 @@ module Custom
   require 'spec/runner/formatter/base_text_formatter'
   class Formatter < Spec::Runner::Formatter::BaseTextFormatter
     attr_reader :options, :where
-    
+
     def initialize(options, where)
       @options = options
       @where = where
@@ -111,7 +111,7 @@ module Custom
 
   class BadFormatter < Spec::Runner::Formatter::BaseTextFormatter
     attr_reader :where
-    
+
     def initialize(options, where)
       bad_method
     end

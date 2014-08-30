@@ -42,7 +42,7 @@ class PreCommit
   def root_dir
     dir = File.dirname(__FILE__)
     File.expand_path("#{dir}/../../../..")
-  end  
+  end
 
   def method_missing(method_name, *args, &block)
     if actor.respond_to?(method_name)

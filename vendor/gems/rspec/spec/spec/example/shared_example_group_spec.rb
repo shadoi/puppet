@@ -130,11 +130,11 @@ module Spec
         shared_example_group = describe "all things", :shared => true do
           it "should do stuff" do end
         end
-        
+
         example_group = describe "one thing" do
           include shared_example_group
         end
-        
+
         example_group.number_of_examples.should == 1
       end
 
@@ -142,11 +142,11 @@ module Spec
         AllThings = describe "all things", :shared => true do
           it "should do stuff" do end
         end
-        
+
         example_group = describe "one thing" do
           it_should_behave_like AllThings
         end
-        
+
         example_group.number_of_examples.should == 1
       end
 

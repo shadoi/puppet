@@ -5,7 +5,7 @@ Puppet::Type.type(:service).provide :redhat, :parent => :init do
         management; uses ``chkconfig`` for service enabling and disabling."
 
     commands :chkconfig => "/sbin/chkconfig", :service => "/sbin/service"
- 
+
     defaultfor :operatingsystem => [:redhat, :fedora, :suse, :centos]
 
     def self.defpath
@@ -34,7 +34,7 @@ Puppet::Type.type(:service).provide :redhat, :parent => :init do
         if output =~ /.* off$/
             return :false
         end
-	
+
         return :true
     end
 
@@ -48,7 +48,7 @@ Puppet::Type.type(:service).provide :redhat, :parent => :init do
                 [self.name, detail]
         end
     end
- 
+
     def restart
         if @resource[:hasrestart] == true
               service(@resource[:name], "restart")

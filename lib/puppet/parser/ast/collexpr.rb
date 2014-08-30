@@ -62,7 +62,7 @@ class CollExpr < AST::Branch
         else
             str = "(%s) %s (%s)" % [str1, oper, str2]
         end
-        
+
         return str, code
     end
 

@@ -8,12 +8,12 @@ module Spec
           # given
           story = stub_everything('story')
           scenario_collector = ScenarioCollector.new(story)
-          
+
           # when
           scenario_collector.Scenario 'scenario1' do end
           scenario_collector.Scenario 'scenario2' do end
           scenarios = scenario_collector.scenarios
-          
+
           # then
           scenario_collector.should have(2).scenarios
           scenarios.first.name.should == 'scenario1'

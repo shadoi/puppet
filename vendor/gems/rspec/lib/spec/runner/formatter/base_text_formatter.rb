@@ -25,11 +25,11 @@ module Spec
           end
           @pending_examples = []
         end
-        
+
         def example_pending(example_group_description, example, message)
           @pending_examples << ["#{example_group_description} #{example.description}", message]
         end
-        
+
         def dump_failure(counter, failure)
           @output.puts
           @output.puts "#{counter.to_s})"
@@ -37,7 +37,7 @@ module Spec
           @output.puts format_backtrace(failure.exception.backtrace)
           @output.flush
         end
-        
+
         def colourise(s, failure)
           if(failure.expectation_not_met?)
             red(s)
@@ -47,7 +47,7 @@ module Spec
             magenta(s)
           end
         end
-      
+
         def dump_summary(duration, example_count, failure_count, pending_count)
           return if dry_run?
           @output.puts
@@ -55,7 +55,7 @@ module Spec
           @output.puts
 
           summary = "#{example_count} example#{'s' unless example_count == 1}, #{failure_count} failure#{'s' unless failure_count == 1}"
-          summary << ", #{pending_count} pending" if pending_count > 0  
+          summary << ", #{pending_count} pending" if pending_count > 0
 
           if failure_count == 0
             if pending_count > 0
@@ -74,23 +74,23 @@ module Spec
             @output.puts
             @output.puts "Pending:"
             @pending_examples.each do |pending_example|
-              @output.puts "#{pending_example[0]} (#{pending_example[1]})" 
+              @output.puts "#{pending_example[0]} (#{pending_example[1]})"
             end
           end
           @output.flush
         end
-        
+
         def close
           if IO === @output
-            @output.close 
+            @output.close
           end
         end
-        
+
         def format_backtrace(backtrace)
           return "" if backtrace.nil?
           backtrace.map { |line| backtrace_line(line) }.join("\n")
         end
-      
+
       protected
 
         def colour?
@@ -100,7 +100,7 @@ module Spec
         def dry_run?
           @options.dry_run ? true : false
         end
-        
+
         def backtrace_line(line)
           line.sub(/\A([^:]+:\d+)$/, '\\1:')
         end
@@ -117,13 +117,13 @@ module Spec
             false
           end
         end
-        
+
         def green(text); colour(text, "\e[32m"); end
         def red(text); colour(text, "\e[31m"); end
         def magenta(text); colour(text, "\e[35m"); end
         def yellow(text); colour(text, "\e[33m"); end
         def blue(text); colour(text, "\e[34m"); end
-        
+
       end
     end
   end

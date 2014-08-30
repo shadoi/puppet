@@ -3,7 +3,7 @@ require 'puppet/rails/param_value'
 
 class Puppet::Rails::ParamName < ActiveRecord::Base
     include Puppet::Util::CollectionMerger
-    has_many :param_values, :dependent => :destroy 
+    has_many :param_values, :dependent => :destroy
 
     def to_resourceparam(resource, source)
         hash = {}

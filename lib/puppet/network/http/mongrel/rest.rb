@@ -24,14 +24,14 @@ class Puppet::Network::HTTP::MongrelREST < Mongrel::HttpHandler
 
     # what path was requested?
     def path(request)
-        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
         x = '/' + request.params[Mongrel::Const::REQUEST_PATH].split('/')[1]
     end
 
     # return the key included in the request path
     def request_key(request)
-        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com] 
-        x = request.params[Mongrel::Const::REQUEST_PATH].split('/')[2]        
+        # LAK:NOTE See http://snurl.com/21zf8  [groups_google_com]
+        x = request.params[Mongrel::Const::REQUEST_PATH].split('/')[2]
     end
 
     # return the request body

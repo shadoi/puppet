@@ -7,10 +7,10 @@ module Puppet
     # including calling 'sync' on the properties and producing events.
 	class PropertyChange
         attr_accessor :is, :should, :type, :path, :property, :transaction, :changed, :proxy
-        
+
         # The log file generated when this object was changed.
         attr_reader :report
-        
+
         # Switch the goals of the property, thus running the change in reverse.
         def backward
             @property.should = @is
@@ -30,7 +30,7 @@ module Puppet
                 return nil
             end
         end
-        
+
         def changed?
             self.changed
         end
@@ -44,7 +44,7 @@ module Puppet
 
                 event = @property.resource.class.name.id2name + "_changed"
             end
-            
+
             Puppet::Event.new(
                 :event => name,
                 :transaction => @transaction,
@@ -90,7 +90,7 @@ module Puppet
             else
                 events = [events]
             end
-            
+
             return events.collect { |name|
                 @report = @property.log(@property.change_to_s(@is, @should))
                 event(name)
@@ -108,11 +108,11 @@ module Puppet
 
             return self.go
         end
-        
+
         def noop
             return @property.noop
         end
-        
+
         def skip?
             if @property.insync?(@is)
                 @property.info "Already in sync"
@@ -127,7 +127,7 @@ module Puppet
             end
             return false
         end
-        
+
         def source
             self.proxy || @property.resource
         end

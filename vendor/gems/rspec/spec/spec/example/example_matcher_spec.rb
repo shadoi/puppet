@@ -7,15 +7,15 @@ module Spec
         def initialize(description)
           @description = description
         end
-        
+
         def matches?(matcher)
           matcher.matches?(@description)
         end
-        
+
         def failure_message
           "expected matcher.matches?(#{@description.inspect}) to return true, got false"
         end
-        
+
         def negative_failure_message
           "expected matcher.matches?(#{@description.inspect}) to return false, got true"
         end
@@ -27,22 +27,22 @@ module Spec
 
     describe ExampleMatcher, "#matches?" do
       include ExampleMatcherSpecHelper
-      
+
       it "should match correct example_group and example" do
         matcher = ExampleMatcher.new("example_group", "example")
         matcher.should match_description("example_group example")
       end
-      
+
       it "should not match wrong example" do
         matcher = ExampleMatcher.new("example_group", "other example")
         matcher.should_not match_description("example_group example")
       end
-      
+
       it "should not match wrong example_group" do
         matcher = ExampleMatcher.new("other example_group", "example")
         matcher.should_not match_description("example_group example")
       end
-      
+
       it "should match example only" do
         matcher = ExampleMatcher.new("example_group", "example")
         matcher.should match_description("example")
@@ -57,16 +57,16 @@ module Spec
         matcher = ExampleMatcher.new("example_group", "example")
         matcher.should match_description("example_group before(:all)")
       end
-      
+
       it "should escape regexp chars" do
         matcher = ExampleMatcher.new("(con|text)", "[example]")
         matcher.should_not match_description("con p")
       end
-      
+
       it "should match when example_group is modularized" do
         matcher = ExampleMatcher.new("MyModule::MyClass", "example")
         matcher.should match_description("MyClass example")
-      end      
+      end
     end
 
     describe ExampleMatcher, "#matches? normal case" do
